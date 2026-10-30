@@ -111,11 +111,11 @@ try{
 	}
 
 // ../../../packages/lib/src/client/callback.ts
-	const resource = GetCurrentResourceName();
-	const log$1 = createLogger(resource);
+	const resource$1 = GetCurrentResourceName();
+	const log$1 = createLogger(resource$1);
 	const pending = /* @__PURE__ */ new Map();
 	let nextId = 0;
-	onNet(responseEvent(resource), (id, ok, result) => {
+	onNet(responseEvent(resource$1), (id, ok, result) => {
 		if (!fromServer()) return;
 		const entry = typeof id === "number" ? pending.get(id) : void 0;
 		if (!entry) return;
@@ -140,7 +140,7 @@ try{
 				reject,
 				timer
 			});
-			emitNet(requestEvent(name), resource, id, ...args);
+			emitNet(requestEvent(name), resource$1, id, ...args);
 		});
 	}
 
@@ -166,10 +166,16 @@ try{
 		activeGangChangedEvent: "ai-core:activeGangChanged",
 		/** (src, charIds: number[]) each time a player's character screen loads; an appearance resource answers with portraits. */
 		characterScreenEvent: "ai-core:characterScreen",
+		/** (resource: string | null) the inventory behind ai-core's inventory layer changed (the bridge drops its item cache). */
+		inventoryChangedEvent: "ai-core:inventoryChanged",
+		/** (src, name: string, status: Record<string, number> | null) a player used an item; status = the needs it gives, from inventories that define them. */
+		itemUsedEvent: "ai-core:itemUsed",
 		clientPlayerLoadedEvent: "ai-core:client:playerLoaded",
 		clientPlayerUnloadedEvent: "ai-core:client:playerUnloaded",
 		/** (charId: number, url: string) a portrait image of a character on the character screen (e.g. `https://nui-img/<txd>/<txd>`). */
 		clientCharacterPortraitEvent: "ai-core:client:characterPortrait",
+		/** (charId: number) ai-appearance holds this character's look: ai-core dresses its scene ped with `ApplyCharacterAppearance`. */
+		clientCharacterLookEvent: "ai-core:client:characterLook",
 		/** (resource: string, id: string) the interaction key was pressed while that resource's prompt was on top. */
 		clientPromptPressedEvent: "ai-core:client:promptPressed",
 		/** (key: keyof PlayerCache, value) a cached value of the local player changed (one watcher in ai-core for every resource). */
@@ -191,9 +197,12 @@ try{
 	const ADMIN = {
 		/** ACE every panel action checks: `add_ace group.admin ai.admin allow`. */
 		ace: "ai.admin",
+		/** Callback: (keybinds: KeybindInfo[] the admin's client knows) -> AdminPanelSnapshot[]. */
 		openCallback: "ai-core:admin:open",
 		applyCallback: "ai-core:admin:apply",
 		closeEvent: "ai-core:admin:close",
+		/** Server -> client: () open the panel (the `aiadmin` command, checked on the server). */
+		showEvent: "ai-core:admin:show",
 		/** Server -> admins with the panel open: (delta: AdminDelta). */
 		deltaEvent: "ai-core:admin:delta",
 		/** Server -> client of a world (`sync: "all"`) file: (file, key | null, value). Prefixed with the resource name. */
@@ -212,6 +221,15 @@ try{
 		inputResult: "ai-core:client:inputResult"
 	};
 
+// ../../../packages/shared/src/commands.ts
+/** Client local events between the lib's `Keybind` and ai-core's client. */
+	const KEYBIND = {
+		/** lib -> ai-core: (info: KeybindInfo) a keybind waits for its default key. */
+		announceEvent: "ai-core:client:keybind",
+		/** ai-core -> lib: (resource, name, key) the default key to register: the panel's value, else the script's. */
+		keyEvent: "ai-core:client:keybindKey"
+	};
+
 // ../../../packages/lib/src/client/adminWorld.ts
 /**
 	* The client copy of a resource's world panel files (`sync: "all"`): the file FiveM cached at start, then the
@@ -221,6 +239,8 @@ try{
 		data = /* @__PURE__ */ new Map();
 		handlers = /* @__PURE__ */ new Map();
 		resource = GetCurrentResourceName();
+		/** Resolves once the changes since start are applied (or could not be loaded): the data is current from then on. */
+		ready;
 		/** `files`: the world files this client mirrors (each must be in the resource's `files`). */
 		constructor(files) {
 			const log = createLogger(this.resource);
@@ -239,7 +259,7 @@ try{
 				typeof key === "string" && key !== "" ? key : void 0,
 				value
 			] : null }, (file, key, value) => this.put(file, key, value));
-			triggerServerCallback(ADMIN.worldChangesCallback(this.resource)).then((changes) => {
+			this.ready = triggerServerCallback(ADMIN.worldChangesCallback(this.resource)).then((changes) => {
 				if (!isRecord(changes)) return;
 				for (const [file, records] of Object.entries(changes)) {
 					if (!isRecord(records)) continue;
@@ -496,6 +516,10 @@ try{
 	function resourceExport(resource) {
 		return globalThis.exports[resource];
 	}
+	/** Whether a resource is running now. */
+	function isResourceStarted(resource) {
+		return GetResourceState(resource) === "started";
+	}
 
 // ../../../packages/lib/src/client/prompt.ts
 /**
@@ -611,24 +635,62 @@ try{
 	const MOD_TYPES = Array.from({ length: 50 }, (_, i) => i);
 
 // ../../../packages/lib/src/client/keybind.ts
-/** A key the player can rebind in GTA's settings (RegisterKeyMapping); no per-frame key polling. */
+	const resource = GetCurrentResourceName();
+	/** Keybinds of this resource waiting for ai-core's answer (the panel's default key, else their own). */
+	const waiting = /* @__PURE__ */ new Map();
+	let listening = false;
+	/** Asks ai-core's client for the default key (it knows the panel's keybind defaults); without ai-core the script's own. */
+	function requestKey(info, apply) {
+		if (resource !== CORE.resource && !isResourceStarted(CORE.resource)) return apply(info.defaultKey);
+		if (!listening) {
+			listening = true;
+			on(KEYBIND.keyEvent, (owner, name, key) => {
+				if (owner !== resource || typeof name !== "string" || typeof key !== "string") return;
+				const done = waiting.get(name);
+				waiting.delete(name);
+				done?.(key);
+			});
+		}
+		waiting.set(info.name, apply);
+		emit(KEYBIND.announceEvent, info);
+		setTimeout(() => {
+			if (waiting.get(info.name) !== apply) return;
+			waiting.delete(info.name);
+			apply(info.defaultKey);
+		}, 15e3);
+	}
+	/**
+	* A key the player can rebind in GTA's settings (RegisterKeyMapping); no per-frame key polling. The default key
+	* comes from ai-core's admin panel when set there: the mapping command carries the key (`+<name>_<key>`), so a new
+	* default makes a new mapping that every player gets. It is registered once ai-core answered (at start).
+	*/
 	var Keybind = class {
 		options;
 		name;
 		disabled;
 		pressed = false;
-		hash;
+		hash = 0;
 		constructor(options) {
 			this.options = options;
 			this.name = options.name;
 			this.disabled = options.disabled ?? false;
-			this.hash = GetHashKey(`+${options.name}`) | 2147483648;
-			RegisterCommand(`+${options.name}`, () => this.press(true), false);
-			RegisterCommand(`-${options.name}`, () => this.press(false), false);
-			RegisterKeyMapping(`+${options.name}`, options.description, options.defaultMapper ?? "keyboard", options.defaultKey ?? "");
+			requestKey({
+				resource,
+				name: options.name,
+				description: options.description,
+				defaultKey: options.defaultKey ?? "",
+				mapper: options.defaultMapper ?? "keyboard"
+			}, (key) => this.register(key.toUpperCase()));
+		}
+		register(key) {
+			const command = key ? `${this.name}_${key}` : this.name;
+			this.hash = GetHashKey(`+${command}`) | 2147483648;
+			RegisterCommand(`+${command}`, () => this.press(true), false);
+			RegisterCommand(`-${command}`, () => this.press(false), false);
+			RegisterKeyMapping(`+${command}`, this.options.description, this.options.defaultMapper ?? "keyboard", key);
 			setTimeout(() => {
-				emit("chat:removeSuggestion", `/+${options.name}`);
-				emit("chat:removeSuggestion", `/-${options.name}`);
+				emit("chat:removeSuggestion", `/+${command}`);
+				emit("chat:removeSuggestion", `/-${command}`);
 			}, 500);
 		}
 		press(down) {
@@ -641,9 +703,9 @@ try{
 		get isPressed() {
 			return this.pressed;
 		}
-		/** The key the player has bound right now, for HUD hints. */
+		/** The key the player has bound right now, for HUD hints ("" until the mapping is registered). */
 		get currentKey() {
-			return GetControlInstructionalButton(0, this.hash, true).substring(2);
+			return this.hash ? GetControlInstructionalButton(0, this.hash, true).substring(2) : "";
 		}
 		disable(disabled) {
 			this.disabled = disabled;
@@ -942,13 +1004,13 @@ try{
 	const driving = new Driving();
 	on("onResourceStop", (resource) => resource === ResourceName && LocalPlayer.state.set("seatbelt", null, false));
 	new Keybind({
-		name: "smallresources_belt_B",
+		name: "smallresources_belt",
 		description: Locale("KEYBIND_SEATBELT"),
 		defaultKey: "B",
 		onPressed: () => driving.toggleBelt()
 	});
 	new Keybind({
-		name: "smallresources_cruise_Y",
+		name: "smallresources_cruise",
 		description: Locale("KEYBIND_CRUISE"),
 		defaultKey: "Y",
 		onPressed: () => driving.toggleCruise()
@@ -975,7 +1037,7 @@ try{
 	};
 	const crouch = new Crouch();
 	new Keybind({
-		name: "smallresources_crouch_X",
+		name: "smallresources_crouch",
 		description: Locale("KEYBIND_CROUCH"),
 		defaultKey: "X",
 		onPressed: () => void crouch.toggle()
@@ -996,7 +1058,7 @@ try{
 		setTimeout(() => SetPedToRagdoll(cache.ped, 1e3, 1e3, 0, false, false, false), 700);
 	}
 	new Keybind({
-		name: "smallresources_tackle_G",
+		name: "smallresources_tackle",
 		description: Locale("KEYBIND_TACKLE"),
 		defaultKey: "G",
 		onPressed: () => void tackle()
@@ -1086,7 +1148,7 @@ try{
 	const binoculars = new Binoculars();
 	onServerEvent(EVENTS.binoculars, () => binoculars.active ? binoculars.close() : binoculars.open());
 	new Keybind({
-		name: "smallresources_binoculars_BACK",
+		name: "smallresources_binoculars",
 		description: Locale("KEYBIND_BINOCULARS_CLOSE"),
 		defaultKey: "BACK",
 		onPressed: () => binoculars.close()
@@ -1169,7 +1231,7 @@ try{
 		if (NetworkIsPlayerActive(player)) gear.apply(player, typeof value === "string" ? value : null);
 	});
 	new Keybind({
-		name: "smallresources_newsview_H",
+		name: "smallresources_newsview",
 		description: Locale("KEYBIND_NEWS_VIEW"),
 		defaultKey: "H",
 		onPressed: () => gear.view()

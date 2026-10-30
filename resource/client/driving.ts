@@ -62,8 +62,8 @@ class Driving {
 
 const driving = new Driving();
 on("onResourceStop", (resource: string) => resource === ResourceName && LocalPlayer.state.set("seatbelt", null, false));
-new Keybind({ name: "smallresources_belt_B", description: Locale("KEYBIND_SEATBELT"), defaultKey: "B", onPressed: () => driving.toggleBelt() });
-new Keybind({ name: "smallresources_cruise_Y", description: Locale("KEYBIND_CRUISE"), defaultKey: "Y", onPressed: () => driving.toggleCruise() });
+new Keybind({ name: "smallresources_belt", description: Locale("KEYBIND_SEATBELT"), defaultKey: "B", onPressed: () => driving.toggleBelt() });
+new Keybind({ name: "smallresources_cruise", description: Locale("KEYBIND_CRUISE"), defaultKey: "Y", onPressed: () => driving.toggleCruise() });
 
 /** Passengers stay in their seat when the driver seat empties. */
 const noShuffle = () => SetPedConfigFlag(cache.ped, 184, content.settings.noShuffle);

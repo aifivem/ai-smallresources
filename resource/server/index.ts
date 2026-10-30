@@ -1,4 +1,4 @@
-import { AdminPanel, onClientCallback, onClientEvent, optionalExport, resourceExport } from "@aicore-fivem/lib/server";
+import { AdminPanel, inventory, onClientCallback, onClientEvent, resourceExport } from "@aicore-fivem/lib/server";
 import { asArgs } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS, FIREWORKS, HOLD_STATE, NEWS_ITEMS, readSettings, readTeleports } from "common/small";
@@ -51,28 +51,26 @@ onClientCallback(EVENTS.fireworkPlaced, { args: ([token]) => asArgs(typeof token
   const place = placing.get(source);
   if (!place || place.token !== token) return fail("SMALL_ERR_FAR");
   placing.delete(source);
-  if (Date.now() - place.startedAt < 2400 || !optionalExport("ai-inventory")?.RemoveItem(source, place.item, 1)) return fail("SMALL_ERR_FAR");
+  if (Date.now() - place.startedAt < 2400 || !inventory.removeItem(source, place.item, 1)) return fail("SMALL_ERR_FAR");
   const p = pos(source);
   for (const player of getPlayers()) if (dist(pos(Number(player)), p) <= 400) emitNet(EVENTS.firework, Number(player), p.x, p.y, p.z - 0.9, place.item);
   return { ok: true };
 });
 
 function registerItems(): void {
-  const inventory = optionalExport("ai-inventory");
-  if (!inventory) return;
-  inventory.RegisterUsableItem("binoculars", (source: number) => {
+  inventory.registerUsableItem("binoculars", (source: number) => {
     if (content.settings.binoculars) emitNet(EVENTS.binoculars, source);
     return false;
   });
   // News items toggle what the player holds; every client attaches the prop from the player state.
   for (const item of Object.keys(NEWS_ITEMS))
-    inventory.RegisterUsableItem(item, (source: number) => {
+    inventory.registerUsableItem(item, (source: number) => {
       const state = Player(source).state;
       state.set(HOLD_STATE, state[HOLD_STATE] === item ? false : item, true);
       return false;
     });
   for (const item of Object.keys(FIREWORKS))
-    inventory.RegisterUsableItem(item, (source: number) => {
+    inventory.registerUsableItem(item, (source: number) => {
       if (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), false)) return false;
       const token = ++nextToken;
       placing.set(source, { token, item, startedAt: Date.now() });
@@ -81,7 +79,6 @@ function registerItems(): void {
     });
 }
 registerItems();
-on("onServerResourceStart", (resource: string) => resource === "ai-inventory" && registerItems());
 
 /** AFK kick: a loaded player who has not moved for the panel's minutes (admins are never kicked). */
 const still = new Map<number, { x: number; y: number; z: number; since: number }>();

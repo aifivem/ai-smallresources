@@ -66,7 +66,7 @@ export class Binoculars {
 
 export const binoculars = new Binoculars();
 onServerEvent(EVENTS.binoculars, () => (binoculars.active ? binoculars.close() : binoculars.open()));
-new Keybind({ name: "smallresources_binoculars_BACK", description: Locale("KEYBIND_BINOCULARS_CLOSE"), defaultKey: "BACK", onPressed: () => binoculars.close() });
+new Keybind({ name: "smallresources_binoculars", description: Locale("KEYBIND_BINOCULARS_CLOSE"), defaultKey: "BACK", onPressed: () => binoculars.close() });
 
 onServerEvent(
   EVENTS.fireworkPlace,

@@ -50,4 +50,4 @@ AddStateBagChangeHandler(HOLD_STATE, "", (bagName: string, _key: string, value: 
   const player = GetPlayerFromStateBagName(bagName);
   if (NetworkIsPlayerActive(player)) void gear.apply(player, typeof value === "string" ? value : null);
 });
-new Keybind({ name: "smallresources_newsview_H", description: Locale("KEYBIND_NEWS_VIEW"), defaultKey: "H", onPressed: () => gear.view() });
+new Keybind({ name: "smallresources_newsview", description: Locale("KEYBIND_NEWS_VIEW"), defaultKey: "H", onPressed: () => gear.view() });

@@ -21,7 +21,7 @@ class Crouch {
 }
 
 const crouch = new Crouch();
-new Keybind({ name: "smallresources_crouch_X", description: Locale("KEYBIND_CROUCH"), defaultKey: "X", onPressed: () => void crouch.toggle() });
+new Keybind({ name: "smallresources_crouch", description: Locale("KEYBIND_CROUCH"), defaultKey: "X", onPressed: () => void crouch.toggle() });
 
 /** Sprinting into a player in front knocks both down; the server checks the distance. */
 async function tackle(): Promise<void> {
@@ -38,7 +38,7 @@ async function tackle(): Promise<void> {
   TaskPlayAnim(cache.ped, dict, "mic_2_ig_11_intro_goon", 8.0, -8.0, 1200, 0, 0, false, false, false);
   setTimeout(() => SetPedToRagdoll(cache.ped, 1000, 1000, 0, false, false, false), 700);
 }
-new Keybind({ name: "smallresources_tackle_G", description: Locale("KEYBIND_TACKLE"), defaultKey: "G", onPressed: () => void tackle() });
+new Keybind({ name: "smallresources_tackle", description: Locale("KEYBIND_TACKLE"), defaultKey: "G", onPressed: () => void tackle() });
 onServerEvent(EVENTS.tackled, () => SetPedToRagdoll(cache.ped, 3000, 3000, 0, false, false, false));
 
 /** No police, ambulance or fire dispatch and no wanted level; GTA's own HUD pieces the ai-hud replaces stay hidden. */
