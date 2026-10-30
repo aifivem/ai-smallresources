@@ -37,7 +37,7 @@ const crouch = new Crouch();
 new Keybind({
   name: "smallresources_crouch",
   description: Locale("KEYBIND_CROUCH"),
-  defaultKey: "X",
+  defaultKey: "LCONTROL",
   onPressed: () => void crouch.toggle(),
 });
 

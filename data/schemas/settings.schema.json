@@ -8,7 +8,7 @@
       "description": "This file's JSON Schema (for editors)."
     },
     "seatbelt": {
-      "description": "Seatbelt: B buckles up in cars; a buckled player cannot leave the vehicle and survives faster crashes.",
+      "description": "Seatbelt: K buckles up in cars; a buckled player cannot leave the vehicle and survives faster crashes.",
       "type": "boolean"
     },
     "ejectUnbelted": {
@@ -44,7 +44,7 @@
       "type": "boolean"
     },
     "crouch": {
-      "description": "Crouch: X toggles a crouched walk.",
+      "description": "Crouch: Left Ctrl toggles a crouched walk.",
       "type": "boolean"
     },
     "tackle": {
@@ -56,11 +56,11 @@
       "type": "boolean"
     },
     "handsUp": {
-      "description": "Hands up: U raises the hands, also in a vehicle (no fighting, aiming or getting in while they are up); U again lowers them. Other scripts ask the client export IsHandsUp.",
+      "description": "Hands up: X raises the hands, also in a vehicle (no fighting, aiming or getting in while they are up); X again lowers them. Other scripts ask the client export IsHandsUp.",
       "type": "boolean"
     },
     "ragdoll": {
-      "description": "Fall over: While M is held on foot the player falls over and lies limp.",
+      "description": "Fall over: While its key is held (set one in the Keybinds tab) on foot the player falls over and lies limp.",
       "type": "boolean"
     },
     "carry": {

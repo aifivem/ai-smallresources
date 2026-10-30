@@ -20,7 +20,7 @@
   "ADMIN_C_DRIVING": "Driving",
   "ADMIN_C_DRIVING_DESC": "Seatbelt, cruise control, seats, radio, plates and boats.",
   "ADMIN_F_SEATBELT": "Seatbelt",
-  "ADMIN_H_SEATBELT": "B buckles up in cars; a buckled player cannot leave the vehicle and survives faster crashes.",
+  "ADMIN_H_SEATBELT": "K buckles up in cars; a buckled player cannot leave the vehicle and survives faster crashes.",
   "ADMIN_F_EJECT_UNBELTED": "Thrown out without belt",
   "ADMIN_H_EJECT": "A crash above this speed throws the driver through the windscreen.",
   "ADMIN_F_EJECT_BELTED": "Thrown out with belt",
@@ -31,7 +31,7 @@
   "ADMIN_C_PLAYER": "Player",
   "ADMIN_C_PLAYER_DESC": "Movement, gestures and idle players.",
   "ADMIN_F_CROUCH": "Crouch",
-  "ADMIN_H_CROUCH": "X toggles a crouched walk.",
+  "ADMIN_H_CROUCH": "Left Ctrl toggles a crouched walk.",
   "ADMIN_F_TACKLE": "Tackle",
   "ADMIN_H_TACKLE": "G while sprinting knocks down the player right in front.",
   "ADMIN_F_BINOCULARS": "Binoculars item",
@@ -181,8 +181,8 @@
   "ADMIN_F_SEAT_HEADING": "Facing",
   "KEYBIND_HANDS_UP": "Hands up",
   "ADMIN_F_HANDS_UP": "Hands up",
-  "ADMIN_H_HANDS_UP": "U raises the hands, also in a vehicle (no fighting, aiming or getting in while they are up); U again lowers them. Other scripts ask the client export IsHandsUp.",
+  "ADMIN_H_HANDS_UP": "X raises the hands, also in a vehicle (no fighting, aiming or getting in while they are up); X again lowers them. Other scripts ask the client export IsHandsUp.",
   "KEYBIND_RAGDOLL": "Fall over (hold)",
   "ADMIN_F_RAGDOLL": "Fall over",
-  "ADMIN_H_RAGDOLL": "While M is held on foot the player falls over and lies limp."
+  "ADMIN_H_RAGDOLL": "While its key is held (set one in the Keybinds tab) on foot the player falls over and lies limp."
 }

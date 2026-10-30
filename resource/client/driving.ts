@@ -108,7 +108,8 @@ on(
 new Keybind({
   name: "smallresources_belt",
   description: Locale("KEYBIND_SEATBELT"),
-  defaultKey: "B",
+  defaultKey: "K",
+  hint: "vehicle",
   onPressed: () => driving.toggleBelt(),
 });
 new Keybind({
