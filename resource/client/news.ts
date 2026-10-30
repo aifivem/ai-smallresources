@@ -1,9 +1,4 @@
-import {
-  cache,
-  Keybind,
-  player as localPlayer,
-  requestModel,
-} from "@aicore-fivem/lib/client";
+import { cache, Keybind, player as localPlayer, PlayerState, requestModel, stateString } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
 import { HOLD_STATE, NEWS_ITEMS } from "common/small";
 import { binoculars } from "./items";
@@ -69,15 +64,10 @@ class NewsGear {
 }
 
 const gear = new NewsGear();
-AddStateBagChangeHandler(
-  HOLD_STATE,
-  "",
-  (bagName: string, _key: string, value: unknown) => {
-    const player = GetPlayerFromStateBagName(bagName);
-    if (NetworkIsPlayerActive(player))
-      void gear.apply(player, typeof value === "string" ? value : null);
-  },
-);
+new PlayerState(HOLD_STATE, stateString).onChange((serverId, item) => {
+  const player = GetPlayerFromServerId(serverId);
+  if (NetworkIsPlayerActive(player)) void gear.apply(player, item ?? null);
+});
 new Keybind({
   name: "smallresources_newsview",
   description: Locale("KEYBIND_NEWS_VIEW"),

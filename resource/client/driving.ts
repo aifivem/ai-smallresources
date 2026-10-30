@@ -1,10 +1,5 @@
-import {
-  cache,
-  Keybind,
-  notify,
-  onCache,
-  TickLoop,
-} from "@aicore-fivem/lib/client";
+import { SEATBELT_EVENT } from "@aicore-fivem/shared";
+import { cache, Keybind, notify, onCache, registerExport, TickLoop } from "@aicore-fivem/lib/client";
 import { Locale, ResourceName } from "common";
 import { content, onSettings } from "./settings";
 
@@ -31,14 +26,19 @@ class Driving {
     });
   }
 
+  /** The belt as HUDs show it: a local event on change, the export for late starters. */
+  worn: boolean | null = null;
+
+  announce(worn: boolean | null): void {
+    if (worn === this.worn) return;
+    this.worn = worn;
+    emit(SEATBELT_EVENT, worn);
+  }
+
   private applyEject(): void {
     // The HUD shows the belt warning only while this state is a boolean.
     if (!content.settings.seatbelt && this.belted) this.setBelt(false);
-    LocalPlayer.state.set(
-      "seatbelt",
-      content.settings.seatbelt ? this.belted : null,
-      false,
-    );
+    this.announce(content.settings.seatbelt ? this.belted : null);
     const kmh = this.belted
       ? content.settings.ejectBelted
       : content.settings.ejectUnbelted;
@@ -91,10 +91,11 @@ class Driving {
 }
 
 const driving = new Driving();
+registerExport("GetSeatbelt", () => driving.worn);
 on(
   "onResourceStop",
   (resource: string) =>
-    resource === ResourceName && LocalPlayer.state.set("seatbelt", null, false),
+    resource === ResourceName && driving.announce(null),
 );
 new Keybind({
   name: "smallresources_belt",

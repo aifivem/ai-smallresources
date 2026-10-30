@@ -1,11 +1,4 @@
-import {
-  AdminPanel,
-  inventory,
-  onClientCallback,
-  onClientEvent,
-  online,
-  resourceExport,
-} from "@aicore-fivem/lib/server";
+import { AdminPanel, inventory, onClientCallback, onClientEvent, online, PlayerState, resourceExport, stateString } from "@aicore-fivem/lib/server";
 import { asArgs } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import {
@@ -17,6 +10,8 @@ import {
   readTeleports,
 } from "common/small";
 import { smallSchema } from "./schema";
+
+const hold = new PlayerState(HOLD_STATE, stateString);
 
 const core = resourceExport("ai-core");
 const panel = new AdminPanel(smallSchema);
@@ -136,8 +131,7 @@ function registerItems(): void {
   // News items toggle what the player holds; every client attaches the prop from the player state.
   for (const item of Object.keys(NEWS_ITEMS))
     inventory.registerUsableItem(item, (source: number) => {
-      const state = Player(source).state;
-      state.set(HOLD_STATE, state[HOLD_STATE] === item ? false : item, true);
+      hold.set(source, hold.get(source) === item ? undefined : item);
       return false;
     });
   for (const item of Object.keys(FIREWORKS))
