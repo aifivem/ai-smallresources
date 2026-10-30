@@ -1,5 +1,5 @@
-import "./driving";
-import "./player";
-import "./items";
-import "./news";
-import "./teleports";
+import "./driving"
+import "./player"
+import "./items"
+import "./news"
+import "./teleports"
