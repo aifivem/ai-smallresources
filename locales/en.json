@@ -184,5 +184,9 @@
   "ADMIN_H_HANDS_UP": "X raises the hands, also in a vehicle (no fighting, aiming or getting in while they are up); X again lowers them. Other scripts ask the client export IsHandsUp.",
   "KEYBIND_RAGDOLL": "Fall over (hold)",
   "ADMIN_F_RAGDOLL": "Fall over",
-  "ADMIN_H_RAGDOLL": "While its key is held (set one in the Keybinds tab) on foot the player falls over and lies limp."
+  "ADMIN_H_RAGDOLL": "While its key is held (set one in the Keybinds tab) on foot the player falls over and lies limp.",
+  "HINT_BELT": "Seatbelt",
+  "HINT_POINT": "Point",
+  "HINT_HANDSUP": "Hands up",
+  "HINT_RAGDOLL": "Fall over"
 }

@@ -111,6 +111,7 @@ new Keybind({
   defaultKey: "K",
   hint: "vehicle",
   icon: "user-shield",
+  hintLabel: Locale("HINT_BELT"),
   onPressed: () => driving.toggleBelt(),
 });
 new Keybind({
