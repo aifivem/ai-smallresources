@@ -1,16 +1,17 @@
 {
+  "$schema": "./schemas/teleports.schema.json",
   "weazel_tower": {
     "label": "Weazel News office",
     "from": {
       "x": -598.4,
       "y": -929.85,
-      "z": 24.0,
+      "z": 24,
       "heading": 271.5
     },
     "to": {
       "x": -77.55,
       "y": -833.75,
-      "z": 243.0,
+      "z": 243,
       "heading": 67.5
     },
     "job": ""

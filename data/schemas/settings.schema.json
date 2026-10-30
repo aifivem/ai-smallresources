@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ai-smallresources/data/settings.json",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "This file's JSON Schema (for editors)."
+    },
+    "seatbelt": {
+      "description": "Seatbelt: B buckles up in cars; a buckled player cannot leave the vehicle and survives faster crashes.",
+      "type": "boolean"
+    },
+    "ejectUnbelted": {
+      "description": "Thrown out without belt: A crash above this speed throws the driver through the windscreen.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 500
+    },
+    "ejectBelted": {
+      "description": "Thrown out with belt",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 500
+    },
+    "cruise": {
+      "description": "Cruise control: Y holds the current speed as the vehicle's top speed until pressed again.",
+      "type": "boolean"
+    },
+    "crouch": {
+      "description": "Crouch: X toggles a crouched walk.",
+      "type": "boolean"
+    },
+    "noShuffle": {
+      "description": "No seat shuffle: A passenger stays in their seat when the driver gets out.",
+      "type": "boolean"
+    },
+    "noDispatch": {
+      "description": "No GTA police: No wanted level and no AI police, ambulance or fire trucks.",
+      "type": "boolean"
+    },
+    "hideHud": {
+      "description": "Hide GTA HUD parts: Hides GTA's cash, area, street and vehicle names (the ai-hud shows its own).",
+      "type": "boolean"
+    },
+    "tackle": {
+      "description": "Tackle: G while sprinting knocks down the player right in front.",
+      "type": "boolean"
+    },
+    "afkMinutes": {
+      "description": "AFK kick: Players who do not move for this long are kicked (admins never). 0 turns it off.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 600
+    },
+    "binoculars": {
+      "description": "Binoculars item: Using binoculars opens a zoom camera.",
+      "type": "boolean"
+    },
+    "fireworks": {
+      "description": "Firework items: Fireworks are placed on the ground and go off after 5 seconds.",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "seatbelt",
+    "ejectUnbelted",
+    "ejectBelted",
+    "cruise",
+    "crouch",
+    "noShuffle",
+    "noDispatch",
+    "hideHud",
+    "tackle",
+    "afkMinutes",
+    "binoculars",
+    "fireworks"
+  ]
+}

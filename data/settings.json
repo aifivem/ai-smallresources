@@ -1,4 +1,5 @@
 {
+  "$schema": "./schemas/settings.schema.json",
   "seatbelt": true,
   "ejectUnbelted": 20,
   "ejectBelted": 160,
