@@ -73,6 +73,16 @@ export function readTeleports(raw: unknown): Map<string, Teleport> {
   return out;
 }
 
+/** Player state key (server written): the news item the player holds, or false. */
+export const HOLD_STATE = "aiHold";
+
+/** News items: the prop, where it sits on the ped and the animation the holder plays. */
+export const NEWS_ITEMS: Record<string, { model: string; bone: number; offset: [number, number, number, number, number, number]; dict: string; clip: string }> = {
+  newscam: { model: "prop_v_cam_01", bone: 28422, offset: [0, 0, 0, 0, 0, 0], dict: "missfinale_c2mcs_1", clip: "fin_c2_mcs_1_camman" },
+  newsmic: { model: "p_ing_microphonel_01", bone: 60309, offset: [0.055, 0.05, 0, 240, 0, 0], dict: "missheistdocksprep1hold_cellphone", clip: "hold_cellphone" },
+  newsboom: { model: "prop_v_bmike_01", bone: 28422, offset: [-0.08, 0, 0, 0, 0, 0], dict: "missfra1", clip: "mcs2_crew_idle_m_boom" },
+};
+
 /** Firework items and the particle asset and effects each one shows. */
 export const FIREWORKS: Record<string, { asset: string; effects: string[] }> = {
   firework1: { asset: "proj_indep_firework", effects: ["scr_indep_firework_grd_burst", "scr_indep_launcher_sparkle_spawn", "scr_indep_firework_air_burst", "proj_indep_flare_trail"] },

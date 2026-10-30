@@ -24633,6 +24633,53 @@ function readTeleports(raw) {
 	}
 	return out;
 }
+/** Player state key (server written): the news item the player holds, or false. */
+const HOLD_STATE = "aiHold";
+/** News items: the prop, where it sits on the ped and the animation the holder plays. */
+const NEWS_ITEMS = {
+	newscam: {
+		model: "prop_v_cam_01",
+		bone: 28422,
+		offset: [
+			0,
+			0,
+			0,
+			0,
+			0,
+			0
+		],
+		dict: "missfinale_c2mcs_1",
+		clip: "fin_c2_mcs_1_camman"
+	},
+	newsmic: {
+		model: "p_ing_microphonel_01",
+		bone: 60309,
+		offset: [
+			.055,
+			.05,
+			0,
+			240,
+			0,
+			0
+		],
+		dict: "missheistdocksprep1hold_cellphone",
+		clip: "hold_cellphone"
+	},
+	newsboom: {
+		model: "prop_v_bmike_01",
+		bone: 28422,
+		offset: [
+			-.08,
+			0,
+			0,
+			0,
+			0,
+			0
+		],
+		dict: "missfra1",
+		clip: "mcs2_crew_idle_m_boom"
+	}
+};
 /** Firework items and the particle asset and effects each one shows. */
 const FIREWORKS = {
 	firework1: {
@@ -24970,6 +25017,11 @@ function registerItems() {
 	if (!inventory) return;
 	inventory.RegisterUsableItem("binoculars", (source) => {
 		if (content.settings.binoculars) emitNet(EVENTS.binoculars, source);
+		return false;
+	});
+	for (const item of Object.keys(NEWS_ITEMS)) inventory.RegisterUsableItem(item, (source) => {
+		const state = Player(source).state;
+		state.set(HOLD_STATE, state["aiHold"] === item ? false : item, true);
 		return false;
 	});
 	for (const item of Object.keys(FIREWORKS)) inventory.RegisterUsableItem(item, (source) => {

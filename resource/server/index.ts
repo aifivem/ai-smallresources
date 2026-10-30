@@ -1,7 +1,7 @@
 import { AdminPanel, onClientCallback, onClientEvent, optionalExport, resourceExport } from "@aicore-fivem/lib/server";
 import { asArgs } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
-import { EVENTS, FIREWORKS, readSettings, readTeleports } from "common/small";
+import { EVENTS, FIREWORKS, HOLD_STATE, NEWS_ITEMS, readSettings, readTeleports } from "common/small";
 import { smallSchema } from "./schema";
 
 const core = resourceExport("ai-core");
@@ -64,6 +64,13 @@ function registerItems(): void {
     if (content.settings.binoculars) emitNet(EVENTS.binoculars, source);
     return false;
   });
+  // News items toggle what the player holds; every client attaches the prop from the player state.
+  for (const item of Object.keys(NEWS_ITEMS))
+    inventory.RegisterUsableItem(item, (source: number) => {
+      const state = Player(source).state;
+      state.set(HOLD_STATE, state[HOLD_STATE] === item ? false : item, true);
+      return false;
+    });
   for (const item of Object.keys(FIREWORKS))
     inventory.RegisterUsableItem(item, (source: number) => {
       if (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), false)) return false;

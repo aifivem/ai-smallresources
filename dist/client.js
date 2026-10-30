@@ -518,7 +518,18 @@ try{
 	}
 
 // ../../../packages/lib/src/client/streaming.ts
-/** Loads an animation dictionary. Call `RemoveAnimDict(dict)` when it is no longer played. */
+/**
+	* Loads a model and resolves with its hash. Rejects when the model does not exist or does not load in time.
+	* Call `SetModelAsNoLongerNeeded(hash)` once the entity is created.
+	*/
+	async function requestModel(model, timeoutMs = 1e4) {
+		const hash = typeof model === "number" ? model : GetHashKey(model);
+		if (!IsModelInCdimage(hash)) throw new Error(`model ${model} does not exist`);
+		RequestModel(hash);
+		await waitFor(() => HasModelLoaded(hash) || void 0, timeoutMs);
+		return hash;
+	}
+	/** Loads an animation dictionary. Call `RemoveAnimDict(dict)` when it is no longer played. */
 	async function requestAnimDict(dict, timeoutMs = 1e4) {
 		if (!DoesAnimDictExist(dict)) throw new Error(`anim dict ${dict} does not exist`);
 		RequestAnimDict(dict);
@@ -762,6 +773,53 @@ try{
 		}
 		return out;
 	}
+	/** Player state key (server written): the news item the player holds, or false. */
+	const HOLD_STATE = "aiHold";
+	/** News items: the prop, where it sits on the ped and the animation the holder plays. */
+	const NEWS_ITEMS = {
+		newscam: {
+			model: "prop_v_cam_01",
+			bone: 28422,
+			offset: [
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			],
+			dict: "missfinale_c2mcs_1",
+			clip: "fin_c2_mcs_1_camman"
+		},
+		newsmic: {
+			model: "p_ing_microphonel_01",
+			bone: 60309,
+			offset: [
+				.055,
+				.05,
+				0,
+				240,
+				0,
+				0
+			],
+			dict: "missheistdocksprep1hold_cellphone",
+			clip: "hold_cellphone"
+		},
+		newsboom: {
+			model: "prop_v_bmike_01",
+			bone: 28422,
+			offset: [
+				-.08,
+				0,
+				0,
+				0,
+				0,
+				0
+			],
+			dict: "missfra1",
+			clip: "mcs2_crew_idle_m_boom"
+		}
+	};
 	/** Firework items and the particle asset and effects each one shows. */
 	const FIREWORKS = {
 		firework1: {
@@ -973,7 +1031,10 @@ try{
 // resource/client/items.ts
 	const MAX_FOV = 70;
 	const MIN_FOV = 5;
-	/** The binoculars item: a scripted camera at the head with GTA's binocular overlay; scroll zooms, Backspace closes. */
+	/**
+	* A handheld camera view: the binoculars item (binocular overlay, scenario) or the held news camera (news overlay,
+	* the holding animation keeps running); scroll zooms, Backspace closes.
+	*/
 	var Binoculars = class {
 		cam = 0;
 		scaleform = 0;
@@ -982,21 +1043,23 @@ try{
 		get active() {
 			return this.cam !== 0;
 		}
-		open() {
+		news = false;
+		open(news = false) {
 			if (this.active || cache.vehicle !== false || IsPedSwimming(cache.ped)) return;
-			TaskStartScenarioInPlace(cache.ped, "WORLD_HUMAN_BINOCULARS", 0, true);
+			this.news = news;
+			if (!news) TaskStartScenarioInPlace(cache.ped, "WORLD_HUMAN_BINOCULARS", 0, true);
 			this.cam = CreateCam("DEFAULT_SCRIPTED_FLY_CAMERA", true);
 			AttachCamToEntity(this.cam, cache.ped, 0, .2, .7, true);
 			SetCamRot(this.cam, 0, 0, GetEntityHeading(cache.ped), 2);
 			SetCamFov(this.cam, this.fov);
 			RenderScriptCams(true, false, 500, true, false);
-			this.scaleform = RequestScaleformMovie("BINOCULARS");
+			this.scaleform = RequestScaleformMovie(news ? "BREAKING_NEWS" : "BINOCULARS");
 			this.frame.set(true);
 		}
 		close() {
 			if (!this.active) return;
 			this.frame.set(false);
-			ClearPedTasks(cache.ped);
+			if (!this.news) ClearPedTasks(cache.ped);
 			RenderScriptCams(false, false, 500, true, false);
 			DestroyCam(this.cam, false);
 			SetScaleformMovieAsNoLongerNeeded(this.scaleform);
@@ -1058,6 +1121,58 @@ try{
 			await sleep(900);
 		}
 		RemoveNamedPtfxAsset(asset);
+	});
+
+// resource/client/news.ts
+/**
+	* News camera, microphone and boom: the server writes what a player holds into their state; every client puts a local
+	* prop in that player's hand, the holder also plays the animation. Holding the camera, H opens the news view.
+	*/
+	var NewsGear = class {
+		props = /* @__PURE__ */ new Map();
+		held = null;
+		async apply(player, item) {
+			const old = this.props.get(player);
+			if (old) DeleteObject(old);
+			this.props.delete(player);
+			const ped = GetPlayerPed(player);
+			const mine = player === cache.playerId;
+			if (mine) {
+				if (this.held) ClearPedTasks(cache.ped);
+				if (binoculars.active) binoculars.close();
+				this.held = item;
+			}
+			const gear = item ? NEWS_ITEMS[item] : void 0;
+			if (!gear || !ped) return;
+			const model = await requestModel(gear.model).catch(() => 0);
+			if (!model) return;
+			const [x = 0, y = 0, z = 0] = GetEntityCoords(ped, false);
+			const prop = CreateObject(model, x, y, z, false, false, false);
+			const [ox, oy, oz, rx, ry, rz] = gear.offset;
+			AttachEntityToEntity(prop, ped, GetPedBoneIndex(ped, gear.bone), ox, oy, oz, rx, ry, rz, true, true, false, true, 0, true);
+			SetModelAsNoLongerNeeded(model);
+			this.props.set(player, prop);
+			if (mine) {
+				const dict = await requestAnimDict(gear.dict);
+				TaskPlayAnim(cache.ped, dict, gear.clip, 1, -1, -1, 50, 0, false, false, false);
+			}
+		}
+		view() {
+			if (this.held !== "newscam") return;
+			if (binoculars.active) binoculars.close();
+			else binoculars.open(true);
+		}
+	};
+	const gear = new NewsGear();
+	AddStateBagChangeHandler(HOLD_STATE, "", (bagName, _key, value) => {
+		const player = GetPlayerFromStateBagName(bagName);
+		if (NetworkIsPlayerActive(player)) gear.apply(player, typeof value === "string" ? value : null);
+	});
+	new Keybind({
+		name: "smallresources_newsview_H",
+		description: Locale("KEYBIND_NEWS_VIEW"),
+		defaultKey: "H",
+		onPressed: () => gear.view()
 	});
 
 // resource/client/teleports.ts

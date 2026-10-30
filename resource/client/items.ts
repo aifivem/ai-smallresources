@@ -6,8 +6,11 @@ import { EVENTS, FIREWORKS } from "common/small";
 const MAX_FOV = 70;
 const MIN_FOV = 5;
 
-/** The binoculars item: a scripted camera at the head with GTA's binocular overlay; scroll zooms, Backspace closes. */
-class Binoculars {
+/**
+ * A handheld camera view: the binoculars item (binocular overlay, scenario) or the held news camera (news overlay,
+ * the holding animation keeps running); scroll zooms, Backspace closes.
+ */
+export class Binoculars {
   private cam = 0;
   private scaleform = 0;
   private fov = (MAX_FOV + MIN_FOV) / 2;
@@ -17,22 +20,25 @@ class Binoculars {
     return this.cam !== 0;
   }
 
-  open(): void {
+  private news = false;
+
+  open(news = false): void {
     if (this.active || cache.vehicle !== false || IsPedSwimming(cache.ped)) return;
-    TaskStartScenarioInPlace(cache.ped, "WORLD_HUMAN_BINOCULARS", 0, true);
+    this.news = news;
+    if (!news) TaskStartScenarioInPlace(cache.ped, "WORLD_HUMAN_BINOCULARS", 0, true);
     this.cam = CreateCam("DEFAULT_SCRIPTED_FLY_CAMERA", true);
     AttachCamToEntity(this.cam, cache.ped, 0.0, 0.2, 0.7, true);
     SetCamRot(this.cam, 0.0, 0.0, GetEntityHeading(cache.ped), 2);
     SetCamFov(this.cam, this.fov);
     RenderScriptCams(true, false, 500, true, false);
-    this.scaleform = RequestScaleformMovie("BINOCULARS");
+    this.scaleform = RequestScaleformMovie(news ? "BREAKING_NEWS" : "BINOCULARS");
     this.frame.set(true);
   }
 
   close(): void {
     if (!this.active) return;
     this.frame.set(false);
-    ClearPedTasks(cache.ped);
+    if (!this.news) ClearPedTasks(cache.ped);
     RenderScriptCams(false, false, 500, true, false);
     DestroyCam(this.cam, false);
     SetScaleformMovieAsNoLongerNeeded(this.scaleform);
@@ -58,7 +64,7 @@ class Binoculars {
   }
 }
 
-const binoculars = new Binoculars();
+export const binoculars = new Binoculars();
 onServerEvent(EVENTS.binoculars, () => (binoculars.active ? binoculars.close() : binoculars.open()));
 new Keybind({ name: "smallresources_binoculars_BACK", description: Locale("KEYBIND_BINOCULARS_CLOSE"), defaultKey: "BACK", onPressed: () => binoculars.close() });
 

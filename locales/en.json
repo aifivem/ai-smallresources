@@ -58,5 +58,6 @@
   "ADMIN_F_TO": "Second end",
   "ADMIN_F_JOB": "Job",
   "ADMIN_H_JOB": "Empty: everyone can use it.",
-  "ADMIN_P_JOB": "ambulance"
+  "ADMIN_P_JOB": "ambulance",
+  "KEYBIND_NEWS_VIEW": "News camera view (while holding the camera)"
 }
