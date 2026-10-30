@@ -1,0 +1,14 @@
+{
+  "seatbelt": true,
+  "ejectUnbelted": 20,
+  "ejectBelted": 160,
+  "cruise": true,
+  "crouch": true,
+  "noShuffle": true,
+  "noDispatch": true,
+  "hideHud": true,
+  "tackle": true,
+  "afkMinutes": 20,
+  "binoculars": true,
+  "fireworks": true
+}
