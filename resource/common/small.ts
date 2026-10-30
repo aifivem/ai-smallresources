@@ -5,7 +5,7 @@ import {
   str,
   vec4,
   type Vec4,
-} from "@aicore-fivem/lib/shared"
+} from "@aicore-fivem/lib/shared";
 
 /** ai-smallresources' contracts and panel content. No natives. */
 
@@ -24,27 +24,27 @@ export const EVENTS = {
   fireworkPlaced: "ai-smallresources:fireworkPlaced",
   /** Server -> players nearby: (x, y, z, item) a firework item goes off there. */
   firework: "ai-smallresources:client:firework",
-} as const
+} as const;
 
 export interface Settings {
-  seatbelt: boolean
+  seatbelt: boolean;
   /** km/h above which a crash throws the driver through the windscreen, without and with the belt. */
-  ejectUnbelted: number
-  ejectBelted: number
-  cruise: boolean
-  crouch: boolean
-  noShuffle: boolean
-  noDispatch: boolean
-  hideHud: boolean
-  tackle: boolean
+  ejectUnbelted: number;
+  ejectBelted: number;
+  cruise: boolean;
+  crouch: boolean;
+  noShuffle: boolean;
+  noDispatch: boolean;
+  hideHud: boolean;
+  tackle: boolean;
   /** Minutes without moving before a player is kicked (0 = off). */
-  afkMinutes: number
-  binoculars: boolean
-  fireworks: boolean
+  afkMinutes: number;
+  binoculars: boolean;
+  fireworks: boolean;
 }
 
 export function readSettings(raw: unknown): Settings {
-  const v = record(raw)
+  const v = record(raw);
   return {
     seatbelt: bool(v.seatbelt, true),
     ejectUnbelted: int(v.ejectUnbelted, 20, 0, 500),
@@ -58,46 +58,46 @@ export function readSettings(raw: unknown): Settings {
     afkMinutes: int(v.afkMinutes, 20, 0, 600),
     binoculars: bool(v.binoculars, true),
     fireworks: bool(v.fireworks, true),
-  }
+  };
 }
 
 export interface Teleport {
-  id: string
-  label: string
-  from: Vec4
-  to: Vec4
+  id: string;
+  label: string;
+  from: Vec4;
+  to: Vec4;
   /** Empty: everyone; otherwise members of this job. */
-  job: string
+  job: string;
 }
 
 export function readTeleports(raw: unknown): Map<string, Teleport> {
-  const out = new Map<string, Teleport>()
-  const zero = { x: 0, y: 0, z: 0, heading: 0 }
+  const out = new Map<string, Teleport>();
+  const zero = { x: 0, y: 0, z: 0, heading: 0 };
   for (const [id, value] of Object.entries(record(raw))) {
-    const v = record(value)
+    const v = record(value);
     out.set(id, {
       id,
       label: str(v.label, id, 48),
       from: vec4(v.from, zero),
       to: vec4(v.to, zero),
       job: str(v.job, "", 32),
-    })
+    });
   }
-  return out
+  return out;
 }
 
 /** Player state key (server written): the news item the player holds, or false. */
-export const HOLD_STATE = "aiHold"
+export const HOLD_STATE = "aiHold";
 
 /** News items: the prop, where it sits on the ped and the animation the holder plays. */
 export const NEWS_ITEMS: Record<
   string,
   {
-    model: string
-    bone: number
-    offset: [number, number, number, number, number, number]
-    dict: string
-    clip: string
+    model: string;
+    bone: number;
+    offset: [number, number, number, number, number, number];
+    dict: string;
+    clip: string;
   }
 > = {
   newscam: {
@@ -121,7 +121,7 @@ export const NEWS_ITEMS: Record<
     dict: "missfra1",
     clip: "mcs2_crew_idle_m_boom",
   },
-}
+};
 
 /** Firework items and the particle asset and effects each one shows. */
 export const FIREWORKS: Record<string, { asset: string; effects: string[] }> = {
@@ -164,4 +164,4 @@ export const FIREWORKS: Record<string, { asset: string; effects: string[] }> = {
       "scr_indep_firework_fountain",
     ],
   },
-}
+};

@@ -1,4 +1,4 @@
-import type { PanelSchema } from "@aicore-fivem/shared"
+import type { PanelSchema } from "@aicore-fivem/shared";
 
 /** ai-smallresources' panel: small gameplay switches and teleports between two points. */
 export const smallSchema: PanelSchema = {
@@ -201,4 +201,4 @@ export const smallSchema: PanelSchema = {
       ],
     },
   ],
-}
+};
