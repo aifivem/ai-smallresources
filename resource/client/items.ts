@@ -1,14 +1,16 @@
 import {
   cache,
+  callAction,
+  hud,
   Keybind,
+  keyHints,
   notify,
   onServerEvent,
   progress,
   requestPtfxAsset,
   TickLoop,
-  triggerServerCallback,
 } from "@aicore-fivem/lib/client";
-import { asArgs, record, sleep } from "@aicore-fivem/lib/shared";
+import { oneArg, readFinite, readId, sleep } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { FIREWORKS } from "common/items";
 import { EVENTS } from "common/small";
@@ -18,7 +20,8 @@ const MIN_FOV = 5;
 
 /**
  * A handheld camera view: the binoculars item (binocular overlay, scenario) or the held news camera (news overlay,
- * the holding animation keeps running); scroll zooms, Backspace closes.
+ * the holding animation keeps running); the zoom and close keybinds show as key hints while it is open, and the HUD
+ * hides (lib `hud`).
  */
 export class Binoculars {
   private cam = 0;
@@ -47,6 +50,23 @@ export class Binoculars {
       news ? "BREAKING_NEWS" : "BINOCULARS",
     );
     this.frame.set(true);
+    hud.hide("binoculars");
+    keyHints.show("binoculars_zoom", {
+      label: Locale("HINT_BINOCULARS_ZOOM"),
+      keybind: "smallresources_zoom_in",
+      icon: "magnifying-glass-plus",
+    });
+    keyHints.show("binoculars_close", {
+      label: Locale("HINT_BINOCULARS_CLOSE"),
+      keybind: "smallresources_binoculars",
+      icon: "xmark",
+    });
+  }
+
+  /** Scroll: a step of the field of view (only while the view is open). */
+  zoom(step: number): void {
+    if (this.active)
+      this.fov = Math.max(MIN_FOV, Math.min(MAX_FOV, this.fov + step));
   }
 
   close(): void {
@@ -58,6 +78,9 @@ export class Binoculars {
     SetScaleformMovieAsNoLongerNeeded(this.scaleform);
     this.cam = 0;
     this.fov = (MAX_FOV + MIN_FOV) / 2;
+    hud.show("binoculars");
+    keyHints.hide("binoculars_zoom");
+    keyHints.hide("binoculars_close");
   }
 
   private draw(): void {
@@ -76,15 +99,10 @@ export class Binoculars {
       );
       SetEntityHeading(cache.ped, heading);
     }
-    if (IsControlJustPressed(0, 241))
-      this.fov = Math.max(MIN_FOV, this.fov - 10);
-    if (IsControlJustPressed(0, 242))
-      this.fov = Math.min(MAX_FOV, this.fov + 10);
     SetCamFov(
       this.cam,
       GetCamFov(this.cam) + (this.fov - GetCamFov(this.cam)) * 0.05,
     );
-    HideHudAndRadarThisFrame();
     if (HasScaleformMovieLoaded(this.scaleform))
       DrawScaleformMovieFullscreen(this.scaleform, 255, 255, 255, 255, 0);
   }
@@ -100,39 +118,48 @@ new Keybind({
   defaultKey: "BACK",
   onPressed: () => binoculars.close(),
 });
+new Keybind({
+  name: "smallresources_zoom_in",
+  description: Locale("KEYBIND_BINOCULARS_ZOOM_IN"),
+  defaultKey: "IOM_WHEEL_UP",
+  defaultMapper: "MOUSE_WHEEL",
+  onPressed: () => binoculars.zoom(-10),
+});
+new Keybind({
+  name: "smallresources_zoom_out",
+  description: Locale("KEYBIND_BINOCULARS_ZOOM_OUT"),
+  defaultKey: "IOM_WHEEL_DOWN",
+  defaultMapper: "MOUSE_WHEEL",
+  onPressed: () => binoculars.zoom(10),
+});
 
-onServerEvent(
-  EVENTS.fireworkPlace,
-  { args: ([token]) => asArgs(typeof token === "number" ? token : null) },
-  async (token) => {
-    const placed = await progress({
-      label: Locale("SMALL_FIREWORK_PLACING"),
-      duration: 3000,
-      anim: { dict: "anim@mp_fireworks", clip: "place_firework_3_box" },
-    });
-    if (!placed) return;
-    const result = record(
-      await triggerServerCallback(EVENTS.fireworkPlaced, [token]).catch(
-        () => null,
-      ),
-    );
-    if (result.ok === true)
-      notify(Locale("SMALL_FIREWORK_RUN"), "warning", 3000);
-  },
-);
+onServerEvent(EVENTS.fireworkPlace, { args: oneArg(readId) }, async (token) => {
+  const placed = await progress({
+    label: Locale("SMALL_FIREWORK_PLACING"),
+    duration: 3000,
+    anim: { dict: "anim@mp_fireworks", clip: "place_firework_3_box" },
+  });
+  if (!placed) return;
+  const done = await callAction(EVENTS.fireworkPlaced, [token], {
+    fallback: "SMALL_ERR_FAR",
+  });
+  if (done) notify(Locale("SMALL_FIREWORK_RUN"), "warning", 3000);
+});
 
 /** A firework someone placed nearby: after a short fuse, a burst of effects high above it. */
 onServerEvent(
   EVENTS.firework,
   {
-    args: ([x, y, z, item]): [number, number, number, string] | null =>
-      typeof x === "number" &&
-      typeof y === "number" &&
-      typeof z === "number" &&
-      typeof item === "string" &&
-      item in FIREWORKS
-        ? [x, y, z, item]
-        : null,
+    args: ([x, y, z, item]): [number, number, number, string] | null => {
+      const [px, py, pz] = [readFinite(x), readFinite(y), readFinite(z)];
+      return px !== null &&
+        py !== null &&
+        pz !== null &&
+        typeof item === "string" &&
+        item in FIREWORKS
+        ? [px, py, pz, item]
+        : null;
+    },
   },
   async (x, y, z, item) => {
     const firework = FIREWORKS[item];

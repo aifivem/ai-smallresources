@@ -1,18 +1,19 @@
-import {
-  fadeOut,
-  loadLocaleTexts,
-  notify,
-  Points,
-  triggerServerCallback,
-} from "@aicore-fivem/lib/client";
-import { record, sleep } from "@aicore-fivem/lib/shared";
+import { callAction, fadeOut, player, Points } from "@aicore-fivem/lib/client";
+import { isRecord, vec4 } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS } from "common/small";
-import { content, onTeleports } from "./settings";
+import { content, FALLBACK, onTeleports } from "./settings";
 
-const texts = loadLocaleTexts();
+/** Runs a move action behind a fade: the server checks it and answers the target, the client teleports there. */
+export async function moveBy(name: string, args: unknown[]): Promise<void> {
+  await fadeOut(300);
+  const reply = await callAction(name, args, FALLBACK);
+  if (!reply || !isRecord(reply.to)) return DoScreenFadeIn(300);
+  const to = vec4(reply.to, { x: 0, y: 0, z: 0, heading: 0 });
+  await player.teleport(to, { heading: to.heading });
+}
 
-/** A point at both ends of every teleport; the server moves the player to the other end behind a fade. */
+/** A point at both ends of every teleport; the player goes to the other end behind a fade. */
 const points = new Points();
 function rebuild(): void {
   points.clear();
@@ -24,21 +25,8 @@ function rebuild(): void {
         icon: "location-dot",
         radius: 1.5,
         interval: 400,
-        onPressed: () => use(teleport.id, end),
+        onPressed: () => moveBy(EVENTS.teleport, [teleport.id, end]),
       });
-}
-
-async function use(id: string, end: "from" | "to"): Promise<void> {
-  await fadeOut(300);
-  const result = record(
-    await triggerServerCallback(EVENTS.teleport, [id, end]).catch(() => null),
-  );
-  if (result.ok !== true) {
-    const key =
-      typeof result.error === "string" ? result.error : "SMALL_ERR_FAR";
-    notify(texts[key] ?? key, "error");
-  } else await sleep(500);
-  DoScreenFadeIn(300);
 }
 
 rebuild();

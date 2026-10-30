@@ -1,38 +1,30 @@
 import { AdminWorld } from "@aicore-fivem/lib/client";
-import { readElevators, readMoorings, readTeleports } from "common/places";
-import { readSeats } from "common/seats";
+import { readElevator, readMooring, readTeleport } from "common/places";
+import { readSeat } from "common/seats";
 import { readSettings } from "common/small";
 
 const FILES = ["settings", "teleports", "elevators", "moorings", "seats"];
 type File = "settings" | "teleports" | "elevators" | "moorings" | "seats";
 
-/** The panel files every client module reads; `onContent(file)` handlers run after each change of that file. */
+/** The panel files every client module reads (kept current by the panel's views); `onContent(file)` runs after a change. */
 const world = new AdminWorld(FILES);
-const read = {
-  settings: () => readSettings(world.get("settings")),
-  teleports: () => readTeleports(world.get("teleports")),
-  elevators: () => readElevators(world.get("elevators")),
-  moorings: () => readMoorings(world.get("moorings")),
-  seats: () => readSeats(world.get("seats")),
-};
+const settings = world.view("settings", readSettings);
 export const content = {
-  settings: read.settings(),
-  teleports: read.teleports(),
-  elevators: read.elevators(),
-  moorings: read.moorings(),
-  seats: read.seats(),
+  get settings() {
+    return settings.value;
+  },
+  teleports: world.records("teleports", readTeleport),
+  elevators: world.records("elevators", readElevator),
+  moorings: world.records("moorings", readMooring),
+  seats: world.records("seats", readSeat),
 };
-const handlers = new Map<File, Array<() => void>>();
-
-for (const file of FILES as File[])
-  world.onChange(file, () => {
-    Object.assign(content, { [file]: read[file]() });
-    for (const handler of handlers.get(file) ?? []) handler();
-  });
 
 export const onContent = (file: File, handler: () => void) =>
-  handlers.set(file, [...(handlers.get(file) ?? []), handler]);
+  world.onChange(file, handler);
 export const onSettings = (handler: () => void) =>
   onContent("settings", handler);
 export const onTeleports = (handler: () => void) =>
   onContent("teleports", handler);
+
+/** The refusal shown when a reply is missing. */
+export const FALLBACK = { fallback: "SMALL_ERR_FAR" };

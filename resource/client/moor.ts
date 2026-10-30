@@ -1,17 +1,16 @@
 import {
   cache,
+  callAction,
   EntityState,
   notify,
   Points,
   progress,
   stateBoolean,
-  triggerServerCallback,
 } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
 import { MOOR_RANGE } from "common/places";
 import { EVENTS, VEHICLE_STATE } from "common/small";
-import { answered } from "./feedback";
-import { content, onContent, onSettings } from "./settings";
+import { content, FALLBACK, onContent, onSettings } from "./settings";
 
 const moored = new EntityState(VEHICLE_STATE.moored, stateBoolean);
 const BOAT_CLASS = 14;
@@ -26,7 +25,7 @@ const isMoored = (boat: number) =>
 /** A mooring within reach of the boat (the server checks the same distance). */
 function nearMooring(boat: number): boolean {
   const [x = 0, y = 0, z = 0] = GetEntityCoords(boat, false);
-  return content.moorings.some(
+  return [...content.moorings.values()].some(
     (m) =>
       Math.hypot(m.point.x - x, m.point.y - y, m.point.z - z) <= MOOR_RANGE,
   );
@@ -36,7 +35,7 @@ function nearMooring(boat: number): boolean {
 const points = new Points();
 function rebuild(): void {
   points.clear();
-  if (!content.settings.boatRope || !content.moorings.length) return;
+  if (!content.settings.boatRope || content.moorings.size === 0) return;
   const onFoot = () => cache.vehicle === false && !IsPedSwimming(cache.ped);
   const common = { models: boats, vehicles: true, icon: "anchor", radius: 4 };
   points.addModel("moor", {
@@ -66,11 +65,7 @@ async function use(boat: number, untie: boolean): Promise<void> {
   });
   if (!done) return;
   const netId = NetworkGetNetworkIdFromEntity(boat);
-  if (
-    answered(
-      await triggerServerCallback(EVENTS.moor, [netId]).catch(() => null),
-    )
-  )
+  if (await callAction(EVENTS.moor, [netId], FALLBACK))
     notify(Locale(untie ? "MOOR_UNTIED" : "MOOR_TIED"), "success");
 }
 

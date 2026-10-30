@@ -3,6 +3,7 @@ import {
   hidePrompt,
   notify,
   onPromptPressed,
+  player,
   Points,
   requestAnimDict,
   showPrompt,
@@ -32,7 +33,9 @@ class Sitting {
 
   rebuild(): void {
     this.points.clear();
-    this.byModel = new Map(content.seats.map((s) => [hashOf(s.model), s]));
+    this.byModel = new Map(
+      [...content.seats.values()].map((s) => [hashOf(s.model), s]),
+    );
     if (!content.settings.sit || !this.byModel.size) return;
     this.points.addModel("sit", {
       models: [...this.byModel.keys()],
@@ -103,23 +106,16 @@ class Sitting {
       );
     } else {
       if (!(await requestAnimDict(pose.dict).catch(() => false))) return;
-      SetEntityCoords(cache.ped, x, y, z + pose.z, false, false, false, false);
-      SetEntityHeading(cache.ped, best.heading);
-      FreezeEntityPosition(cache.ped, true);
-      TaskPlayAnim(
-        cache.ped,
-        pose.dict,
-        pose.clip,
-        2,
-        2,
-        -1,
-        1,
-        0,
-        false,
-        false,
-        false,
+      await player.teleport(
+        { x, y, z: z + pose.z },
+        { heading: best.heading, fade: false },
       );
-      RemoveAnimDict(pose.dict);
+      player.freeze(true);
+      await player.playAnim(pose.dict, pose.clip, {
+        blendIn: 2,
+        blendOut: 2,
+        flag: 1,
+      });
     }
     this.pose = pose;
     showPrompt(PROMPT, Locale("SIT_GETUP"));
@@ -132,9 +128,9 @@ class Sitting {
     this.end();
     ClearPedTasks(cache.ped);
     if (pose.kind === "anim") {
-      FreezeEntityPosition(cache.ped, false);
+      player.freeze(false);
       const [x = 0, y = 0, z = 0] = this.from;
-      SetEntityCoords(cache.ped, x, y, z - 1, false, false, false, false);
+      void player.teleport({ x, y, z: z - 1 }, { fade: false });
     }
   }
 

@@ -59,27 +59,26 @@ export interface SeatModel {
   seats: SeatOffset[];
 }
 
-export function readSeats(raw: unknown): SeatModel[] {
-  const out: SeatModel[] = [];
-  for (const value of Object.values(record(raw))) {
-    const v = record(value);
-    const model = str(v.model, "", 64);
-    const seats = (Array.isArray(v.seats) ? v.seats : []).map((row) => {
-      const s = record(row);
-      return {
-        x: num(s.x, 0, -10, 10),
-        y: num(s.y, 0, -10, 10),
-        z: num(s.z, 0, -10, 10),
-        heading: num(s.heading, 180, 0, 360),
-      };
-    });
-    if (!model || !seats.length) continue;
-    out.push({
-      model,
-      type: isSeatType(v.type) ? v.type : "chair",
-      teleport: bool(v.teleport, false),
-      seats,
-    });
-  }
-  return out;
+/** One seat record; null (left out) without a model or seats. */
+export function readSeat(
+  _id: string,
+  v: Record<string, unknown>,
+): SeatModel | null {
+  const model = str(v.model, "", 64);
+  const seats = (Array.isArray(v.seats) ? v.seats : []).map((row) => {
+    const s = record(row);
+    return {
+      x: num(s.x, 0, -10, 10),
+      y: num(s.y, 0, -10, 10),
+      z: num(s.z, 0, -10, 10),
+      heading: num(s.heading, 180, 0, 360),
+    };
+  });
+  if (!model || !seats.length) return null;
+  return {
+    model,
+    type: isSeatType(v.type) ? v.type : "chair",
+    teleport: bool(v.teleport, false),
+    seats,
+  };
 }

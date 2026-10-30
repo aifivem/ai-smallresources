@@ -1,39 +1,35 @@
 import {
+  entityCoords,
   EntityState,
   inventory,
+  isNear,
   nearestVehicleTo,
   notify,
   onClientCallback,
+  PendingActions,
+  randomPlate,
   stateBoolean,
   stateString,
+  vehicleFromNet,
   vehicleKeys,
 } from "@aicore-fivem/lib/server";
-import { asArgs } from "@aicore-fivem/lib/shared";
+import { distance, fail, oneArg, readId } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { MOOR_RANGE } from "common/places";
 import { EVENTS, ITEMS, VEHICLE_STATE } from "common/small";
-import { content, dist, entityPos, fail, pos } from "./content";
+import { content } from "./content";
 
 const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString);
 const moored = new EntityState(VEHICLE_STATE.moored, stateBoolean);
 
-const LETTERS = "ABCDEFGHJKLMNPRSTUVWXYZ";
-const randomPlate = () =>
-  [0, 1, 2, 3, 4, 5, 6, 7]
-    .map((i) =>
-      i >= 2 && i <= 4
-        ? LETTERS[Math.floor(Math.random() * LETTERS.length)]
-        : String(Math.floor(Math.random() * 10)),
-    )
-    .join("");
 const plateOf = (vehicle: number) => GetVehicleNumberPlateText(vehicle).trim();
 
+/** The plate work's progress on the client (6 s); the answer must come after 90% of it. */
+const PLATE_MS = 6000;
 /** Plate work waiting for the player's progress: the vehicle and whether the fake plate comes off. */
-const work = new Map<
-  number,
-  { token: number; vehicle: number; removing: boolean; startedAt: number }
->();
-let nextToken = 0;
+const work = new PendingActions<{ vehicle: number; removing: boolean }>({
+  minRatio: 0.9,
+});
 
 /**
  * Fake plate: fitted on a vehicle the player has the keys to (the real plate kept in the vehicle's state), taken off
@@ -54,12 +50,10 @@ inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
     notify(source, Locale("PLATE_ERR_KEYS"), "error");
     return false;
   }
-  const token = ++nextToken;
-  work.set(source, { token, vehicle, removing, startedAt: Date.now() });
   emitNet(
     EVENTS.plateWork,
     source,
-    token,
+    work.start(source, { vehicle, removing }, PLATE_MS),
     NetworkGetNetworkIdFromEntity(vehicle),
     removing,
   );
@@ -68,19 +62,14 @@ inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
 
 onClientCallback(
   EVENTS.plateDone,
-  {
-    args: ([token]) => asArgs(typeof token === "number" ? token : null),
-    lock: true,
-  },
+  { args: oneArg(readId), lock: true },
   (source, token) => {
-    const job = work.get(source);
-    if (!job || job.token !== token) return fail("SMALL_ERR_FAR");
-    work.delete(source);
+    const job = work.take(source, token);
+    if (!job) return fail("SMALL_ERR_FAR");
     const { vehicle, removing } = job;
     if (
-      Date.now() - job.startedAt < 5500 ||
       !DoesEntityExist(vehicle) ||
-      dist(pos(source), entityPos(vehicle)) > 4 ||
+      !isNear(source, entityCoords(vehicle), 4) ||
       (realPlate.get(vehicle) !== undefined) !== removing
     )
       return fail("SMALL_ERR_FAR");
@@ -103,35 +92,34 @@ onClientCallback(
   },
 );
 
-/** Boat rope: a boat within reach of a mooring is frozen in place; untying frees it. */
+/** Boat rope: a boat within reach of a mooring is frozen in place; untying frees it. Never a boat someone else drives. */
 onClientCallback(
   EVENTS.moor,
-  {
-    args: ([netId]) => asArgs(typeof netId === "number" ? netId : null),
-    lock: true,
-  },
+  { args: oneArg(readId), lock: true },
   (source, netId) => {
-    const boat = NetworkGetEntityFromNetworkId(netId);
+    const boat = vehicleFromNet(netId);
     if (
       !content.settings.boatRope ||
       !boat ||
-      !DoesEntityExist(boat) ||
       GetVehicleType(boat) !== "boat" ||
-      dist(pos(source), entityPos(boat)) > 6
+      !isNear(source, entityCoords(boat), 6)
     )
       return fail("SMALL_ERR_FAR");
+    const driver = GetPedInVehicleSeat(boat, -1);
+    if (driver && driver !== GetPlayerPed(String(source)))
+      return fail("MOOR_ERR_DRIVEN");
     if (moored.get(boat) === true) {
       FreezeEntityPosition(boat, false);
       moored.set(boat, undefined);
       return { ok: true };
     }
-    const at = entityPos(boat);
-    if (!content.moorings.some((m) => dist(m.point, at) <= MOOR_RANGE + 2))
-      return fail("MOOR_ERR_FAR");
+    const at = entityCoords(boat);
+    let inReach = false;
+    for (const m of content.moorings.values())
+      if (distance(m.point, at) <= MOOR_RANGE + 2) inReach = true;
+    if (!inReach) return fail("MOOR_ERR_FAR");
     FreezeEntityPosition(boat, true);
     moored.set(boat, true);
     return { ok: true };
   },
 );
-
-on("playerDropped", () => work.delete(Number(globalThis.source)));

@@ -1,15 +1,20 @@
 import {
+  coordsOf,
+  Cooldowns,
+  isNear,
+  nearestPlayerTo,
+  onCharacter,
   onClientCallback,
   online,
-  playersNear,
   PlayerState,
   stateBoolean,
   stateNumber,
   triggerClientCallback,
 } from "@aicore-fivem/lib/server";
+import { fail } from "@aicore-fivem/lib/shared";
 import { CORE, PLAYER_BAGS } from "@aicore-fivem/shared";
 import { CARRY_STATE, EVENTS } from "common/small";
-import { content, dist, fail, pos } from "./content";
+import { content } from "./content";
 
 const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber);
 const carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber);
@@ -17,6 +22,9 @@ const dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean);
 const cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean);
 const REACH = 2;
 const ASK_MS = 10_000;
+/** After a declined ask the carrier waits this long before asking anyone again. */
+const ASK_COOLDOWN_MS = 30_000;
+const asks = new Cooldowns();
 
 /** Who carries whom; a pair is written into both player states (each client plays its own part). */
 class Carries {
@@ -75,19 +83,14 @@ class Carries {
 const carries = new Carries();
 
 /** The nearest player within reach who is free and on foot. */
-function nearestFree(source: number): number | null {
-  const me = pos(source);
-  let best: number | null = null;
-  let bestDist = REACH;
-  for (const other of playersNear(source, 10)) {
-    if (other === source || carries.busy(other)) continue;
-    const ped = GetPlayerPed(String(other));
-    if (GetVehiclePedIsIn(ped, false)) continue;
-    const d = dist(me, pos(other));
-    if (d < bestDist) [best, bestDist] = [other, d];
-  }
-  return best;
-}
+const nearestFree = (source: number): number | null =>
+  nearestPlayerTo(
+    source,
+    REACH,
+    (other) =>
+      !carries.busy(other) &&
+      !GetVehiclePedIsIn(GetPlayerPed(String(other)), false),
+  );
 
 /**
  * Carry: the same action picks the nearest player up or puts them down (a carried player who agreed gets down with
@@ -104,12 +107,17 @@ onClientCallback(
     const target = nearestFree(source);
     if (target === null) return fail("CARRY_ERR_NONE");
     const helpless = dead.get(target) === true || cuffed.get(target) === true;
-    if (!helpless && !(await carries.ask(source, target)))
-      return fail("CARRY_ERR_DECLINED");
+    if (!helpless) {
+      if (!asks.ready(source)) return fail("CARRY_ERR_WAIT");
+      if (!(await carries.ask(source, target))) {
+        asks.start(source, ASK_COOLDOWN_MS);
+        return fail("CARRY_ERR_DECLINED");
+      }
+    }
     if (
       carries.busy(source) ||
       carries.busy(target) ||
-      dist(pos(source), pos(target)) > REACH + 1
+      !isNear(source, coordsOf(target), REACH + 1)
     )
       return fail("CARRY_ERR_NONE");
     carries.start(source, target, !helpless);
@@ -118,7 +126,8 @@ onClientCallback(
   { lock: true },
 );
 
-on("playerDropped", () => carries.stop(Number(globalThis.source)));
+// Leaving (drop, logout) ends the pair the player is part of.
+onCharacter({ unloaded: (source) => void carries.stop(source) });
 // A carrier who goes down drops the player.
 on(CORE.playerDiedEvent, (source: unknown) => {
   if (typeof source === "number" && carrying.get(source) !== undefined)

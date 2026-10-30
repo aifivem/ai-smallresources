@@ -3,6 +3,7 @@ import {
   controls,
   Keybind,
   onCache,
+  player,
   PlayerState,
   registerExport,
   requestAnimDict,
@@ -28,10 +29,15 @@ const playingAnimation = (ped: number) =>
 
 const POINT_DICT = "anim@mp_point";
 
-/** Finger pointing: GTA's pointing move network, aimed every frame with the gameplay camera. */
+/**
+ * Finger pointing: GTA's pointing move network, aimed every frame with the gameplay camera. The "blocked" probe is an
+ * async shape test: each frame reads the previous frame's result once it is ready, then starts the next one.
+ */
 class Pointing {
   active = false;
   private readonly frame = new TickLoop(() => this.aim());
+  private probe = 0;
+  private blocked = false;
 
   /** On foot, upright, not aiming, falling, fighting or knocked over. */
   private possible(ped: number): boolean {
@@ -72,6 +78,8 @@ class Pointing {
     if (!this.active) return;
     this.active = false;
     this.frame.set(false);
+    this.probe = 0;
+    this.blocked = false;
     const ped = cache.ped;
     RequestTaskMoveNetworkStateTransition(ped, "Stop");
     SetPedConfigFlag(ped, 36, false);
@@ -95,22 +103,28 @@ class Pointing {
       sin * -0.2 + cos * reach,
       0.6,
     );
-    const ray = StartShapeTestCapsule(
-      x,
-      y,
-      z - 0.2,
-      x,
-      y,
-      z + 0.2,
-      0.4,
-      95,
-      ped,
-      7,
-    );
-    const [, blocked] = GetShapeTestResult(ray);
+    if (this.probe) {
+      // Status 1 = still running, 2 = ready, 0 = the handle is gone.
+      const [status, hit] = GetShapeTestResult(this.probe);
+      if (status === 2) this.blocked = Boolean(hit);
+      if (status !== 1) this.probe = 0;
+    }
+    if (!this.probe)
+      this.probe = StartShapeTestCapsule(
+        x,
+        y,
+        z - 0.2,
+        x,
+        y,
+        z + 0.2,
+        0.4,
+        95,
+        ped,
+        7,
+      );
     SetTaskMoveNetworkSignalFloat(ped, "Pitch", (pitch + 70) / 112);
     SetTaskMoveNetworkSignalFloat(ped, "Heading", 1 - heading);
-    SetTaskMoveNetworkSignalBool(ped, "isBlocked", Boolean(blocked));
+    SetTaskMoveNetworkSignalBool(ped, "isBlocked", this.blocked);
     SetTaskMoveNetworkSignalBool(
       ped,
       "isFirstPerson",
@@ -139,22 +153,16 @@ class HandsUp {
       return;
     // Another script's animation keeps running; the key does not raise the hands over it.
     if (playingAnimation(ped)) return;
-    if (!(await requestAnimDict(HANDS.dict).catch(() => false))) return;
     pointing.stop();
     this.active = true;
-    TaskPlayAnim(
-      ped,
-      HANDS.dict,
-      HANDS.clip,
-      3,
-      3,
-      -1,
-      49,
-      0,
-      false,
-      false,
-      false,
-    );
+    const started = await player
+      .playAnim(HANDS.dict, HANDS.clip, { blendIn: 3, blendOut: 3, flag: 49 })
+      .then(() => true)
+      .catch(() => false);
+    if (!started || !this.active) {
+      this.active = false;
+      return;
+    }
     controls.disable("handsup", HANDS_CONTROLS);
     this.timer = setInterval(() => {
       const now = cache.ped;

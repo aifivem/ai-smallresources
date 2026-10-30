@@ -55,8 +55,23 @@ function vec4(value, fallback) {
 		heading: num(v.heading, fallback.heading)
 	};
 }
-// ../../../packages/lib/src/shared/records.ts
-const isObject = (value) => typeof value == "object" && !!value && !Array.isArray(value);
+// ../../../packages/lib/src/shared/strict.ts
+function readInt(value, min, max) {
+	return Number.isInteger(value) && value >= min && value <= max ? value : null;
+}
+const readId = (value) => readInt(value, 1, 2147483647);
+function readText(value, max) {
+	if (typeof value != "string") return null;
+	let text = value.trim();
+	return text ? text.slice(0, max) : null;
+}
+const oneArg = (read) => ([value]) => {
+	let parsed = read(value);
+	return parsed === null ? null : [parsed];
+}, fail = (error) => ({
+	ok: !1,
+	error
+}), distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z), isObject = (value) => typeof value == "object" && !!value && !Array.isArray(value);
 function readRecords(raw, readOne) {
 	let out = new Map();
 	if (!isObject(raw)) return out;
@@ -149,7 +164,6 @@ function formatText(template, args) {
 		return value === void 0 ? match : String(value);
 	});
 }
-const asArgs = (value) => value === null ? null : [value];
 function createLogger(resource) {
 	let prefix = `[${resource}]`;
 	return {
@@ -224,7 +238,7 @@ const CORE = {
 	clientPlayerLoadedEvent: "ai-core:client:playerLoaded",
 	clientPlayerUnloadedEvent: "ai-core:client:playerUnloaded",
 	clientCharacterPortraitEvent: "ai-core:client:characterPortrait",
-	clientCharacterLookEvent: "ai-core:client:characterLook",
+	characterLooksEvent: "ai-core:client:characterLooks",
 	clientPromptPressedEvent: "ai-core:client:promptPressed",
 	clientCacheEvent: "ai-core:client:cache",
 	clientHudVisibleEvent: "ai-core:client:hudVisible",
@@ -239,7 +253,8 @@ const CORE = {
 	openCharactersEvent: "ai-core:client:openCharacters"
 }, PLAYER_BAGS = {
 	dead: "dead",
-	cuffed: "cuffed"
+	cuffed: "cuffed",
+	proximity: "proximity"
 }, ADMIN = {
 	ace: "ai.admin",
 	openCallback: "ai-core:admin:open",
@@ -298,6 +313,10 @@ function entityCoords(entity) {
 	};
 }
 const coordsOf = (source) => entityCoords(GetPlayerPed(String(source)));
+function isNear(source, point, metres) {
+	let [x = 0, y = 0, z = 0] = GetEntityCoords(GetPlayerPed(String(source))), dx = x - point.x, dy = y - point.y, dz = z - point.z;
+	return dx * dx + dy * dy + dz * dz <= metres * metres;
+}
 resourceExport(CORE.resource);
 const log$5 = createLogger(GetCurrentResourceName()), gates = new Set();
 on("playerDropped", () => {
@@ -907,7 +926,16 @@ const EMPTY = new Set(), online = new OnlinePlayers(), core$10 = resourceExport(
 	remove: (source, vehicle) => core$10.RemoveVehicleKeys(source, vehicle),
 	has: (source, vehicle) => core$10.HasVehicleKeys(source, vehicle)
 };
-// ../../../packages/lib/src/server/vehicle.ts
+function randomPlate(prefix) {
+	let digit = () => String(Math.floor(Math.random() * 10));
+	if (prefix !== void 0) {
+		let plate = prefix.slice(0, 8);
+		for (; plate.length < 8;) plate += digit();
+		return plate;
+	}
+	let letter = () => "ABCDEFGHJKLMNPRSTUVWXYZ"[Math.floor(Math.random() * 23)] ?? "A";
+	return `${digit()}${digit()}${letter()}${letter()}${letter()}${digit()}${digit()}${digit()}`;
+}
 function nearestVehicleTo(source, metres, filter) {
 	let ped = GetPlayerPed(String(source)), own = GetVehiclePedIsIn(ped, !1);
 	if (own && (!filter || filter(own))) return own;
@@ -917,6 +945,11 @@ function nearestVehicleTo(source, metres, filter) {
 		d < bestDistance && (!filter || filter(vehicle)) && ([best, bestDistance] = [vehicle, d]);
 	}
 	return best;
+}
+function vehicleFromNet(netId) {
+	if (readId(netId) === null) return 0;
+	let entity = NetworkGetEntityFromNetworkId(netId);
+	return entity && DoesEntityExist(entity) && GetEntityType(entity) === 2 ? entity : 0;
 }
 // ../../../packages/lib/src/server/proximity.ts
 const core$9 = resourceExport(CORE.resource);
@@ -931,7 +964,112 @@ function within(point, radius, candidates) {
 function playersNear(source, radius) {
 	return within(coordsOf(source), radius, [source, ...core$9.GetPlayersInScope(source)]);
 }
-createLogger(GetCurrentResourceName());
+function nearestPlayerTo(source, metres, filter) {
+	let from = coordsOf(source), best = null, bestDistance = metres;
+	for (let other of core$9.GetPlayersInScope(source)) {
+		if (other === source) continue;
+		let p = coordsOf(other), d = Math.hypot(p.x - from.x, p.y - from.y, p.z - from.z);
+		d > bestDistance || filter && !filter(other) || (best = other, bestDistance = d);
+	}
+	return best;
+}
+// ../../../packages/lib/src/server/players.ts
+const log$3 = createLogger(GetCurrentResourceName()), dropped = new Set();
+let listening = !1;
+function onDropped(fn) {
+	listening || (listening = !0, on("playerDropped", () => {
+		let source = Number(globalThis.source);
+		for (let handler of dropped) handler(source);
+	})), dropped.add(fn);
+}
+var PlayerMap = class extends Map {
+	constructor(options = {}) {
+		super(), onDropped((source) => {
+			if (!this.has(source)) return;
+			let value = this.get(source);
+			this.delete(source), options.onDrop?.(source, value);
+		});
+	}
+}, Cooldowns = class {
+	until = new PlayerMap();
+	ready(source) {
+		return this.left(source) === 0;
+	}
+	start(source, ms) {
+		this.until.set(source, GetGameTimer() + ms);
+	}
+	take(source, ms) {
+		return this.ready(source) ? (this.start(source, ms), !0) : !1;
+	}
+	left(source) {
+		let until = this.until.get(source);
+		if (until === void 0) return 0;
+		let left = until - GetGameTimer();
+		return left > 0 ? left : (this.until.delete(source), 0);
+	}
+	clear(source) {
+		this.until.delete(source);
+	}
+};
+function onCharacter(handlers) {
+	let live = new Map(), deliver = (source, character) => {
+		if (live.set(source, character.id), handlers.loaded) try {
+			let result = handlers.loaded(source, character);
+			result instanceof Promise && result.catch((error) => log$3.error(`character loaded handler failed for ${source}`, error));
+		} catch (error) {
+			log$3.error(`character loaded handler failed for ${source}`, error);
+		}
+	}, end = (source, charId) => {
+		if (live.delete(source)) try {
+			handlers.unloaded?.(source, charId);
+		} catch (error) {
+			log$3.error(`character unloaded handler failed for ${source}`, error);
+		}
+	};
+	on(CORE.playerLoadedEvent, (source, character) => {
+		let previous = live.get(source);
+		previous !== void 0 && end(source, previous), deliver(source, character);
+	}), on(CORE.playerUnloadedEvent, (source, charId) => end(source, charId)), onDropped((source) => setImmediate(() => {
+		let charId = live.get(source);
+		charId !== void 0 && end(source, charId);
+	})), setImmediate(() => {
+		for (let source of online.sources()) {
+			if (live.has(source)) continue;
+			let character = online.character(source);
+			character && deliver(source, character);
+		}
+	});
+}
+// ../../../packages/lib/src/server/pending.ts
+var PendingActions = class {
+	actions = new PlayerMap();
+	minRatio;
+	next = 0;
+	constructor(options = {}) {
+		this.minRatio = options.minRatio ?? .8;
+	}
+	start(source, data, durationMs) {
+		return this.next = this.next >= 2147483647 ? 1 : this.next + 1, this.actions.set(source, {
+			token: this.next,
+			data,
+			startedAt: GetGameTimer(),
+			durationMs
+		}), this.next;
+	}
+	take(source, token) {
+		let action = this.actions.get(source);
+		return !action || action.token !== token ? null : (this.actions.delete(source), GetGameTimer() - action.startedAt >= action.durationMs * this.minRatio ? action.data : null);
+	}
+	peek(source) {
+		return this.actions.get(source)?.data ?? null;
+	}
+	cancel(source) {
+		this.actions.delete(source);
+	}
+	get size() {
+		return this.actions.size;
+	}
+};
 // ../../../packages/lib/src/server/command.ts
 const resource = GetCurrentResourceName();
 createLogger(resource), new class {
@@ -1056,69 +1194,52 @@ var Mirror = class {
 		Player(source).state.set(this.key, value ?? null, !0), this.put(source, value);
 	}
 };
-resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource);
+resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource);
+// ../../../packages/lib/src/server/index.ts
+function isOnline(source) {
+	return !!GetPlayerName(String(source));
+}
 // resource/common/places.ts
-function readTeleports(raw) {
-	let out = new Map(), zero = {
-		x: 0,
-		y: 0,
-		z: 0,
-		heading: 0
+const ZERO = {
+	x: 0,
+	y: 0,
+	z: 0,
+	heading: 0
+};
+function readTeleport(id, v) {
+	return {
+		id,
+		label: str(v.label, id, 48),
+		from: vec4(v.from, ZERO),
+		to: vec4(v.to, ZERO),
+		job: str(v.job, "", 32)
 	};
-	for (let [id, value] of Object.entries(record(raw))) {
-		let v = record(value);
-		out.set(id, {
-			id,
-			label: str(v.label, id, 48),
-			from: vec4(v.from, zero),
-			to: vec4(v.to, zero),
-			job: str(v.job, "", 32)
-		});
-	}
-	return out;
 }
-function readElevators(raw) {
-	let out = new Map(), zero = {
-		x: 0,
-		y: 0,
-		z: 0,
-		heading: 0
-	};
-	for (let [id, value] of Object.entries(record(raw))) {
-		let v = record(value), floors = (Array.isArray(v.floors) ? v.floors : []).map((row, i) => {
-			let f = record(row);
-			return {
-				label: str(f.label, String(i + 1), 32),
-				point: vec4(f.point, zero),
-				job: str(f.job, "", 32)
-			};
-		});
-		floors.length >= 2 && out.set(id, {
-			id,
-			label: str(v.label, id, 48),
-			floors
-		});
-	}
-	return out;
-}
-function readMoorings(raw) {
-	let zero = {
-		x: 0,
-		y: 0,
-		z: 0,
-		heading: 0
-	};
-	return Object.entries(record(raw)).map(([id, value]) => {
-		let { x, y, z } = vec4(record(value).point, zero);
+function readElevator(id, v) {
+	let floors = (Array.isArray(v.floors) ? v.floors : []).map((row, i) => {
+		let f = record(row);
 		return {
-			id,
-			point: {
-				x,
-				y,
-				z
-			}
+			label: str(f.label, String(i + 1), 32),
+			point: vec4(f.point, ZERO),
+			job: str(f.job, "", 32)
 		};
 	});
+	return floors.length >= 2 ? {
+		id,
+		label: str(v.label, id, 48),
+		floors
+	} : null;
+}
+function readMooring(id, v) {
+	let { x, y, z } = vec4(v.point, ZERO);
+	return {
+		id,
+		point: {
+			x,
+			y,
+			z
+		}
+	};
 }
 // resource/common/small.ts
 const EVENTS = {
@@ -1786,76 +1907,67 @@ const SEAT_TYPES = {
 		},
 		...PLACE_TABS
 	]
-}), content = {
-	settings: readSettings(panel.get("settings")),
-	teleports: readTeleports(panel.get("teleports")),
-	elevators: readElevators(panel.get("elevators")),
-	moorings: readMoorings(panel.get("moorings"))
-};
-panel.onChange("settings", () => content.settings = readSettings(panel.get("settings"))), panel.onChange("teleports", () => content.teleports = readTeleports(panel.get("teleports"))), panel.onChange("elevators", () => content.elevators = readElevators(panel.get("elevators"))), panel.onChange("moorings", () => content.moorings = readMoorings(panel.get("moorings")));
-const fail = (error) => ({
-	ok: !1,
-	error
-}), pos = (source) => {
-	let [x = 0, y = 0, z = 0] = GetEntityCoords(GetPlayerPed(String(source)));
-	return {
-		x,
-		y,
-		z
-	};
-}, entityPos = (entity) => {
-	let [x = 0, y = 0, z = 0] = GetEntityCoords(entity);
-	return {
-		x,
-		y,
-		z
-	};
-}, dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z), Locale = createLocale();
+}), settings = panel.view("settings", readSettings), content = {
+	get settings() {
+		return settings.value;
+	},
+	teleports: panel.records("teleports", readTeleport),
+	elevators: panel.records("elevators", readElevator),
+	moorings: panel.records("moorings", readMooring)
+}, Locale = createLocale();
 // resource/server/player.ts
 GetCurrentResourceName(), IsDuplicityVersion(), onClientEvent(EVENTS.tackle, {
-	args: ([target]) => asArgs(typeof target == "number" && Number.isInteger(target) ? target : null),
+	args: oneArg(readId),
 	rate: {
 		count: 1,
 		windowMs: 3e3
 	}
 }, (source, target) => {
-	content.settings.tackle && target !== source && GetPlayerName(String(target)) && dist(pos(source), pos(target)) <= 3 && emitNet(EVENTS.tackled, target);
+	content.settings.tackle && target !== source && isOnline(target) && isNear(source, coordsOf(target), 3) && emitNet(EVENTS.tackled, target);
 });
-const still = new Map();
+const still = new PlayerMap();
 setInterval(() => {
 	let minutes = content.settings.afkMinutes;
 	if (minutes <= 0) return still.clear();
 	let now = Date.now();
 	for (let source of online.sources()) {
-		let p = pos(source), last = still.get(source);
-		!last || dist(last, p) > 1 ? still.set(source, {
+		let p = coordsOf(source), last = still.get(source);
+		!last || distance(last, p) > 1 ? still.set(source, {
 			...p,
 			since: now
 		}) : now - last.since < minutes * 6e4 || IsPlayerAceAllowed(String(source), "ai.admin") || (still.delete(source), DropPlayer(String(source), Locale("SMALL_AFK_KICK", minutes)));
 	}
-}, 6e4), on("playerDropped", () => still.delete(Number(globalThis.source)));
+}, 6e4);
 // resource/server/places.ts
-const core = resourceExport("ai-core"), hasJob = (source, job) => !job || (core.GetJobs(source) ?? []).some((m) => m.job === job);
-function moveTo(source, to) {
-	let ped = GetPlayerPed(String(source));
-	SetEntityCoords(ped, to.x, to.y, to.z, !1, !1, !1, !1), SetEntityHeading(ped, to.heading);
-}
+const hasJob = (source, job) => !job || online.jobs(source).includes(job);
 onClientCallback(EVENTS.teleport, {
-	args: ([id, end]) => typeof id == "string" && (end === "from" || end === "to") ? [id, end] : null,
+	args: ([id, end]) => {
+		let key = readText(id, 64);
+		return key !== null && (end === "from" || end === "to") ? [key, end] : null;
+	},
 	lock: !0
 }, (source, id, end) => {
 	let teleport = content.teleports.get(id);
-	return !teleport || dist(pos(source), teleport[end]) > 3 ? fail("SMALL_ERR_FAR") : hasJob(source, teleport.job) ? (moveTo(source, end === "from" ? teleport.to : teleport.from), { ok: !0 }) : fail("SMALL_ERR_JOB");
+	return !teleport || !isNear(source, teleport[end], 3) ? fail("SMALL_ERR_FAR") : hasJob(source, teleport.job) ? {
+		ok: !0,
+		to: end === "from" ? teleport.to : teleport.from
+	} : fail("SMALL_ERR_JOB");
 }), onClientCallback(EVENTS.elevator, {
-	args: ([id, from, to]) => typeof id == "string" && Number.isInteger(from) && Number.isInteger(to) && typeof from == "number" && typeof to == "number" ? [
-		id,
-		from,
-		to
-	] : null,
+	args: ([id, from, to]) => {
+		let key = readText(id, 64), a = readInt(from, 0, 63), b = readInt(to, 0, 63);
+		return key !== null && a !== null && b !== null ? [
+			key,
+			a,
+			b
+		] : null;
+	},
 	lock: !0
 }, (source, id, from, to) => {
 	let elevator = content.elevators.get(id), start = elevator?.floors[from], floor = elevator?.floors[to];
-	return !start || !floor || from === to || dist(pos(source), start.point) > 3 ? fail("SMALL_ERR_FAR") : hasJob(source, floor.job) ? (moveTo(source, floor.point), { ok: !0 }) : fail("SMALL_ERR_JOB");
+	return !start || !floor || from === to || !isNear(source, start.point, 3) ? fail("SMALL_ERR_FAR") : hasJob(source, floor.job) ? {
+		ok: !0,
+		to: floor.point
+	} : fail("SMALL_ERR_JOB");
 });
 // resource/common/items.ts
 const NEWS_ITEMS = {
@@ -1941,41 +2053,24 @@ const NEWS_ITEMS = {
 			"scr_indep_firework_fountain"
 		]
 	}
-}, hold = new PlayerState("aiHold", stateString);
-var Pending = class {
-	waiting = new Map();
-	next = 0;
-	start(source, item) {
-		let token = ++this.next;
-		return this.waiting.set(source, {
-			token,
-			item,
-			startedAt: Date.now()
-		}), token;
-	}
-	take(source, token, minMs) {
-		let wait = this.waiting.get(source);
-		return !wait || wait.token !== token ? null : (this.waiting.delete(source), Date.now() - wait.startedAt >= minMs ? wait.item : null);
-	}
-	drop(source) {
-		this.waiting.delete(source);
-	}
-};
-const fireworks = new Pending(), notes = new Pending();
+}, hold = new PlayerState("aiHold", stateString), fireworks = new PendingActions(), notes = new PendingActions({ minRatio: 0 });
 onClientCallback(EVENTS.fireworkPlaced, {
-	args: ([token]) => asArgs(typeof token == "number" ? token : null),
+	args: oneArg(readId),
 	lock: !0
 }, (source, token) => {
-	let item = fireworks.take(source, token, 2400);
+	let item = fireworks.take(source, token);
 	if (!item || !inventory.removeItem(source, item, 1)) return fail("SMALL_ERR_FAR");
-	let p = pos(source);
-	for (let player of getPlayers()) dist(pos(Number(player)), p) <= 400 && emitNet(EVENTS.firework, Number(player), p.x, p.y, p.z - .9, item);
+	let p = coordsOf(source);
+	for (let player of playersNear(source, 400)) emitNet(EVENTS.firework, player, p.x, p.y, p.z - .9, item);
 	return { ok: !0 };
 }), onClientCallback(EVENTS.noteSave, {
-	args: ([token, text]) => typeof token == "number" && typeof text == "string" && text.trim() ? [token, text.trim().slice(0, 500)] : null,
+	args: ([token, text]) => {
+		let id = readId(token), note = readText(text, 500);
+		return id !== null && note !== null ? [id, note] : null;
+	},
 	lock: !0
 }, (source, token, text) => {
-	if (!notes.take(source, token, 0) || !content.settings.notepad || !inventory.hasItem(source, ITEMS.notepad)) return fail("NOTE_ERR_FAILED");
+	if (!notes.take(source, token) || !content.settings.notepad || !inventory.hasItem(source, ITEMS.notepad)) return fail("NOTE_ERR_FAILED");
 	let metadata = {
 		text,
 		description: logSafe(text, 60)
@@ -1983,48 +2078,30 @@ onClientCallback(EVENTS.fireworkPlaced, {
 	return inventory.canCarryItem(source, ITEMS.note, 1, metadata) ? inventory.addItem(source, ITEMS.note, 1, metadata) ? { ok: !0 } : fail("NOTE_ERR_FAILED") : fail("NOTE_ERR_FULL");
 }), inventory.registerUsableItem("binoculars", (source) => (content.settings.binoculars && emitNet(EVENTS.binoculars, source), !1));
 for (let item of Object.keys(NEWS_ITEMS)) inventory.registerUsableItem(item, (source) => (hold.set(source, hold.get(source) === item ? void 0 : item), !1));
-for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1) || emitNet(EVENTS.fireworkPlace, source, fireworks.start(source, item)), !1));
-inventory.registerUsableItem(ITEMS.notepad, (source) => (content.settings.notepad && emitNet(EVENTS.noteWrite, source, notes.start(source, ITEMS.notepad)), !1)), inventory.registerUsableItem(ITEMS.note, (source, used) => {
+for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1) || emitNet(EVENTS.fireworkPlace, source, fireworks.start(source, item, 3e3)), !1));
+inventory.registerUsableItem(ITEMS.notepad, (source) => (content.settings.notepad && emitNet(EVENTS.noteWrite, source, notes.start(source, ITEMS.notepad, 0)), !1)), inventory.registerUsableItem(ITEMS.note, (source, used) => {
 	let text = used.metadata.text;
 	return typeof text == "string" && text && emitNet(EVENTS.noteRead, source, text), !1;
-}), on("playerDropped", () => {
-	let source = Number(globalThis.source);
-	fireworks.drop(source), notes.drop(source);
 });
 // resource/server/vehicles.ts
-const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean), randomPlate = () => [
-	0,
-	1,
-	2,
-	3,
-	4,
-	5,
-	6,
-	7
-].map((i) => i >= 2 && i <= 4 ? "ABCDEFGHJKLMNPRSTUVWXYZ"[Math.floor(Math.random() * 23)] : String(Math.floor(Math.random() * 10))).join(""), plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim(), work = new Map();
-let nextToken = 0;
+const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean), plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim(), work = new PendingActions({ minRatio: .9 });
 inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
 	if (!content.settings.fakePlate) return !1;
 	let ped = GetPlayerPed(String(source)), vehicle = GetVehiclePedIsIn(ped, !1) ? 0 : nearestVehicleTo(source, 3);
 	if (!vehicle) return notify(source, Locale("PLATE_ERR_NONE"), "error"), !1;
 	let removing = realPlate.get(vehicle) !== void 0;
-	if (!removing && !vehicleKeys.has(source, vehicle)) return notify(source, Locale("PLATE_ERR_KEYS"), "error"), !1;
-	let token = ++nextToken;
-	return work.set(source, {
-		token,
+	return !removing && !vehicleKeys.has(source, vehicle) ? (notify(source, Locale("PLATE_ERR_KEYS"), "error"), !1) : (emitNet(EVENTS.plateWork, source, work.start(source, {
 		vehicle,
-		removing,
-		startedAt: Date.now()
-	}), emitNet(EVENTS.plateWork, source, token, NetworkGetNetworkIdFromEntity(vehicle), removing), !1;
+		removing
+	}, 6e3), NetworkGetNetworkIdFromEntity(vehicle), removing), !1);
 }), onClientCallback(EVENTS.plateDone, {
-	args: ([token]) => asArgs(typeof token == "number" ? token : null),
+	args: oneArg(readId),
 	lock: !0
 }, (source, token) => {
-	let job = work.get(source);
-	if (!job || job.token !== token) return fail("SMALL_ERR_FAR");
-	work.delete(source);
+	let job = work.take(source, token);
+	if (!job) return fail("SMALL_ERR_FAR");
 	let { vehicle, removing } = job;
-	if (Date.now() - job.startedAt < 5500 || !DoesEntityExist(vehicle) || dist(pos(source), entityPos(vehicle)) > 4 || realPlate.get(vehicle) !== void 0 !== removing) return fail("SMALL_ERR_FAR");
+	if (!DoesEntityExist(vehicle) || !isNear(source, entityCoords(vehicle), 4) || realPlate.get(vehicle) !== void 0 !== removing) return fail("SMALL_ERR_FAR");
 	let keyHolder = vehicleKeys.has(source, vehicle), shown;
 	if (removing) shown = realPlate.get(vehicle) ?? plateOf(vehicle), realPlate.set(vehicle, void 0), inventory.canCarryItem(source, ITEMS.fakePlate, 1) && inventory.addItem(source, ITEMS.fakePlate, 1);
 	else {
@@ -2033,17 +2110,20 @@ inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
 	}
 	return SetVehicleNumberPlateText(vehicle, shown), keyHolder && vehicleKeys.give(source, shown, "temporary"), { ok: !0 };
 }), onClientCallback(EVENTS.moor, {
-	args: ([netId]) => asArgs(typeof netId == "number" ? netId : null),
+	args: oneArg(readId),
 	lock: !0
 }, (source, netId) => {
-	let boat = NetworkGetEntityFromNetworkId(netId);
-	if (!content.settings.boatRope || !boat || !DoesEntityExist(boat) || GetVehicleType(boat) !== "boat" || dist(pos(source), entityPos(boat)) > 6) return fail("SMALL_ERR_FAR");
+	let boat = vehicleFromNet(netId);
+	if (!content.settings.boatRope || !boat || GetVehicleType(boat) !== "boat" || !isNear(source, entityCoords(boat), 6)) return fail("SMALL_ERR_FAR");
+	let driver = GetPedInVehicleSeat(boat, -1);
+	if (driver && driver !== GetPlayerPed(String(source))) return fail("MOOR_ERR_DRIVEN");
 	if (moored.get(boat) === !0) return FreezeEntityPosition(boat, !1), moored.set(boat, void 0), { ok: !0 };
-	let at = entityPos(boat);
-	return content.moorings.some((m) => dist(m.point, at) <= 14) ? (FreezeEntityPosition(boat, !0), moored.set(boat, !0), { ok: !0 }) : fail("MOOR_ERR_FAR");
-}), on("playerDropped", () => work.delete(Number(globalThis.source)));
+	let at = entityCoords(boat), inReach = !1;
+	for (let m of content.moorings.values()) distance(m.point, at) <= 14 && (inReach = !0);
+	return inReach ? (FreezeEntityPosition(boat, !0), moored.set(boat, !0), { ok: !0 }) : fail("MOOR_ERR_FAR");
+});
 // resource/server/carry.ts
-const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber), carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber), dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean), cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean), carries = new class {
+const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber), carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber), dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean), cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean), asks = new Cooldowns(), carries = new class {
 	agreed = new Set();
 	asking = new Set();
 	busy(source) {
@@ -2067,25 +2147,18 @@ const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber), carriedBy =
 	end(carrier, target) {
 		carrying.set(carrier, void 0), carriedBy.set(target, void 0), this.agreed.delete(target);
 	}
-}();
-function nearestFree(source) {
-	let me = pos(source), best = null, bestDist = 2;
-	for (let other of playersNear(source, 10)) {
-		if (other === source || carries.busy(other)) continue;
-		let ped = GetPlayerPed(String(other));
-		if (GetVehiclePedIsIn(ped, !1)) continue;
-		let d = dist(me, pos(other));
-		d < bestDist && ([best, bestDist] = [other, d]);
-	}
-	return best;
-}
+}(), nearestFree = (source) => nearestPlayerTo(source, 2, (other) => !carries.busy(other) && !GetVehiclePedIsIn(GetPlayerPed(String(other)), !1));
 onClientCallback(EVENTS.carry, async (source) => {
 	if (carries.stop(source, !0)) return { ok: !0 };
 	if (!content.settings.carry || carries.busy(source) || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1)) return fail("CARRY_ERR_NONE");
 	let target = nearestFree(source);
 	if (target === null) return fail("CARRY_ERR_NONE");
 	let helpless = dead.get(target) === !0 || cuffed.get(target) === !0;
-	return !helpless && !await carries.ask(source, target) ? fail("CARRY_ERR_DECLINED") : carries.busy(source) || carries.busy(target) || dist(pos(source), pos(target)) > 3 ? fail("CARRY_ERR_NONE") : (carries.start(source, target, !helpless), { ok: !0 });
-}, { lock: !0 }), on("playerDropped", () => carries.stop(Number(globalThis.source))), on(CORE.playerDiedEvent, (source) => {
+	if (!helpless) {
+		if (!asks.ready(source)) return fail("CARRY_ERR_WAIT");
+		if (!await carries.ask(source, target)) return asks.start(source, 3e4), fail("CARRY_ERR_DECLINED");
+	}
+	return carries.busy(source) || carries.busy(target) || !isNear(source, coordsOf(target), 3) ? fail("CARRY_ERR_NONE") : (carries.start(source, target, !helpless), { ok: !0 });
+}, { lock: !0 }), onCharacter({ unloaded: (source) => void carries.stop(source) }), on(CORE.playerDiedEvent, (source) => {
 	typeof source == "number" && carrying.get(source) !== void 0 && carries.stop(source);
 });

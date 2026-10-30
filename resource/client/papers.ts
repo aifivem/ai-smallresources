@@ -1,26 +1,27 @@
 import {
   cache,
+  callAction,
   input,
   notify,
   onServerEvent,
   progress,
-  triggerServerCallback,
 } from "@aicore-fivem/lib/client";
-import { asArgs } from "@aicore-fivem/lib/shared";
+import { asArgs, oneArg, readId } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS, NOTE_MAX } from "common/small";
-import { answered } from "./feedback";
+import { FALLBACK } from "./settings";
 
 /** Fake plate: the server picked the vehicle; the player works on its plate, the server swaps it when done. */
 onServerEvent(
   EVENTS.plateWork,
   {
-    args: ([token, netId, removing]): [number, number, boolean] | null =>
-      typeof token === "number" &&
-      typeof netId === "number" &&
-      typeof removing === "boolean"
-        ? [token, netId, removing]
-        : null,
+    args: ([token, netId, removing]): [number, number, boolean] | null => {
+      const t = readId(token);
+      const id = readId(netId);
+      return t !== null && id !== null && typeof removing === "boolean"
+        ? [t, id, removing]
+        : null;
+    },
   },
   async (token, netId, removing) => {
     if (NetworkDoesEntityExistWithNetworkId(netId))
@@ -36,48 +37,32 @@ onServerEvent(
     });
     ClearPedTasks(cache.ped);
     if (!done) return;
-    if (
-      answered(
-        await triggerServerCallback(EVENTS.plateDone, [token]).catch(
-          () => null,
-        ),
-      )
-    )
+    if (await callAction(EVENTS.plateDone, [token], FALLBACK))
       notify(Locale(removing ? "PLATE_REMOVED" : "PLATE_FITTED"), "success");
   },
 );
 
 /** Notepad: write a page, the server tears it off as a note item carrying the text. */
-onServerEvent(
-  EVENTS.noteWrite,
-  { args: ([token]) => asArgs(typeof token === "number" ? token : null) },
-  async (token) => {
-    const values = await input({
-      title: Locale("NOTE_WRITE_TITLE"),
-      confirm: Locale("NOTE_WRITE_CONFIRM"),
-      fields: [
-        {
-          name: "text",
-          label: Locale("NOTE_TEXT"),
-          type: "text",
-          multiline: true,
-          maxLength: NOTE_MAX,
-          placeholder: Locale("NOTE_PLACEHOLDER"),
-        },
-      ],
-    });
-    const text = values?.text;
-    if (typeof text !== "string" || !text) return;
-    if (
-      answered(
-        await triggerServerCallback(EVENTS.noteSave, [token, text]).catch(
-          () => null,
-        ),
-      )
-    )
-      notify(Locale("NOTE_SAVED"), "success");
-  },
-);
+onServerEvent(EVENTS.noteWrite, { args: oneArg(readId) }, async (token) => {
+  const values = await input({
+    title: Locale("NOTE_WRITE_TITLE"),
+    confirm: Locale("NOTE_WRITE_CONFIRM"),
+    fields: [
+      {
+        name: "text",
+        label: Locale("NOTE_TEXT"),
+        type: "text",
+        multiline: true,
+        maxLength: NOTE_MAX,
+        placeholder: Locale("NOTE_PLACEHOLDER"),
+      },
+    ],
+  });
+  const text = values?.text;
+  if (typeof text !== "string" || !text) return;
+  if (await callAction(EVENTS.noteSave, [token, text], FALLBACK))
+    notify(Locale("NOTE_SAVED"), "success");
+});
 
 /** A note item read: its text in the dialog, nothing to edit. */
 onServerEvent(

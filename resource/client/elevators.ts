@@ -1,17 +1,11 @@
-import {
-  fadeOut,
-  menu,
-  Points,
-  triggerServerCallback,
-} from "@aicore-fivem/lib/client";
-import { sleep } from "@aicore-fivem/lib/shared";
+import { menu, Points } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
 import type { Elevator } from "common/places";
 import { EVENTS } from "common/small";
-import { answered } from "./feedback";
 import { content, onContent } from "./settings";
+import { moveBy } from "./teleports";
 
-/** A point on every floor of every elevator; the menu lists the other floors, the server moves the player. */
+/** A point on every floor of every elevator; the menu lists the other floors, the server checks the ride. */
 const points = new Points();
 function rebuild(): void {
   points.clear();
@@ -39,16 +33,7 @@ async function ride(elevator: Elevator, from: number): Promise<void> {
     })),
   });
   if (picked === null) return;
-  await fadeOut(300);
-  const ok = answered(
-    await triggerServerCallback(EVENTS.elevator, [
-      elevator.id,
-      from,
-      Number(picked),
-    ]).catch(() => null),
-  );
-  if (ok) await sleep(500);
-  DoScreenFadeIn(300);
+  await moveBy(EVENTS.elevator, [elevator.id, from, Number(picked)]);
 }
 
 rebuild();

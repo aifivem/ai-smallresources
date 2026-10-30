@@ -5,7 +5,7 @@ import { content, onSettings } from "./settings";
 const RAY_FLAGS = 1 | 2 | 16;
 /** Attack and vehicle attack controls blocked while the barrel is behind cover. */
 const FIRE_CONTROLS = [24, 69, 92, 106, 257];
-const CHECK_MS = 50;
+const CHECK_MS = 100;
 
 function rayHit(from: number[], to: number[], ignore: number): number[] | null {
   const ray = StartExpensiveSynchronousShapeTestLosProbe(

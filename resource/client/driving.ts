@@ -82,11 +82,7 @@ class Driving {
 
   toggleCruise(): void {
     const vehicle = cache.vehicle;
-    if (
-      !content.settings.cruise ||
-      vehicle === false ||
-      GetPedInVehicleSeat(vehicle, -1) !== cache.ped
-    )
+    if (!content.settings.cruise || vehicle === false || cache.seat !== -1)
       return;
     this.cruising = !this.cruising;
     // 0 gives the vehicle its own top speed back.

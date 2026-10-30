@@ -1,11 +1,12 @@
 import {
   cache,
   Keybind,
+  nearestPlayer,
   onServerEvent,
   player,
+  requestAnimSet,
   TickLoop,
 } from "@aicore-fivem/lib/client";
-import { waitFor } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS } from "common/small";
 import { content, onSettings } from "./settings";
@@ -25,10 +26,7 @@ class Crouch {
       return;
     this.crouched = !this.crouched;
     if (!this.crouched) return ResetPedMovementClipset(cache.ped, 0.25);
-    RequestAnimSet(CROUCH);
-    await waitFor(() => HasAnimSetLoaded(CROUCH) || undefined, 3000).catch(
-      () => false,
-    );
+    await requestAnimSet(CROUCH, 3000).catch(() => null);
     SetPedMovementClipset(cache.ped, CROUCH, 0.25);
   }
 }
@@ -55,16 +53,9 @@ async function tackle(): Promise<void> {
     1.2,
     0,
   );
-  const target = GetActivePlayers().find((other: number) => {
-    if (other === cache.playerId) return false;
-    const [px = 0, py = 0, pz = 0] = GetEntityCoords(
-      GetPlayerPed(other),
-      false,
-    );
-    return Math.hypot(px - x, py - y, pz - z) <= 1.6;
-  });
-  if (target === undefined) return;
-  emitNet(EVENTS.tackle, GetPlayerServerId(target));
+  const target = nearestPlayer(1.6, { from: { x, y, z } });
+  if (target === null) return;
+  emitNet(EVENTS.tackle, target);
   await player.playAnim("missmic2ig_11", "mic_2_ig_11_intro_goon", {
     duration: 1200,
     flag: 0,

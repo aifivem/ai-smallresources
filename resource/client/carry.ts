@@ -1,18 +1,18 @@
 import {
   cache,
+  callAction,
   controls,
   menu,
   onCache,
   onServerCallback,
-  optionalExport,
+  player,
   PlayerState,
+  radial,
   requestAnimDict,
   stateNumber,
-  triggerServerCallback,
 } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
 import { CARRY_STATE, EVENTS } from "common/small";
-import { answered } from "./feedback";
 import { content, onSettings } from "./settings";
 
 const CARRIER = {
@@ -39,10 +39,7 @@ class Carry {
   private timer: ReturnType<typeof setInterval> | null = null;
 
   async request(): Promise<void> {
-    answered(
-      await triggerServerCallback(EVENTS.carry).catch(() => null),
-      "CARRY_ERR_NONE",
-    );
+    await callAction(EVENTS.carry, [], { fallback: "CARRY_ERR_NONE" });
   }
 
   async start(anim: typeof CARRIER, carrier?: number): Promise<void> {
@@ -88,19 +85,7 @@ class Carry {
   private play(): void {
     const a = this.anim;
     if (a && !IsEntityPlayingAnim(cache.ped, a.dict, a.clip, 3))
-      TaskPlayAnim(
-        cache.ped,
-        a.dict,
-        a.clip,
-        8,
-        -8,
-        -1,
-        a.flag,
-        0,
-        false,
-        false,
-        false,
-      );
+      void player.playAnim(a.dict, a.clip, { flag: a.flag });
   }
 }
 
@@ -132,19 +117,12 @@ onServerCallback(EVENTS.carryAsk, async (name) => {
   return picked === "yes";
 });
 
-// The radial wheel item while the feature is on and ai-radialmenu runs.
-function radial(): void {
-  const wheel = optionalExport("ai-radialmenu");
-  if (!content.settings.carry) return wheel?.RemoveItem("carry");
-  wheel?.AddItem({
-    id: "carry",
-    label: Locale("CARRY_RADIAL"),
-    icon: "people-carry-box",
-    onSelect: () => void carry.request(),
-  });
-}
-radial();
-onSettings(radial);
-on("onClientResourceStart", (resource: string) => {
-  if (resource === "ai-radialmenu") radial();
+// The radial menu item (whichever radial runs, through ai-core) while the feature is on.
+radial.add({
+  id: "carry",
+  label: Locale("CARRY_RADIAL"),
+  icon: "people-carry-box",
+  canShow: () => content.settings.carry,
+  onPressed: () => void carry.request(),
 });
+onSettings(() => radial.refresh());

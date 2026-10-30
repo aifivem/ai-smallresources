@@ -1,60 +1,42 @@
 import {
+  coordsOf,
   inventory,
   onClientCallback,
+  PendingActions,
+  playersNear,
   PlayerState,
   stateString,
 } from "@aicore-fivem/lib/server";
-import { asArgs, logSafe } from "@aicore-fivem/lib/shared";
+import {
+  fail,
+  logSafe,
+  oneArg,
+  readId,
+  readText,
+} from "@aicore-fivem/lib/shared";
 import { FIREWORKS, HOLD_STATE, NEWS_ITEMS } from "common/items";
 import { EVENTS, ITEMS, NOTE_MAX } from "common/small";
-import { content, dist, fail, pos } from "./content";
+import { content } from "./content";
 
 const hold = new PlayerState(HOLD_STATE, stateString);
 
-/** Item actions waiting for the player's client (a progress, a dialog), one per player. */
-class Pending {
-  private readonly waiting = new Map<
-    number,
-    { token: number; item: string; startedAt: number }
-  >();
-  private next = 0;
+/** The firework's progress on the client (3 s; lib `PendingActions` wants 80% of it). */
+const FIREWORK_MS = 3000;
+/** Item actions waiting for the player's client (the firework progress, the note dialog), one per player each. */
+const fireworks = new PendingActions<string>();
+const notes = new PendingActions<string>({ minRatio: 0 });
 
-  start(source: number, item: string): number {
-    const token = ++this.next;
-    this.waiting.set(source, { token, item, startedAt: Date.now() });
-    return token;
-  }
-
-  /** The item of a pending action when the token matches and at least `minMs` passed; it ends the action. */
-  take(source: number, token: number, minMs: number): string | null {
-    const wait = this.waiting.get(source);
-    if (!wait || wait.token !== token) return null;
-    this.waiting.delete(source);
-    return Date.now() - wait.startedAt >= minMs ? wait.item : null;
-  }
-
-  drop(source: number): void {
-    this.waiting.delete(source);
-  }
-}
-const fireworks = new Pending();
-const notes = new Pending();
-
-/** Fireworks: placed after the progress; the show goes to everyone within 400 m. */
+/** Fireworks: placed after the progress; the show goes to everyone within 400 m (scope candidates). */
 onClientCallback(
   EVENTS.fireworkPlaced,
-  {
-    args: ([token]) => asArgs(typeof token === "number" ? token : null),
-    lock: true,
-  },
+  { args: oneArg(readId), lock: true },
   (source, token) => {
-    const item = fireworks.take(source, token, 2400);
+    const item = fireworks.take(source, token);
     if (!item || !inventory.removeItem(source, item, 1))
       return fail("SMALL_ERR_FAR");
-    const p = pos(source);
-    for (const player of getPlayers())
-      if (dist(pos(Number(player)), p) <= 400)
-        emitNet(EVENTS.firework, Number(player), p.x, p.y, p.z - 0.9, item);
+    const p = coordsOf(source);
+    for (const player of playersNear(source, 400))
+      emitNet(EVENTS.firework, player, p.x, p.y, p.z - 0.9, item);
     return { ok: true };
   },
 );
@@ -63,14 +45,15 @@ onClientCallback(
 onClientCallback(
   EVENTS.noteSave,
   {
-    args: ([token, text]): [number, string] | null =>
-      typeof token === "number" && typeof text === "string" && text.trim()
-        ? [token, text.trim().slice(0, NOTE_MAX)]
-        : null,
+    args: ([token, text]): [number, string] | null => {
+      const id = readId(token);
+      const note = readText(text, NOTE_MAX);
+      return id !== null && note !== null ? [id, note] : null;
+    },
     lock: true,
   },
   (source, token, text) => {
-    if (!notes.take(source, token, 0) || !content.settings.notepad)
+    if (!notes.take(source, token) || !content.settings.notepad)
       return fail("NOTE_ERR_FAILED");
     if (!inventory.hasItem(source, ITEMS.notepad))
       return fail("NOTE_ERR_FAILED");
@@ -100,22 +83,20 @@ for (const item of Object.keys(FIREWORKS))
       GetVehiclePedIsIn(GetPlayerPed(String(source)), false)
     )
       return false;
-    emitNet(EVENTS.fireworkPlace, source, fireworks.start(source, item));
+    emitNet(
+      EVENTS.fireworkPlace,
+      source,
+      fireworks.start(source, item, FIREWORK_MS),
+    );
     return false;
   });
 inventory.registerUsableItem(ITEMS.notepad, (source) => {
   if (content.settings.notepad)
-    emitNet(EVENTS.noteWrite, source, notes.start(source, ITEMS.notepad));
+    emitNet(EVENTS.noteWrite, source, notes.start(source, ITEMS.notepad, 0));
   return false;
 });
 inventory.registerUsableItem(ITEMS.note, (source, used) => {
   const text = used.metadata.text;
   if (typeof text === "string" && text) emitNet(EVENTS.noteRead, source, text);
   return false;
-});
-
-on("playerDropped", () => {
-  const source = Number(globalThis.source);
-  fireworks.drop(source);
-  notes.drop(source);
 });

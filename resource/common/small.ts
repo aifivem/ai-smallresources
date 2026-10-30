@@ -7,9 +7,9 @@ export const EVENTS = {
   tackle: "ai-smallresources:tackle",
   /** Server -> tackled player: () fall down. */
   tackled: "ai-smallresources:client:tackled",
-  /** Callback: (teleportId, end: "from" | "to") -> { ok } go to the other end. */
+  /** Callback: (teleportId, end: "from" | "to") -> { ok, to: Vec4 } the other end, the client teleports there. */
   teleport: "ai-smallresources:teleport",
-  /** Callback: (elevatorId, from, to) -> { ok } ride from one floor index to another. */
+  /** Callback: (elevatorId, from, to) -> { ok, to: Vec4 } ride from one floor index to another (the client teleports). */
   elevator: "ai-smallresources:elevator",
   /** Server -> player: () the binoculars item was used. */
   binoculars: "ai-smallresources:client:binoculars",
