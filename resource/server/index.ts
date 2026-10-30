@@ -1,4 +1,4 @@
-import { AdminPanel, inventory, onClientCallback, onClientEvent, resourceExport } from "@aicore-fivem/lib/server";
+import { AdminPanel, inventory, onClientCallback, onClientEvent, online, resourceExport } from "@aicore-fivem/lib/server";
 import { asArgs } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS, FIREWORKS, HOLD_STATE, NEWS_ITEMS, readSettings, readTeleports } from "common/small";
@@ -86,7 +86,7 @@ setInterval(() => {
   const minutes = content.settings.afkMinutes;
   if (minutes <= 0) return still.clear();
   const now = Date.now();
-  for (const source of core.GetLoadedSources()) {
+  for (const source of online.sources()) {
     const p = pos(source);
     const last = still.get(source);
     if (!last || dist(last, p) > 1) {
