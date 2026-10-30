@@ -110,6 +110,7 @@ new Keybind({
   description: Locale("KEYBIND_SEATBELT"),
   defaultKey: "K",
   hint: "vehicle",
+  icon: "user-shield",
   onPressed: () => driving.toggleBelt(),
 });
 new Keybind({

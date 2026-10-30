@@ -193,6 +193,7 @@ new Keybind({
   description: Locale("KEYBIND_POINT"),
   defaultKey: "B",
   hint: "foot",
+  icon: "hand-point-up",
   onPressed: () => void pointing.toggle(),
 });
 new Keybind({
@@ -200,12 +201,15 @@ new Keybind({
   description: Locale("KEYBIND_HANDS_UP"),
   defaultKey: "X",
   hint: "foot",
+  icon: "hand",
   onPressed: () => void hands.toggle(),
 });
 new Keybind({
   name: "smallresources_ragdoll",
   description: Locale("KEYBIND_RAGDOLL"),
-  defaultKey: "",
+  defaultKey: "M",
+  hint: "foot",
+  icon: "person-falling",
   onPressed: () => {
     if (
       content.settings.ragdoll &&
