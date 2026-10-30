@@ -28,7 +28,7 @@ export const smallSchema: PanelSchema = {
       sync: "all",
       labelPath: "label",
       newRecord: { label: "", from: { x: 0, y: 0, z: 0, heading: 0 }, to: { x: 0, y: 0, z: 0, heading: 0 }, job: "" },
-      sections: { label: { type: "text", min: 1, max: 48 }, from: { type: "vec4" }, to: { type: "vec4" }, job: { type: "text", min: 0, max: 32 } },
+      sections: { label: { type: "text", min: 1, max: 48 }, from: { type: "vec4" }, to: { type: "vec4" }, job: { type: "text", lookup: "job", min: 0, max: 32 } },
     },
   },
   tabs: [
@@ -89,10 +89,10 @@ export const smallSchema: PanelSchema = {
           title: "ADMIN_C_TELEPORT",
           desc: "ADMIN_C_TELEPORT_DESC",
           fields: [
-            { widget: "text", path: "label", label: "ADMIN_F_LABEL", placeholder: "ADMIN_P_LABEL" },
+            { widget: "text", path: "label", suggest: { from: "from" }, label: "ADMIN_F_LABEL", placeholder: "ADMIN_P_LABEL" },
             { widget: "point", path: "from", label: "ADMIN_F_FROM", heading: true, ground: true },
             { widget: "point", path: "to", label: "ADMIN_F_TO", heading: true, ground: true },
-            { widget: "text", path: "job", label: "ADMIN_F_JOB", hint: "ADMIN_H_JOB", placeholder: "ADMIN_P_JOB" },
+            { widget: "text", lookup: "job", path: "job", label: "ADMIN_F_JOB", hint: "ADMIN_H_JOB", placeholder: "ADMIN_P_JOB" },
           ],
         },
       ],
