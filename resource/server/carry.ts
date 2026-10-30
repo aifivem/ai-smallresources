@@ -59,10 +59,7 @@ class Carries {
 
   async ask(carrier: number, target: number): Promise<boolean> {
     this.asking.add(carrier).add(target);
-    const character = online.character(carrier);
-    const name = character
-      ? `${character.firstname} ${character.lastname}`
-      : GetPlayerName(String(carrier));
+    const name = online.name(carrier);
     const answer = await triggerClientCallback(
       EVENTS.carryAsk,
       target,
