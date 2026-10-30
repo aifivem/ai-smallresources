@@ -49,7 +49,7 @@
   "ADMIN_TAB_TELEPORTS": "Teleports",
   "ADMIN_TAB_TELEPORTS_DESC": "Doors and elevators that take players between two points.",
   "ADMIN_NEW_TELEPORT": "New teleport",
-  "ADMIN_DELETE_TELEPORT": "Delete this teleport?",
+  "ADMIN_DELETE_TELEPORT": "Delete teleport",
   "ADMIN_C_TELEPORT": "Teleport",
   "ADMIN_C_TELEPORT_DESC": "A prompt at both ends takes the player to the other end.",
   "ADMIN_F_LABEL": "Name",

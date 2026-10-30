@@ -17,4 +17,4 @@ Small gameplay features, each behind a panel switch: seatbelt, cruise control, n
 
 ## Entry points
 
-- Server checks, items, AFK `resource/server/index.ts`; client modules `resource/client/` (driving, player, items, teleports), panel files `resource/client/settings.ts`.
+- Server checks, items, AFK `resource/server/index.ts`; client modules `resource/client/` (driving, player, items, news, teleports), panel files `resource/client/settings.ts`.
