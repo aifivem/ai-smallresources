@@ -1,4 +1,10 @@
-import { callAction, fadeOut, player, Points } from "@aicore-fivem/lib/client";
+import {
+  callAction,
+  fadeIn,
+  fadeOut,
+  player,
+  Points,
+} from "@aicore-fivem/lib/client";
 import { isRecord, vec4 } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS } from "common/small";
@@ -8,7 +14,7 @@ import { content, FALLBACK, onTeleports } from "./settings";
 export async function moveBy(name: string, args: unknown[]): Promise<void> {
   await fadeOut(300);
   const reply = await callAction(name, args, FALLBACK);
-  if (!reply || !isRecord(reply.to)) return DoScreenFadeIn(300);
+  if (!reply || !isRecord(reply.to)) return fadeIn(300);
   const to = vec4(reply.to, { x: 0, y: 0, z: 0, heading: 0 });
   await player.teleport(to, { heading: to.heading });
 }

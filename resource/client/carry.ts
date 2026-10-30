@@ -2,6 +2,7 @@ import {
   cache,
   callAction,
   controls,
+  every,
   menu,
   onCache,
   onServerCallback,
@@ -36,7 +37,10 @@ const carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber);
  */
 class Carry {
   private anim: typeof CARRIER | null = null;
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private readonly job = every(500, () => this.play(), {
+    active: false,
+    name: "carryAnim",
+  });
 
   async request(): Promise<void> {
     await callAction(EVENTS.carry, [], { fallback: "CARRY_ERR_NONE" });
@@ -68,14 +72,13 @@ class Carry {
       controls.disable("carried", CARRIED_CONTROLS);
     }
     this.play();
-    this.timer ??= setInterval(() => this.play(), 500);
+    this.job.set(true);
   }
 
   stop(): void {
     if (!this.anim) return;
     this.anim = null;
-    if (this.timer) clearInterval(this.timer);
-    this.timer = null;
+    this.job.set(false);
     controls.enable("carried");
     DetachEntity(cache.ped, true, false);
     ClearPedSecondaryTask(cache.ped);

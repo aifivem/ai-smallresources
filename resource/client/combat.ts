@@ -1,45 +1,33 @@
-import { cache, controls, onCache } from "@aicore-fivem/lib/client";
+import {
+  cache,
+  controls,
+  every,
+  onCache,
+  raycast,
+} from "@aicore-fivem/lib/client";
+import { distance, type Vec3 } from "@aicore-fivem/lib/shared";
 import { content, onSettings } from "./settings";
 
-/** Map, vehicles and objects: what stops a bullet. */
-const RAY_FLAGS = 1 | 2 | 16;
 /** Attack and vehicle attack controls blocked while the barrel is behind cover. */
 const FIRE_CONTROLS = [24, 69, 92, 106, 257];
 const CHECK_MS = 100;
-
-function rayHit(from: number[], to: number[], ignore: number): number[] | null {
-  const ray = StartExpensiveSynchronousShapeTestLosProbe(
-    from[0] ?? 0,
-    from[1] ?? 0,
-    from[2] ?? 0,
-    to[0] ?? 0,
-    to[1] ?? 0,
-    to[2] ?? 0,
-    RAY_FLAGS,
-    ignore,
-    7,
-  );
-  const [, hit, coords] = GetShapeTestResult(ray);
-  return hit ? coords : null;
-}
 
 /**
  * Anti ghost-peek: from behind a corner the third person camera sees round it while the gun does not. While aiming,
  * a ray from the weapon to the spot the camera aims at must reach it; when cover is in between, firing is blocked.
  */
 class GhostPeek {
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private readonly job = every(CHECK_MS, () => this.check(), {
+    active: false,
+    name: "ghostPeek",
+  });
   private blocked = false;
 
   watch(armed: boolean): void {
     const on = armed && content.settings.antiPeek;
-    if (on && !this.timer)
-      this.timer = setInterval(() => this.check(), CHECK_MS);
-    else if (!on && this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-      this.set(false);
-    }
+    if (on === this.job.running) return;
+    this.job.set(on);
+    if (!on) this.set(false);
   }
 
   private set(blocked: boolean): void {
@@ -52,27 +40,22 @@ class GhostPeek {
   private check(): void {
     const weapon = GetCurrentPedWeaponEntityIndex(cache.ped);
     if (!weapon || !IsPlayerFreeAiming(cache.playerId)) return this.set(false);
-    const cam = GetGameplayCamCoord();
+    const [cx = 0, cy = 0, cz = 0] = GetGameplayCamCoord();
     const [rx = 0, , rz = 0] = GetGameplayCamRot(2);
     const pitch = (rx * Math.PI) / 180;
     const yaw = (rz * Math.PI) / 180;
     const far = 200;
-    const end = [
-      (cam[0] ?? 0) - Math.sin(yaw) * Math.abs(Math.cos(pitch)) * far,
-      (cam[1] ?? 0) + Math.cos(yaw) * Math.abs(Math.cos(pitch)) * far,
-      (cam[2] ?? 0) + Math.sin(pitch) * far,
-    ];
-    const target = rayHit(cam, end, cache.ped) ?? end;
-    const muzzle = GetEntityCoords(weapon, false);
-    const hit = rayHit(muzzle, target, cache.ped);
-    this.set(
-      hit !== null &&
-        Math.hypot(
-          (hit[0] ?? 0) - (target[0] ?? 0),
-          (hit[1] ?? 0) - (target[1] ?? 0),
-          (hit[2] ?? 0) - (target[2] ?? 0),
-        ) > 1,
-    );
+    const cam: Vec3 = { x: cx, y: cy, z: cz };
+    const end: Vec3 = {
+      x: cx - Math.sin(yaw) * Math.abs(Math.cos(pitch)) * far,
+      y: cy + Math.cos(yaw) * Math.abs(Math.cos(pitch)) * far,
+      z: cz + Math.sin(pitch) * far,
+    };
+    // raycast's default flags (map, vehicles, objects) are what stops a bullet.
+    const target = raycast(cam, end)?.coords ?? end;
+    const [mx = 0, my = 0, mz = 0] = GetEntityCoords(weapon, false);
+    const hit = raycast({ x: mx, y: my, z: mz }, target);
+    this.set(hit !== null && distance(hit.coords, target) > 1);
   }
 }
 

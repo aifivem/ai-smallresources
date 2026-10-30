@@ -1,5 +1,6 @@
 import {
   coordsOf,
+  every,
   isNear,
   isOnline,
   onClientEvent,
@@ -24,7 +25,7 @@ onClientEvent(
 
 /** AFK kick: a loaded player who has not moved for the panel's minutes (admins are never kicked). */
 const still = new PlayerMap<Vec3 & { since: number }>();
-setInterval(() => {
+every(60_000, function afkKick() {
   const minutes = content.settings.afkMinutes;
   if (minutes <= 0) return still.clear();
   const now = Date.now();
@@ -43,4 +44,4 @@ setInterval(() => {
     still.delete(source);
     DropPlayer(String(source), Locale("SMALL_AFK_KICK", minutes));
   }
-}, 60_000);
+});

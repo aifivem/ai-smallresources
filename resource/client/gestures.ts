@@ -1,6 +1,8 @@
 import {
   cache,
   controls,
+  every,
+  gestures,
   Keybind,
   onCache,
   player,
@@ -9,7 +11,6 @@ import {
   requestAnimDict,
   stateBoolean,
   TickLoop,
-  gestures,
 } from "@aicore-fivem/lib/client";
 import { PLAYER_BAGS } from "@aicore-fivem/shared";
 import { Locale } from "common";
@@ -144,7 +145,19 @@ const HANDS_CONTROLS = [
 /** Hands up (also in a vehicle): an upper body loop; ends by itself when another animation, a fall or death replaces it. */
 class HandsUp {
   active = false;
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private readonly job = every(
+    250,
+    () => {
+      const now = cache.ped;
+      if (
+        helpless() ||
+        IsPedRagdoll(now) ||
+        !IsEntityPlayingAnim(now, HANDS.dict, HANDS.clip, 3)
+      )
+        this.down();
+    },
+    { active: false, name: "handsUp" },
+  );
 
   async toggle(): Promise<void> {
     if (this.active) return this.down();
@@ -164,22 +177,13 @@ class HandsUp {
       return;
     }
     controls.disable("handsup", HANDS_CONTROLS);
-    this.timer = setInterval(() => {
-      const now = cache.ped;
-      if (
-        helpless() ||
-        IsPedRagdoll(now) ||
-        !IsEntityPlayingAnim(now, HANDS.dict, HANDS.clip, 3)
-      )
-        this.down();
-    }, 250);
+    this.job.set(true);
   }
 
   down(): void {
     if (!this.active) return;
     this.active = false;
-    if (this.timer) clearInterval(this.timer);
-    this.timer = null;
+    this.job.set(false);
     controls.enable("handsup");
     StopAnimTask(cache.ped, HANDS.dict, HANDS.clip, 3);
   }

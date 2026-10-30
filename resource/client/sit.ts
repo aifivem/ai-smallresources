@@ -1,5 +1,6 @@
 import {
   cache,
+  every,
   hidePrompt,
   notify,
   onPromptPressed,
@@ -28,7 +29,10 @@ class Sitting {
   private byModel = new Map<number, SeatModel>();
   private pose: SeatPose | null = null;
   private from: number[] = [];
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private readonly job = every(500, () => this.watch(), {
+    active: false,
+    name: "sit",
+  });
   private readonly points = new Points();
 
   rebuild(): void {
@@ -119,7 +123,7 @@ class Sitting {
     }
     this.pose = pose;
     showPrompt(PROMPT, Locale("SIT_GETUP"));
-    this.timer = setInterval(() => this.watch(), 500);
+    this.job.set(true);
   }
 
   stand(): void {
@@ -147,8 +151,7 @@ class Sitting {
 
   private end(): void {
     this.pose = null;
-    if (this.timer) clearInterval(this.timer);
-    this.timer = null;
+    this.job.set(false);
     hidePrompt(PROMPT);
   }
 }
