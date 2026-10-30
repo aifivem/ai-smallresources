@@ -1,6 +1,6 @@
 # ai-smallresources
 
-Small gameplay features, each behind a panel switch: seatbelt, cruise control, no seat shuffle, crouch, tackle, binoculars, firework and news gear items, AFK kick, no GTA dispatch / wanted level, hidden GTA HUD parts, and teleports between two points. Depends on ai-core (prompts, progress, jobs); uses the active inventory through ai-core's inventory layer (lib `inventory`) for the items. Research: `docs/research/ai-smallresources.md`.
+Small gameplay features, each behind a panel switch: seatbelt, cruise control, no seat shuffle, crouch, tackle, binoculars, firework and news gear items, AFK kick, no GTA dispatch / wanted level, hidden GTA HUD parts, and teleports between two points. Depends on ai-core (prompts, progress, jobs); uses the active inventory through ai-core's inventory layer (lib `inventory`) for the items.
 
 ## Decisions
 
