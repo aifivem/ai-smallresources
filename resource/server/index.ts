@@ -1,4 +1,13 @@
-import { AdminPanel, inventory, onClientCallback, onClientEvent, online, PlayerState, resourceExport, stateString } from "@aicore-fivem/lib/server";
+import {
+  AdminPanel,
+  inventory,
+  onClientCallback,
+  onClientEvent,
+  online,
+  PlayerState,
+  resourceExport,
+  stateString,
+} from "@aicore-fivem/lib/server";
 import { asArgs } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import {

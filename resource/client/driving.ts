@@ -1,5 +1,12 @@
 import { SEATBELT_EVENT } from "@aicore-fivem/shared";
-import { cache, Keybind, notify, onCache, registerExport, TickLoop } from "@aicore-fivem/lib/client";
+import {
+  cache,
+  controls,
+  Keybind,
+  notify,
+  onCache,
+  registerExport,
+} from "@aicore-fivem/lib/client";
 import { Locale, ResourceName } from "common";
 import { content, onSettings } from "./settings";
 
@@ -13,10 +20,6 @@ const NO_BELT = new Set([8, 13, 14, 15, 16, 21]);
 class Driving {
   private belted = false;
   private cruising = false;
-  private readonly blockExit = new TickLoop(() => {
-    DisableControlAction(0, 75, true);
-    DisableControlAction(27, 75, true);
-  });
 
   constructor() {
     this.applyEject();
@@ -52,7 +55,13 @@ class Driving {
 
   private setBelt(on: boolean): void {
     this.belted = on;
-    this.blockExit.set(on);
+    if (on) {
+      controls.disable("seatbelt", [75]);
+      controls.disable("seatbelt:vehicle", [75], 27);
+    } else {
+      controls.enable("seatbelt");
+      controls.enable("seatbelt:vehicle");
+    }
     this.applyEject();
   }
 
@@ -94,8 +103,7 @@ const driving = new Driving();
 registerExport("GetSeatbelt", () => driving.worn);
 on(
   "onResourceStop",
-  (resource: string) =>
-    resource === ResourceName && driving.announce(null),
+  (resource: string) => resource === ResourceName && driving.announce(null),
 );
 new Keybind({
   name: "smallresources_belt",

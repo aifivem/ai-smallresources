@@ -5,14 +5,14 @@ Small gameplay features, each behind a panel switch: seatbelt, cruise control, n
 ## Decisions
 
 - Windscreen ejection is GTA's own (`SetFlyThroughWindscreenParams`), only the speeds change with the belt.
-- The local player state `seatbelt` (not replicated) is a boolean while the feature is on and null otherwise; ai-hud reads it for its belt warning.
+- The seat belt reaches HUDs as the client local event `SEATBELT_EVENT` (boolean while the feature is on, null otherwise) and the client export `GetSeatbelt()` for late starters; ai-hud shows its belt warning from it. The exit key is blocked through lib `controls` while buckled.
 - Every per-frame job (blocking the exit key while buckled, hiding HUD parts, the binocular camera) is a `TickLoop` that runs only while needed.
 - Fireworks: the server fans the spot out to players within 400 m; effects are local per client.
 - News gear: the server toggles the player state `aiHold` (item name or false); every client attaches a local prop to that player's ped (`resource/client/news.ts`).
 
 ## Contracts
 
-- Events and callbacks: `resource/common/small.ts`. Local player state `seatbelt`, replicated player state `aiHold`.
+- Events and callbacks: `resource/common/small.ts`. Client local event `SEATBELT_EVENT` and export `GetSeatbelt()`, replicated player state `aiHold`.
 - Items: `binoculars`, `firework1`-`firework4`, `newscam`, `newsmic`, `newsboom` (ai-inventory `data/items.json`).
 
 ## Entry points

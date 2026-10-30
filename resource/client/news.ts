@@ -1,4 +1,11 @@
-import { cache, Keybind, player as localPlayer, PlayerState, requestModel, stateString } from "@aicore-fivem/lib/client";
+import {
+  cache,
+  Keybind,
+  player as localPlayer,
+  PlayerState,
+  requestModel,
+  stateString,
+} from "@aicore-fivem/lib/client";
 import { Locale } from "common";
 import { HOLD_STATE, NEWS_ITEMS } from "common/small";
 import { binoculars } from "./items";
