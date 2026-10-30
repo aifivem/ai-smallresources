@@ -7,7 +7,7 @@ import {
   stateString,
 } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
-import { HOLD_STATE, NEWS_ITEMS } from "common/small";
+import { HOLD_STATE, NEWS_ITEMS } from "common/items";
 import { binoculars } from "./items";
 
 /**

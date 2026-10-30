@@ -2,7 +2,7 @@ name 'ai-smallresources'
 author 'ai-core'
 version '0.1.0'
 license 'GPL-3.0-only'
-description 'Seatbelt, cruise control, crouch, tackle, binoculars, fireworks, teleports, AFK kick and world tweaks'
+description 'Seatbelt, cruise control, crouch, pointing, sitting, carrying, tackle, anti ghost-peek, items, fake plates, boat ropes, teleports, elevators, population and world tweaks'
 repository 'https://github.com/TGIANN/ai-smallresources'
 fx_version 'cerulean'
 game 'gta5'
@@ -21,4 +21,7 @@ files {
 	'locales/*.json',
 	'data/settings.json',
 	'data/teleports.json',
+	'data/elevators.json',
+	'data/moorings.json',
+	'data/seats.json',
 }

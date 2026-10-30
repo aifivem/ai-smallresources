@@ -27,13 +27,63 @@
       "description": "Cruise control: Y holds the current speed as the vehicle's top speed until pressed again.",
       "type": "boolean"
     },
+    "noShuffle": {
+      "description": "No seat shuffle: A passenger stays in their seat when the driver gets out.",
+      "type": "boolean"
+    },
+    "noRadio": {
+      "description": "No vehicle radio: Vehicle radios stay off and the radio wheel does not open.",
+      "type": "boolean"
+    },
+    "fakePlate": {
+      "description": "Fake plate item: Fits a random plate on a vehicle the player has the keys to; using it on the vehicle again puts the real plate back. Garages keep the real plate.",
+      "type": "boolean"
+    },
+    "boatRope": {
+      "description": "Boat rope: On foot next to a boat near a mooring (Moorings tab), the player ties it so it cannot drift or be driven off, and unties it again.",
+      "type": "boolean"
+    },
     "crouch": {
       "description": "Crouch: X toggles a crouched walk.",
       "type": "boolean"
     },
-    "noShuffle": {
-      "description": "No seat shuffle: A passenger stays in their seat when the driver gets out.",
+    "tackle": {
+      "description": "Tackle: G while sprinting knocks down the player right in front.",
       "type": "boolean"
+    },
+    "point": {
+      "description": "Point with finger: B points where the camera looks; everyone sees it.",
+      "type": "boolean"
+    },
+    "carry": {
+      "description": "Carry players: From the radial menu a player carries the nearest player over the shoulder. Downed or cuffed players are picked up at once, anyone else is asked first.",
+      "type": "boolean"
+    },
+    "sit": {
+      "description": "Sit on objects: Chairs, benches and stools from the Seats tab get a Sit down prompt.",
+      "type": "boolean"
+    },
+    "antiPeek": {
+      "description": "Block corner peeking: A player cannot shoot at what only the third person camera sees round a corner: firing stops while the gun barrel is behind cover.",
+      "type": "boolean"
+    },
+    "binoculars": {
+      "description": "Binoculars item: Using binoculars opens a zoom camera.",
+      "type": "boolean"
+    },
+    "fireworks": {
+      "description": "Firework items: Fireworks are placed on the ground and go off after 5 seconds.",
+      "type": "boolean"
+    },
+    "notepad": {
+      "description": "Notepad item: Using the notepad writes a page that becomes a note item; using the note shows its text.",
+      "type": "boolean"
+    },
+    "afkMinutes": {
+      "description": "AFK kick: Players who do not move for this long are kicked (admins never). 0 turns it off.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 600
     },
     "noDispatch": {
       "description": "No GTA police: No wanted level and no AI police, ambulance or fire trucks.",
@@ -43,23 +93,29 @@
       "description": "Hide GTA HUD parts: Hides GTA's cash, area, street and vehicle names (the ai-hud shows its own).",
       "type": "boolean"
     },
-    "tackle": {
-      "description": "Tackle: G while sprinting knocks down the player right in front.",
-      "type": "boolean"
-    },
-    "afkMinutes": {
-      "description": "AFK kick: Players who do not move for this long are kicked (admins never). 0 turns it off.",
+    "pedDensity": {
+      "description": "Pedestrians: Walking people, in percent of GTA's normal amount. 0 empties the streets.",
       "type": "integer",
       "minimum": 0,
-      "maximum": 600
+      "maximum": 100
     },
-    "binoculars": {
-      "description": "Binoculars item: Using binoculars opens a zoom camera.",
-      "type": "boolean"
+    "scenarioDensity": {
+      "description": "Scenario people: People sitting, working or standing at fixed places, in percent.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
     },
-    "fireworks": {
-      "description": "Firework items: Fireworks are placed on the ground and go off after 5 seconds.",
-      "type": "boolean"
+    "trafficDensity": {
+      "description": "Traffic: Moving AI vehicles, in percent.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "parkedDensity": {
+      "description": "Parked cars: Cars parked along the streets, in percent.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
     }
   },
   "required": [
@@ -67,13 +123,13 @@
     "ejectUnbelted",
     "ejectBelted",
     "cruise",
-    "crouch",
     "noShuffle",
-    "noDispatch",
-    "hideHud",
+    "crouch",
     "tackle",
-    "afkMinutes",
     "binoculars",
-    "fireworks"
+    "fireworks",
+    "afkMinutes",
+    "noDispatch",
+    "hideHud"
   ]
 }

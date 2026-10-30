@@ -156,6 +156,9 @@ const CORE = {
 	clientNotifyEvent: "ai-core:client:notify",
 	spawnEvent: "ai-core:client:spawn",
 	openCharactersEvent: "ai-core:client:openCharacters"
+}, PLAYER_BAGS = {
+	dead: "dead",
+	cuffed: "cuffed"
 }, ADMIN = {
 	ace: "ai.admin",
 	openCallback: "ai-core:admin:open",
@@ -254,10 +257,25 @@ function onClientCallback(name, first, second) {
 	});
 }
 const pending = new Map();
+let nextId = 0;
 onNet(responseEvent(resource$1), (id, ok, result) => {
 	let entry = typeof id == "number" ? pending.get(id) : void 0;
 	entry && entry.source === Number(globalThis.source) && (pending.delete(id), clearTimeout(entry.timer), ok === !0 ? entry.resolve(result) : entry.reject(Error("client callback failed")));
 });
+function triggerClientCallback(name, source, args = [], timeoutMs = 3e4) {
+	let id = ++nextId;
+	return new Promise((resolve, reject) => {
+		let timer = setTimeout(() => {
+			pending.delete(id), reject(Error(`client callback ${name} timed out for ${source}`));
+		}, timeoutMs);
+		pending.set(id, {
+			source,
+			resolve,
+			reject,
+			timer
+		}), emitNet(requestEvent(name), source, resource$1, id, ...args);
+	});
+}
 // ../../../packages/lib/src/server/admin/patch.ts
 function toPatch(value) {
 	if (!isRecord(value) || typeof value.file != "string") return null;
@@ -638,6 +656,15 @@ var AdminPanel = class {
 		this.data.set(name, data), (filled || raw === null || !file.hasSchemaRef()) && file.write(data);
 	}
 };
+// ../../../packages/lib/src/server/notify.ts
+function notify(source, text, kind = "info", duration) {
+	let notification = {
+		text,
+		kind,
+		duration
+	};
+	emitNet(CORE.clientNotifyEvent, source, notification);
+}
 // ../../../packages/lib/src/server/inventory.ts
 const core$6 = resourceExport(CORE.resource), inventory = {
 	addItem: (inv, item, count = 1, metadata, slot) => core$6.AddItem(inv, item, count, metadata, slot),
@@ -713,8 +740,42 @@ var OnlinePlayers = class {
 		return this.start(), this.onDuty.get(job) ?? EMPTY;
 	}
 };
-const EMPTY = new Set(), online = new OnlinePlayers();
-resourceExport(CORE.resource), resourceExport(CORE.resource);
+const EMPTY = new Set(), online = new OnlinePlayers(), core$4 = resourceExport(CORE.resource), vehicleKeys = {
+	give: (source, vehicle, purpose = "temporary") => core$4.GiveVehicleKeys(source, vehicle, purpose),
+	remove: (source, vehicle) => core$4.RemoveVehicleKeys(source, vehicle),
+	has: (source, vehicle) => core$4.HasVehicleKeys(source, vehicle)
+};
+// ../../../packages/lib/src/server/vehicle.ts
+function nearestVehicleTo(source, metres) {
+	let ped = GetPlayerPed(String(source)), own = GetVehiclePedIsIn(ped, !1);
+	if (own) return own;
+	let [x = 0, y = 0, z = 0] = GetEntityCoords(ped), best = 0, bestDistance = metres;
+	for (let vehicle of GetAllVehicles()) {
+		let [vx = 0, vy = 0, vz = 0] = GetEntityCoords(vehicle), d = Math.hypot(vx - x, vy - y, vz - z);
+		d < bestDistance && ([best, bestDistance] = [vehicle, d]);
+	}
+	return best;
+}
+// ../../../packages/lib/src/server/proximity.ts
+const core$3 = resourceExport(CORE.resource), posOf = (source) => {
+	let [x = 0, y = 0, z = 0] = GetEntityCoords(GetPlayerPed(String(source)));
+	return {
+		x,
+		y,
+		z
+	};
+};
+function within(point, radius, candidates) {
+	let out = [];
+	for (let source of candidates) {
+		let p = posOf(source);
+		Math.hypot(p.x - point.x, p.y - point.y, p.z - point.z) <= radius && out.push(source);
+	}
+	return out;
+}
+function playersNear(source, radius) {
+	return within(posOf(source), radius, [source, ...core$3.GetPlayersInScope(source)]);
+}
 // ../../../packages/lib/src/server/command.ts
 const resource = GetCurrentResourceName();
 createLogger(resource), new class {
@@ -754,7 +815,7 @@ function onClientEvent(name, first, second) {
 }
 createLogger("aicore-lib");
 // ../../../packages/lib/src/fivem/state.ts
-const stateString = (v) => typeof v == "string" ? v : void 0, isServer = IsDuplicityVersion();
+const stateNumber = (v) => typeof v == "number" && Number.isFinite(v) ? v : void 0, stateBoolean = (v) => typeof v == "boolean" ? v : void 0, stateString = (v) => typeof v == "string" ? v : void 0, isServer = IsDuplicityVersion();
 var Mirror = class {
 	key;
 	parse;
@@ -772,6 +833,40 @@ var Mirror = class {
 	apply(id, value) {
 		let old = this.values.get(id);
 		if (this.values.set(id, value), old !== value) for (let listener of this.listeners) listener(id, value, old);
+	}
+}, EntityState$1 = class extends Mirror {
+	handles = new Map();
+	constructor(key, parse) {
+		super(key, parse), AddStateBagChangeHandler(key, "", (bag, _key, value) => {
+			if (!bag.startsWith("entity:")) return;
+			let netId = Number(bag.slice(7));
+			this.handles.set(netId, GetEntityFromStateBagName(bag)), this.store(netId, value);
+		}), isServer ? on("entityRemoved", (entity) => this.forget(NetworkGetNetworkIdFromEntity(entity))) : setInterval(() => this.prune(), 3e4);
+	}
+	get(entity) {
+		if (!entity) return;
+		let netId = NetworkGetNetworkIdFromEntity(entity), handle = this.handles.get(netId);
+		if (handle === entity) return this.values.get(netId);
+		if (handle === 0 && this.values.has(netId)) return this.handles.set(netId, entity), this.values.get(netId);
+		this.handles.set(netId, entity);
+		let value = this.parseRaw(Entity(entity).state[this.key]);
+		return this.values.set(netId, value), value;
+	}
+	put(entity, value) {
+		let netId = NetworkGetNetworkIdFromEntity(entity);
+		this.handles.set(netId, entity), this.apply(netId, value);
+	}
+	getByNetId(netId) {
+		return this.values.get(netId);
+	}
+	forget(netId) {
+		this.values.delete(netId), this.handles.delete(netId);
+	}
+	parseRaw(raw) {
+		return raw == null ? void 0 : this.parse(raw);
+	}
+	prune() {
+		for (let netId of this.values.keys()) DoesEntityExist(NetworkGetEntityFromNetworkId(netId)) || this.forget(netId);
 	}
 }, PlayerState$1 = class extends Mirror {
 	seen = new Set();
@@ -796,42 +891,17 @@ var Mirror = class {
 	forget(serverId) {
 		this.values.delete(serverId), this.seen.delete(serverId);
 	}
+}, EntityState = class extends EntityState$1 {
+	set(entity, value) {
+		DoesEntityExist(entity) && (Entity(entity).state.set(this.key, value ?? null, !0), this.put(entity, value));
+	}
 }, PlayerState = class extends PlayerState$1 {
 	set(source, value) {
 		Player(source).state.set(this.key, value ?? null, !0), this.put(source, value);
 	}
 };
 resourceExport(CORE.resource), resourceExport(CORE.resource);
-// resource/common/locale.ts
-const Locale = createLocale();
-GetCurrentResourceName(), IsDuplicityVersion();
-// resource/common/small.ts
-const EVENTS = {
-	tackle: "ai-smallresources:tackle",
-	tackled: "ai-smallresources:client:tackled",
-	teleport: "ai-smallresources:teleport",
-	binoculars: "ai-smallresources:client:binoculars",
-	fireworkPlace: "ai-smallresources:client:fireworkPlace",
-	fireworkPlaced: "ai-smallresources:fireworkPlaced",
-	firework: "ai-smallresources:client:firework"
-};
-function readSettings(raw) {
-	let v = record(raw);
-	return {
-		seatbelt: bool(v.seatbelt, !0),
-		ejectUnbelted: int(v.ejectUnbelted, 20, 0, 500),
-		ejectBelted: int(v.ejectBelted, 160, 0, 500),
-		cruise: bool(v.cruise, !0),
-		crouch: bool(v.crouch, !0),
-		noShuffle: bool(v.noShuffle, !0),
-		noDispatch: bool(v.noDispatch, !0),
-		hideHud: bool(v.hideHud, !0),
-		tackle: bool(v.tackle, !0),
-		afkMinutes: int(v.afkMinutes, 20, 0, 600),
-		binoculars: bool(v.binoculars, !0),
-		fireworks: bool(v.fireworks, !0)
-	};
-}
+// resource/common/places.ts
 function readTeleports(raw) {
 	let out = new Map(), zero = {
 		x: 0,
@@ -851,6 +921,779 @@ function readTeleports(raw) {
 	}
 	return out;
 }
+function readElevators(raw) {
+	let out = new Map(), zero = {
+		x: 0,
+		y: 0,
+		z: 0,
+		heading: 0
+	};
+	for (let [id, value] of Object.entries(record(raw))) {
+		let v = record(value), floors = (Array.isArray(v.floors) ? v.floors : []).map((row, i) => {
+			let f = record(row);
+			return {
+				label: str(f.label, String(i + 1), 32),
+				point: vec4(f.point, zero),
+				job: str(f.job, "", 32)
+			};
+		});
+		floors.length >= 2 && out.set(id, {
+			id,
+			label: str(v.label, id, 48),
+			floors
+		});
+	}
+	return out;
+}
+function readMoorings(raw) {
+	let zero = {
+		x: 0,
+		y: 0,
+		z: 0,
+		heading: 0
+	};
+	return Object.entries(record(raw)).map(([id, value]) => {
+		let { x, y, z } = vec4(record(value).point, zero);
+		return {
+			id,
+			point: {
+				x,
+				y,
+				z
+			}
+		};
+	});
+}
+// resource/common/small.ts
+const EVENTS = {
+	tackle: "ai-smallresources:tackle",
+	tackled: "ai-smallresources:client:tackled",
+	teleport: "ai-smallresources:teleport",
+	elevator: "ai-smallresources:elevator",
+	binoculars: "ai-smallresources:client:binoculars",
+	fireworkPlace: "ai-smallresources:client:fireworkPlace",
+	fireworkPlaced: "ai-smallresources:fireworkPlaced",
+	firework: "ai-smallresources:client:firework",
+	carry: "ai-smallresources:carry",
+	carryAsk: "ai-smallresources:client:carryAsk",
+	plateWork: "ai-smallresources:client:plateWork",
+	plateDone: "ai-smallresources:plateDone",
+	noteWrite: "ai-smallresources:client:noteWrite",
+	noteSave: "ai-smallresources:noteSave",
+	noteRead: "ai-smallresources:client:noteRead",
+	moor: "ai-smallresources:moor"
+}, CARRY_STATE = {
+	carrying: "aiCarrying",
+	carriedBy: "aiCarriedBy"
+}, VEHICLE_STATE = {
+	realPlate: "aiRealPlate",
+	moored: "aiMoored"
+}, ITEMS = {
+	fakePlate: "fakeplate",
+	notepad: "notepad",
+	note: "note"
+};
+function readSettings(raw) {
+	let v = record(raw), percent = (value, fallback) => int(value, fallback, 0, 100);
+	return {
+		seatbelt: bool(v.seatbelt, !0),
+		ejectUnbelted: int(v.ejectUnbelted, 20, 0, 500),
+		ejectBelted: int(v.ejectBelted, 160, 0, 500),
+		cruise: bool(v.cruise, !0),
+		crouch: bool(v.crouch, !0),
+		noShuffle: bool(v.noShuffle, !0),
+		noRadio: bool(v.noRadio, !1),
+		fakePlate: bool(v.fakePlate, !0),
+		boatRope: bool(v.boatRope, !0),
+		noDispatch: bool(v.noDispatch, !0),
+		hideHud: bool(v.hideHud, !0),
+		pedDensity: percent(v.pedDensity, 80),
+		scenarioDensity: percent(v.scenarioDensity, 80),
+		trafficDensity: percent(v.trafficDensity, 80),
+		parkedDensity: percent(v.parkedDensity, 80),
+		tackle: bool(v.tackle, !0),
+		point: bool(v.point, !0),
+		carry: bool(v.carry, !0),
+		sit: bool(v.sit, !0),
+		antiPeek: bool(v.antiPeek, !0),
+		afkMinutes: int(v.afkMinutes, 20, 0, 600),
+		binoculars: bool(v.binoculars, !0),
+		fireworks: bool(v.fireworks, !0),
+		notepad: bool(v.notepad, !0)
+	};
+}
+// resource/common/seats.ts
+const SEAT_TYPES = {
+	chair: {
+		kind: "scenario",
+		name: "PROP_HUMAN_SEAT_CHAIR_MP_PLAYER"
+	},
+	armchair: {
+		kind: "scenario",
+		name: "PROP_HUMAN_SEAT_ARMCHAIR"
+	},
+	bench: {
+		kind: "scenario",
+		name: "PROP_HUMAN_SEAT_BENCH"
+	},
+	bar: {
+		kind: "scenario",
+		name: "PROP_HUMAN_SEAT_BAR"
+	},
+	deck: {
+		kind: "scenario",
+		name: "PROP_HUMAN_SEAT_DECKCHAIR"
+	},
+	sunlounger: {
+		kind: "scenario",
+		name: "PROP_HUMAN_SEAT_SUNLOUNGER"
+	},
+	strip: {
+		kind: "scenario",
+		name: "PROP_HUMAN_SEAT_STRIP_WATCH"
+	},
+	wall: {
+		kind: "scenario",
+		name: "WORLD_HUMAN_SEAT_WALL"
+	},
+	steps: {
+		kind: "scenario",
+		name: "WORLD_HUMAN_SEAT_STEPS"
+	},
+	ledge: {
+		kind: "scenario",
+		name: "WORLD_HUMAN_SEAT_LEDGE"
+	},
+	tattoo: {
+		kind: "anim",
+		dict: "misstattoo_parlour@shop_ig_4",
+		clip: "customer_loop",
+		z: -.75
+	},
+	lounge: {
+		kind: "anim",
+		dict: "timetable@jimmy@mics3_ig_15@",
+		clip: "idle_a_jimmy",
+		z: 0
+	},
+	director: {
+		kind: "anim",
+		dict: "misscarsteal4@director_grip",
+		clip: "beginning_loop_director",
+		z: -1.16
+	}
+}, PLACE_TABS = [
+	{
+		id: "elevators",
+		file: "elevators",
+		icon: "elevator",
+		label: "ADMIN_TAB_ELEVATORS",
+		desc: "ADMIN_TAB_ELEVATORS_DESC",
+		createLabel: "ADMIN_NEW_ELEVATOR",
+		deleteLabel: "ADMIN_DELETE_ELEVATOR",
+		cards: [{
+			icon: "elevator",
+			title: "ADMIN_C_ELEVATOR",
+			desc: "ADMIN_C_ELEVATOR_DESC",
+			fields: [{
+				widget: "text",
+				path: "label",
+				label: "ADMIN_F_LABEL",
+				placeholder: "ADMIN_P_ELEVATOR"
+			}, {
+				widget: "list",
+				path: "floors",
+				label: "ADMIN_F_FLOORS",
+				hint: "ADMIN_H_FLOORS",
+				addLabel: "ADMIN_ADD_FLOOR",
+				max: 20,
+				newRow: {
+					label: "",
+					point: {
+						x: 0,
+						y: 0,
+						z: 0,
+						heading: 0
+					},
+					job: ""
+				},
+				rows: [
+					{
+						widget: "text",
+						path: "label",
+						label: "ADMIN_F_FLOOR_LABEL",
+						placeholder: "ADMIN_P_FLOOR"
+					},
+					{
+						widget: "point",
+						path: "point",
+						label: "ADMIN_F_FLOOR_POINT",
+						heading: !0,
+						ground: !0
+					},
+					{
+						widget: "text",
+						lookup: "job",
+						path: "job",
+						label: "ADMIN_F_JOB",
+						hint: "ADMIN_H_FLOOR_JOB",
+						placeholder: "ADMIN_P_JOB"
+					}
+				]
+			}]
+		}]
+	},
+	{
+		id: "moorings",
+		file: "moorings",
+		icon: "anchor",
+		label: "ADMIN_TAB_MOORINGS",
+		desc: "ADMIN_TAB_MOORINGS_DESC",
+		createLabel: "ADMIN_NEW_MOORING",
+		deleteLabel: "ADMIN_DELETE_MOORING",
+		cards: [{
+			icon: "anchor",
+			title: "ADMIN_C_MOORING",
+			desc: "ADMIN_C_MOORING_DESC",
+			fields: [{
+				widget: "text",
+				path: "label",
+				suggest: { from: "point" },
+				label: "ADMIN_F_LABEL",
+				placeholder: "ADMIN_P_MOORING"
+			}, {
+				widget: "point",
+				path: "point",
+				label: "ADMIN_F_MOORING_POINT",
+				hint: "ADMIN_H_MOORING_POINT"
+			}]
+		}]
+	},
+	{
+		id: "seats",
+		file: "seats",
+		icon: "chair",
+		label: "ADMIN_TAB_SEATS",
+		desc: "ADMIN_TAB_SEATS_DESC",
+		listSub: "type",
+		createLabel: "ADMIN_NEW_SEAT",
+		deleteLabel: "ADMIN_DELETE_SEAT",
+		cards: [{
+			icon: "chair",
+			title: "ADMIN_C_SEAT",
+			desc: "ADMIN_C_SEAT_DESC",
+			fields: [
+				{
+					widget: "model",
+					kind: "object",
+					path: "model",
+					label: "ADMIN_F_SEAT_MODEL",
+					hint: "ADMIN_H_SEAT_MODEL",
+					placeholder: "ADMIN_P_SEAT_MODEL"
+				},
+				{
+					widget: "select",
+					path: "type",
+					label: "ADMIN_F_SEAT_TYPE",
+					hint: "ADMIN_H_SEAT_TYPE",
+					options: Object.keys(SEAT_TYPES).map((value) => ({
+						value,
+						label: `ADMIN_SEAT_${value.toUpperCase()}`
+					}))
+				},
+				{
+					widget: "switch",
+					path: "teleport",
+					label: "ADMIN_F_SEAT_TELEPORT",
+					hint: "ADMIN_H_SEAT_TELEPORT"
+				},
+				{
+					widget: "list",
+					path: "seats",
+					label: "ADMIN_F_SEATS",
+					hint: "ADMIN_H_SEATS",
+					addLabel: "ADMIN_ADD_SEAT",
+					max: 12,
+					newRow: {
+						x: 0,
+						y: 0,
+						z: .5,
+						heading: 180
+					},
+					rows: [
+						{
+							widget: "number",
+							path: "x",
+							label: "ADMIN_F_SEAT_X",
+							min: -10,
+							max: 10,
+							step: .05,
+							unit: "m"
+						},
+						{
+							widget: "number",
+							path: "y",
+							label: "ADMIN_F_SEAT_Y",
+							min: -10,
+							max: 10,
+							step: .05,
+							unit: "m"
+						},
+						{
+							widget: "number",
+							path: "z",
+							label: "ADMIN_F_SEAT_Z",
+							min: -10,
+							max: 10,
+							step: .05,
+							unit: "m"
+						},
+						{
+							widget: "number",
+							path: "heading",
+							label: "ADMIN_F_SEAT_HEADING",
+							min: 0,
+							max: 360,
+							step: 5,
+							unit: "°"
+						}
+					]
+				}
+			]
+		}]
+	}
+], switchField = (path, key) => ({
+	widget: "switch",
+	path,
+	label: `ADMIN_F_${key}`,
+	hint: `ADMIN_H_${key}`
+}), percentField = (path, key) => ({
+	widget: "number",
+	path,
+	label: `ADMIN_F_${key}`,
+	hint: `ADMIN_H_${key}`,
+	min: 0,
+	max: 100,
+	step: 5,
+	unit: "%"
+}), BOOL = { type: "bool" }, PERCENT = {
+	type: "number",
+	min: 0,
+	max: 100,
+	integer: !0
+}, SETTINGS_SECTIONS = {
+	seatbelt: BOOL,
+	ejectUnbelted: {
+		type: "number",
+		min: 0,
+		max: 500,
+		integer: !0
+	},
+	ejectBelted: {
+		type: "number",
+		min: 0,
+		max: 500,
+		integer: !0
+	},
+	cruise: BOOL,
+	noShuffle: BOOL,
+	noRadio: BOOL,
+	fakePlate: BOOL,
+	boatRope: BOOL,
+	crouch: BOOL,
+	tackle: BOOL,
+	point: BOOL,
+	carry: BOOL,
+	sit: BOOL,
+	antiPeek: BOOL,
+	binoculars: BOOL,
+	fireworks: BOOL,
+	notepad: BOOL,
+	afkMinutes: {
+		type: "number",
+		min: 0,
+		max: 600,
+		integer: !0
+	},
+	noDispatch: BOOL,
+	hideHud: BOOL,
+	pedDensity: PERCENT,
+	scenarioDensity: PERCENT,
+	trafficDensity: PERCENT,
+	parkedDensity: PERCENT
+}, SETTINGS_DEFAULTS = {
+	noRadio: !1,
+	fakePlate: !0,
+	boatRope: !0,
+	point: !0,
+	carry: !0,
+	sit: !0,
+	antiPeek: !0,
+	notepad: !0,
+	pedDensity: 80,
+	scenarioDensity: 80,
+	trafficDensity: 80,
+	parkedDensity: 80
+}, SETTINGS_CARDS = [
+	{
+		icon: "car",
+		title: "ADMIN_C_DRIVING",
+		desc: "ADMIN_C_DRIVING_DESC",
+		fields: [
+			switchField("seatbelt", "SEATBELT"),
+			{
+				widget: "number",
+				path: "ejectUnbelted",
+				label: "ADMIN_F_EJECT_UNBELTED",
+				hint: "ADMIN_H_EJECT",
+				min: 0,
+				max: 500,
+				unit: "km/h"
+			},
+			{
+				widget: "number",
+				path: "ejectBelted",
+				label: "ADMIN_F_EJECT_BELTED",
+				min: 0,
+				max: 500,
+				unit: "km/h"
+			},
+			switchField("cruise", "CRUISE"),
+			switchField("noShuffle", "NO_SHUFFLE"),
+			switchField("noRadio", "NO_RADIO"),
+			switchField("fakePlate", "FAKE_PLATE"),
+			switchField("boatRope", "BOAT_ROPE")
+		]
+	},
+	{
+		icon: "user",
+		title: "ADMIN_C_PLAYER",
+		desc: "ADMIN_C_PLAYER_DESC",
+		fields: [
+			switchField("crouch", "CROUCH"),
+			switchField("point", "POINT"),
+			switchField("sit", "SIT"),
+			switchField("carry", "CARRY"),
+			switchField("tackle", "TACKLE"),
+			switchField("antiPeek", "ANTI_PEEK"),
+			{
+				widget: "number",
+				path: "afkMinutes",
+				label: "ADMIN_F_AFK",
+				hint: "ADMIN_H_AFK",
+				min: 0,
+				max: 600,
+				unit: "min"
+			}
+		]
+	},
+	{
+		icon: "box",
+		title: "ADMIN_C_ITEMS",
+		desc: "ADMIN_C_ITEMS_DESC",
+		fields: [
+			switchField("binoculars", "BINOCULARS"),
+			switchField("fireworks", "FIREWORKS"),
+			switchField("notepad", "NOTEPAD")
+		]
+	},
+	{
+		icon: "map-location-dot",
+		title: "ADMIN_C_WORLD",
+		desc: "ADMIN_C_WORLD_DESC",
+		fields: [switchField("noDispatch", "NO_DISPATCH"), switchField("hideHud", "HIDE_HUD")]
+	},
+	{
+		icon: "people-group",
+		title: "ADMIN_C_DENSITY",
+		desc: "ADMIN_C_DENSITY_DESC",
+		fields: [
+			percentField("pedDensity", "PED_DENSITY"),
+			percentField("scenarioDensity", "SCENARIO_DENSITY"),
+			percentField("trafficDensity", "TRAFFIC_DENSITY"),
+			percentField("parkedDensity", "PARKED_DENSITY")
+		]
+	}
+], OFFSET = {
+	type: "number",
+	min: -10,
+	max: 10
+}, panel = new AdminPanel({
+	title: "ADMIN_TITLE",
+	icon: "sliders",
+	files: {
+		settings: {
+			kind: "settings",
+			sync: "all",
+			sections: SETTINGS_SECTIONS,
+			defaults: SETTINGS_DEFAULTS
+		},
+		teleports: {
+			kind: "records",
+			sync: "all",
+			labelPath: "label",
+			newRecord: {
+				label: "",
+				from: {
+					x: 0,
+					y: 0,
+					z: 0,
+					heading: 0
+				},
+				to: {
+					x: 0,
+					y: 0,
+					z: 0,
+					heading: 0
+				},
+				job: ""
+			},
+			sections: {
+				label: {
+					type: "text",
+					min: 1,
+					max: 48
+				},
+				from: { type: "vec4" },
+				to: { type: "vec4" },
+				job: {
+					type: "text",
+					lookup: "job",
+					min: 0,
+					max: 32
+				}
+			}
+		},
+		elevators: {
+			kind: "records",
+			sync: "all",
+			labelPath: "label",
+			newRecord: {
+				label: "",
+				floors: []
+			},
+			sections: {
+				label: {
+					type: "text",
+					min: 1,
+					max: 48
+				},
+				floors: {
+					type: "list",
+					max: 20,
+					of: {
+						type: "object",
+						fields: {
+							label: {
+								type: "text",
+								min: 1,
+								max: 32
+							},
+							point: { type: "vec4" },
+							job: {
+								type: "text",
+								lookup: "job",
+								min: 0,
+								max: 32
+							}
+						}
+					}
+				}
+			}
+		},
+		moorings: {
+			kind: "records",
+			sync: "all",
+			labelPath: "label",
+			newRecord: {
+				label: "",
+				point: {
+					x: 0,
+					y: 0,
+					z: 0,
+					heading: 0
+				}
+			},
+			sections: {
+				label: {
+					type: "text",
+					min: 1,
+					max: 48
+				},
+				point: { type: "vec4" }
+			}
+		},
+		seats: {
+			kind: "records",
+			sync: "all",
+			labelPath: "model",
+			newRecord: {
+				model: "",
+				type: "chair",
+				teleport: !1,
+				seats: []
+			},
+			sections: {
+				model: {
+					type: "text",
+					min: 1,
+					max: 64
+				},
+				type: {
+					type: "enum",
+					values: Object.keys(SEAT_TYPES)
+				},
+				teleport: { type: "bool" },
+				seats: {
+					type: "list",
+					min: 1,
+					max: 12,
+					of: {
+						type: "object",
+						fields: {
+							x: OFFSET,
+							y: OFFSET,
+							z: OFFSET,
+							heading: {
+								type: "number",
+								min: 0,
+								max: 360
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	tabs: [
+		{
+			id: "settings",
+			file: "settings",
+			icon: "sliders",
+			label: "ADMIN_TAB_SETTINGS",
+			desc: "ADMIN_TAB_SETTINGS_DESC",
+			cards: SETTINGS_CARDS
+		},
+		{
+			id: "teleports",
+			file: "teleports",
+			icon: "location-dot",
+			label: "ADMIN_TAB_TELEPORTS",
+			desc: "ADMIN_TAB_TELEPORTS_DESC",
+			listSub: "job",
+			createLabel: "ADMIN_NEW_TELEPORT",
+			deleteLabel: "ADMIN_DELETE_TELEPORT",
+			cards: [{
+				icon: "location-dot",
+				title: "ADMIN_C_TELEPORT",
+				desc: "ADMIN_C_TELEPORT_DESC",
+				fields: [
+					{
+						widget: "text",
+						path: "label",
+						suggest: { from: "from" },
+						label: "ADMIN_F_LABEL",
+						placeholder: "ADMIN_P_LABEL"
+					},
+					{
+						widget: "point",
+						path: "from",
+						label: "ADMIN_F_FROM",
+						heading: !0,
+						ground: !0
+					},
+					{
+						widget: "point",
+						path: "to",
+						label: "ADMIN_F_TO",
+						heading: !0,
+						ground: !0
+					},
+					{
+						widget: "text",
+						lookup: "job",
+						path: "job",
+						label: "ADMIN_F_JOB",
+						hint: "ADMIN_H_JOB",
+						placeholder: "ADMIN_P_JOB"
+					}
+				]
+			}]
+		},
+		...PLACE_TABS
+	]
+}), content = {
+	settings: readSettings(panel.get("settings")),
+	teleports: readTeleports(panel.get("teleports")),
+	elevators: readElevators(panel.get("elevators")),
+	moorings: readMoorings(panel.get("moorings"))
+};
+panel.onChange("settings", () => content.settings = readSettings(panel.get("settings"))), panel.onChange("teleports", () => content.teleports = readTeleports(panel.get("teleports"))), panel.onChange("elevators", () => content.elevators = readElevators(panel.get("elevators"))), panel.onChange("moorings", () => content.moorings = readMoorings(panel.get("moorings")));
+const fail = (error) => ({
+	ok: !1,
+	error
+}), pos = (source) => {
+	let [x = 0, y = 0, z = 0] = GetEntityCoords(GetPlayerPed(String(source)));
+	return {
+		x,
+		y,
+		z
+	};
+}, entityPos = (entity) => {
+	let [x = 0, y = 0, z = 0] = GetEntityCoords(entity);
+	return {
+		x,
+		y,
+		z
+	};
+}, dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z), Locale = createLocale();
+// resource/server/player.ts
+GetCurrentResourceName(), IsDuplicityVersion(), onClientEvent(EVENTS.tackle, {
+	args: ([target]) => asArgs(typeof target == "number" && Number.isInteger(target) ? target : null),
+	rate: {
+		count: 1,
+		windowMs: 3e3
+	}
+}, (source, target) => {
+	content.settings.tackle && target !== source && GetPlayerName(String(target)) && dist(pos(source), pos(target)) <= 3 && emitNet(EVENTS.tackled, target);
+});
+const still = new Map();
+setInterval(() => {
+	let minutes = content.settings.afkMinutes;
+	if (minutes <= 0) return still.clear();
+	let now = Date.now();
+	for (let source of online.sources()) {
+		let p = pos(source), last = still.get(source);
+		!last || dist(last, p) > 1 ? still.set(source, {
+			...p,
+			since: now
+		}) : now - last.since < minutes * 6e4 || IsPlayerAceAllowed(String(source), "ai.admin") || (still.delete(source), DropPlayer(String(source), Locale("SMALL_AFK_KICK", minutes)));
+	}
+}, 6e4), on("playerDropped", () => still.delete(Number(globalThis.source)));
+// resource/server/places.ts
+const core = resourceExport("ai-core"), hasJob = (source, job) => !job || (core.GetJobs(source) ?? []).some((m) => m.job === job);
+function moveTo(source, to) {
+	let ped = GetPlayerPed(String(source));
+	SetEntityCoords(ped, to.x, to.y, to.z, !1, !1, !1, !1), SetEntityHeading(ped, to.heading);
+}
+onClientCallback(EVENTS.teleport, {
+	args: ([id, end]) => typeof id == "string" && (end === "from" || end === "to") ? [id, end] : null,
+	lock: !0
+}, (source, id, end) => {
+	let teleport = content.teleports.get(id);
+	return !teleport || dist(pos(source), teleport[end]) > 3 ? fail("SMALL_ERR_FAR") : hasJob(source, teleport.job) ? (moveTo(source, end === "from" ? teleport.to : teleport.from), { ok: !0 }) : fail("SMALL_ERR_JOB");
+}), onClientCallback(EVENTS.elevator, {
+	args: ([id, from, to]) => typeof id == "string" && Number.isInteger(from) && Number.isInteger(to) && typeof from == "number" && typeof to == "number" ? [
+		id,
+		from,
+		to
+	] : null,
+	lock: !0
+}, (source, id, from, to) => {
+	let elevator = content.elevators.get(id), start = elevator?.floors[from], floor = elevator?.floors[to];
+	return !start || !floor || from === to || dist(pos(source), start.point) > 3 ? fail("SMALL_ERR_FAR") : hasJob(source, floor.job) ? (moveTo(source, floor.point), { ok: !0 }) : fail("SMALL_ERR_JOB");
+});
+// resource/common/items.ts
 const NEWS_ITEMS = {
 	newscam: {
 		model: "prop_v_cam_01",
@@ -934,305 +1777,151 @@ const NEWS_ITEMS = {
 			"scr_indep_firework_fountain"
 		]
 	}
-}, smallSchema = {
-	title: "ADMIN_TITLE",
-	icon: "sliders",
-	files: {
-		settings: {
-			kind: "settings",
-			sync: "all",
-			sections: {
-				seatbelt: { type: "bool" },
-				ejectUnbelted: {
-					type: "number",
-					min: 0,
-					max: 500,
-					integer: !0
-				},
-				ejectBelted: {
-					type: "number",
-					min: 0,
-					max: 500,
-					integer: !0
-				},
-				cruise: { type: "bool" },
-				crouch: { type: "bool" },
-				noShuffle: { type: "bool" },
-				noDispatch: { type: "bool" },
-				hideHud: { type: "bool" },
-				tackle: { type: "bool" },
-				afkMinutes: {
-					type: "number",
-					min: 0,
-					max: 600,
-					integer: !0
-				},
-				binoculars: { type: "bool" },
-				fireworks: { type: "bool" }
-			}
-		},
-		teleports: {
-			kind: "records",
-			sync: "all",
-			labelPath: "label",
-			newRecord: {
-				label: "",
-				from: {
-					x: 0,
-					y: 0,
-					z: 0,
-					heading: 0
-				},
-				to: {
-					x: 0,
-					y: 0,
-					z: 0,
-					heading: 0
-				},
-				job: ""
-			},
-			sections: {
-				label: {
-					type: "text",
-					min: 1,
-					max: 48
-				},
-				from: { type: "vec4" },
-				to: { type: "vec4" },
-				job: {
-					type: "text",
-					lookup: "job",
-					min: 0,
-					max: 32
-				}
-			}
-		}
-	},
-	tabs: [{
-		id: "settings",
-		file: "settings",
-		icon: "sliders",
-		label: "ADMIN_TAB_SETTINGS",
-		desc: "ADMIN_TAB_SETTINGS_DESC",
-		cards: [
-			{
-				icon: "car",
-				title: "ADMIN_C_DRIVING",
-				desc: "ADMIN_C_DRIVING_DESC",
-				fields: [
-					{
-						widget: "switch",
-						path: "seatbelt",
-						label: "ADMIN_F_SEATBELT",
-						hint: "ADMIN_H_SEATBELT"
-					},
-					{
-						widget: "number",
-						path: "ejectUnbelted",
-						label: "ADMIN_F_EJECT_UNBELTED",
-						hint: "ADMIN_H_EJECT",
-						min: 0,
-						max: 500,
-						unit: "km/h"
-					},
-					{
-						widget: "number",
-						path: "ejectBelted",
-						label: "ADMIN_F_EJECT_BELTED",
-						min: 0,
-						max: 500,
-						unit: "km/h"
-					},
-					{
-						widget: "switch",
-						path: "cruise",
-						label: "ADMIN_F_CRUISE",
-						hint: "ADMIN_H_CRUISE"
-					},
-					{
-						widget: "switch",
-						path: "noShuffle",
-						label: "ADMIN_F_NO_SHUFFLE",
-						hint: "ADMIN_H_NO_SHUFFLE"
-					}
-				]
-			},
-			{
-				icon: "user",
-				title: "ADMIN_C_PLAYER",
-				desc: "ADMIN_C_PLAYER_DESC",
-				fields: [
-					{
-						widget: "switch",
-						path: "crouch",
-						label: "ADMIN_F_CROUCH",
-						hint: "ADMIN_H_CROUCH"
-					},
-					{
-						widget: "switch",
-						path: "tackle",
-						label: "ADMIN_F_TACKLE",
-						hint: "ADMIN_H_TACKLE"
-					},
-					{
-						widget: "switch",
-						path: "binoculars",
-						label: "ADMIN_F_BINOCULARS",
-						hint: "ADMIN_H_BINOCULARS"
-					},
-					{
-						widget: "switch",
-						path: "fireworks",
-						label: "ADMIN_F_FIREWORKS",
-						hint: "ADMIN_H_FIREWORKS"
-					},
-					{
-						widget: "number",
-						path: "afkMinutes",
-						label: "ADMIN_F_AFK",
-						hint: "ADMIN_H_AFK",
-						min: 0,
-						max: 600,
-						unit: "min"
-					}
-				]
-			},
-			{
-				icon: "map-location-dot",
-				title: "ADMIN_C_WORLD",
-				desc: "ADMIN_C_WORLD_DESC",
-				fields: [{
-					widget: "switch",
-					path: "noDispatch",
-					label: "ADMIN_F_NO_DISPATCH",
-					hint: "ADMIN_H_NO_DISPATCH"
-				}, {
-					widget: "switch",
-					path: "hideHud",
-					label: "ADMIN_F_HIDE_HUD",
-					hint: "ADMIN_H_HIDE_HUD"
-				}]
-			}
-		]
-	}, {
-		id: "teleports",
-		file: "teleports",
-		icon: "location-dot",
-		label: "ADMIN_TAB_TELEPORTS",
-		desc: "ADMIN_TAB_TELEPORTS_DESC",
-		listSub: "job",
-		createLabel: "ADMIN_NEW_TELEPORT",
-		deleteLabel: "ADMIN_DELETE_TELEPORT",
-		cards: [{
-			icon: "location-dot",
-			title: "ADMIN_C_TELEPORT",
-			desc: "ADMIN_C_TELEPORT_DESC",
-			fields: [
-				{
-					widget: "text",
-					path: "label",
-					suggest: { from: "from" },
-					label: "ADMIN_F_LABEL",
-					placeholder: "ADMIN_P_LABEL"
-				},
-				{
-					widget: "point",
-					path: "from",
-					label: "ADMIN_F_FROM",
-					heading: !0,
-					ground: !0
-				},
-				{
-					widget: "point",
-					path: "to",
-					label: "ADMIN_F_TO",
-					heading: !0,
-					ground: !0
-				},
-				{
-					widget: "text",
-					lookup: "job",
-					path: "job",
-					label: "ADMIN_F_JOB",
-					hint: "ADMIN_H_JOB",
-					placeholder: "ADMIN_P_JOB"
-				}
-			]
-		}]
-	}]
-}, hold = new PlayerState("aiHold", stateString), core = resourceExport("ai-core"), panel = new AdminPanel(smallSchema), content = {
-	settings: readSettings(panel.get("settings")),
-	teleports: readTeleports(panel.get("teleports"))
-};
-panel.onChange("settings", () => content.settings = readSettings(panel.get("settings"))), panel.onChange("teleports", () => content.teleports = readTeleports(panel.get("teleports")));
-const fail = (error) => ({
-	ok: !1,
-	error
-}), pos = (source) => {
-	let [x = 0, y = 0, z = 0] = GetEntityCoords(GetPlayerPed(String(source)));
-	return {
-		x,
-		y,
-		z
-	};
-}, dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-onClientEvent(EVENTS.tackle, {
-	args: ([target]) => asArgs(typeof target == "number" && Number.isInteger(target) ? target : null),
-	rate: {
-		count: 1,
-		windowMs: 3e3
+}, hold = new PlayerState("aiHold", stateString);
+var Pending = class {
+	waiting = new Map();
+	next = 0;
+	start(source, item) {
+		let token = ++this.next;
+		return this.waiting.set(source, {
+			token,
+			item,
+			startedAt: Date.now()
+		}), token;
 	}
-}, (source, target) => {
-	content.settings.tackle && target !== source && GetPlayerName(String(target)) && dist(pos(source), pos(target)) <= 3 && emitNet(EVENTS.tackled, target);
-}), onClientCallback(EVENTS.teleport, {
-	args: ([id, end]) => typeof id == "string" && (end === "from" || end === "to") ? [id, end] : null,
-	lock: !0
-}, (source, id, end) => {
-	let teleport = content.teleports.get(id);
-	if (!teleport || dist(pos(source), teleport[end]) > 3) return fail("SMALL_ERR_FAR");
-	if (teleport.job && !(core.GetJobs(source) ?? []).some((m) => m.job === teleport.job)) return fail("SMALL_ERR_JOB");
-	let to = end === "from" ? teleport.to : teleport.from, ped = GetPlayerPed(String(source));
-	return SetEntityCoords(ped, to.x, to.y, to.z, !1, !1, !1, !1), SetEntityHeading(ped, to.heading), { ok: !0 };
-});
-const placing = new Map();
-let nextToken = 0;
+	take(source, token, minMs) {
+		let wait = this.waiting.get(source);
+		return !wait || wait.token !== token ? null : (this.waiting.delete(source), Date.now() - wait.startedAt >= minMs ? wait.item : null);
+	}
+	drop(source) {
+		this.waiting.delete(source);
+	}
+};
+const fireworks = new Pending(), notes = new Pending();
 onClientCallback(EVENTS.fireworkPlaced, {
 	args: ([token]) => asArgs(typeof token == "number" ? token : null),
 	lock: !0
 }, (source, token) => {
-	let place = placing.get(source);
-	if (!place || place.token !== token || (placing.delete(source), Date.now() - place.startedAt < 2400 || !inventory.removeItem(source, place.item, 1))) return fail("SMALL_ERR_FAR");
+	let item = fireworks.take(source, token, 2400);
+	if (!item || !inventory.removeItem(source, item, 1)) return fail("SMALL_ERR_FAR");
 	let p = pos(source);
-	for (let player of getPlayers()) dist(pos(Number(player)), p) <= 400 && emitNet(EVENTS.firework, Number(player), p.x, p.y, p.z - .9, place.item);
+	for (let player of getPlayers()) dist(pos(Number(player)), p) <= 400 && emitNet(EVENTS.firework, Number(player), p.x, p.y, p.z - .9, item);
 	return { ok: !0 };
-});
-function registerItems() {
-	inventory.registerUsableItem("binoculars", (source) => (content.settings.binoculars && emitNet(EVENTS.binoculars, source), !1));
-	for (let item of Object.keys(NEWS_ITEMS)) inventory.registerUsableItem(item, (source) => (hold.set(source, hold.get(source) === item ? void 0 : item), !1));
-	for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => {
-		if (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1)) return !1;
-		let token = ++nextToken;
-		return placing.set(source, {
-			token,
-			item,
-			startedAt: Date.now()
-		}), emitNet(EVENTS.fireworkPlace, source, token), !1;
-	});
-}
-registerItems();
-const still = new Map();
-setInterval(() => {
-	let minutes = content.settings.afkMinutes;
-	if (minutes <= 0) return still.clear();
-	let now = Date.now();
-	for (let source of online.sources()) {
-		let p = pos(source), last = still.get(source);
-		!last || dist(last, p) > 1 ? still.set(source, {
-			...p,
-			since: now
-		}) : now - last.since < minutes * 6e4 || IsPlayerAceAllowed(String(source), "ai.admin") || (still.delete(source), DropPlayer(String(source), Locale("SMALL_AFK_KICK", minutes)));
-	}
-}, 6e4), on("playerDropped", () => {
+}), onClientCallback(EVENTS.noteSave, {
+	args: ([token, text]) => typeof token == "number" && typeof text == "string" && text.trim() ? [token, text.trim().slice(0, 500)] : null,
+	lock: !0
+}, (source, token, text) => {
+	if (!notes.take(source, token, 0) || !content.settings.notepad || !inventory.hasItem(source, ITEMS.notepad)) return fail("NOTE_ERR_FAILED");
+	let metadata = {
+		text,
+		description: logSafe(text, 60)
+	};
+	return inventory.canCarryItem(source, ITEMS.note, 1, metadata) ? inventory.addItem(source, ITEMS.note, 1, metadata) ? { ok: !0 } : fail("NOTE_ERR_FAILED") : fail("NOTE_ERR_FULL");
+}), inventory.registerUsableItem("binoculars", (source) => (content.settings.binoculars && emitNet(EVENTS.binoculars, source), !1));
+for (let item of Object.keys(NEWS_ITEMS)) inventory.registerUsableItem(item, (source) => (hold.set(source, hold.get(source) === item ? void 0 : item), !1));
+for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1) || emitNet(EVENTS.fireworkPlace, source, fireworks.start(source, item)), !1));
+inventory.registerUsableItem(ITEMS.notepad, (source) => (content.settings.notepad && emitNet(EVENTS.noteWrite, source, notes.start(source, ITEMS.notepad)), !1)), inventory.registerUsableItem(ITEMS.note, (source, used) => {
+	let text = used.metadata.text;
+	return typeof text == "string" && text && emitNet(EVENTS.noteRead, source, text), !1;
+}), on("playerDropped", () => {
 	let source = Number(globalThis.source);
-	still.delete(source), placing.delete(source);
+	fireworks.drop(source), notes.drop(source);
+});
+// resource/server/vehicles.ts
+const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean), randomPlate = () => [
+	0,
+	1,
+	2,
+	3,
+	4,
+	5,
+	6,
+	7
+].map((i) => i >= 2 && i <= 4 ? "ABCDEFGHJKLMNPRSTUVWXYZ"[Math.floor(Math.random() * 23)] : String(Math.floor(Math.random() * 10))).join(""), plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim(), work = new Map();
+let nextToken = 0;
+inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
+	if (!content.settings.fakePlate) return !1;
+	let ped = GetPlayerPed(String(source)), vehicle = GetVehiclePedIsIn(ped, !1) ? 0 : nearestVehicleTo(source, 3);
+	if (!vehicle) return notify(source, Locale("PLATE_ERR_NONE"), "error"), !1;
+	let removing = realPlate.get(vehicle) !== void 0;
+	if (!removing && !vehicleKeys.has(source, vehicle)) return notify(source, Locale("PLATE_ERR_KEYS"), "error"), !1;
+	let token = ++nextToken;
+	return work.set(source, {
+		token,
+		vehicle,
+		removing,
+		startedAt: Date.now()
+	}), emitNet(EVENTS.plateWork, source, token, NetworkGetNetworkIdFromEntity(vehicle), removing), !1;
+}), onClientCallback(EVENTS.plateDone, {
+	args: ([token]) => asArgs(typeof token == "number" ? token : null),
+	lock: !0
+}, (source, token) => {
+	let job = work.get(source);
+	if (!job || job.token !== token) return fail("SMALL_ERR_FAR");
+	work.delete(source);
+	let { vehicle, removing } = job;
+	if (Date.now() - job.startedAt < 5500 || !DoesEntityExist(vehicle) || dist(pos(source), entityPos(vehicle)) > 4 || realPlate.get(vehicle) !== void 0 !== removing) return fail("SMALL_ERR_FAR");
+	let keyHolder = vehicleKeys.has(source, vehicle), shown;
+	if (removing) shown = realPlate.get(vehicle) ?? plateOf(vehicle), realPlate.set(vehicle, void 0), inventory.canCarryItem(source, ITEMS.fakePlate, 1) && inventory.addItem(source, ITEMS.fakePlate, 1);
+	else {
+		if (!inventory.removeItem(source, ITEMS.fakePlate, 1)) return fail("PLATE_ERR_NONE");
+		realPlate.set(vehicle, plateOf(vehicle)), shown = randomPlate();
+	}
+	return SetVehicleNumberPlateText(vehicle, shown), keyHolder && vehicleKeys.give(source, shown, "temporary"), { ok: !0 };
+}), onClientCallback(EVENTS.moor, {
+	args: ([netId]) => asArgs(typeof netId == "number" ? netId : null),
+	lock: !0
+}, (source, netId) => {
+	let boat = NetworkGetEntityFromNetworkId(netId);
+	if (!content.settings.boatRope || !boat || !DoesEntityExist(boat) || GetVehicleType(boat) !== "boat" || dist(pos(source), entityPos(boat)) > 6) return fail("SMALL_ERR_FAR");
+	if (moored.get(boat) === !0) return FreezeEntityPosition(boat, !1), moored.set(boat, void 0), { ok: !0 };
+	let at = entityPos(boat);
+	return content.moorings.some((m) => dist(m.point, at) <= 14) ? (FreezeEntityPosition(boat, !0), moored.set(boat, !0), { ok: !0 }) : fail("MOOR_ERR_FAR");
+}), on("playerDropped", () => work.delete(Number(globalThis.source)));
+// resource/server/carry.ts
+const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber), carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber), dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean), cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean), carries = new class {
+	agreed = new Set();
+	asking = new Set();
+	busy(source) {
+		return carrying.get(source) !== void 0 || carriedBy.get(source) !== void 0 || this.asking.has(source);
+	}
+	start(carrier, target, agreed) {
+		carrying.set(carrier, target), carriedBy.set(target, carrier), agreed && this.agreed.add(target);
+	}
+	stop(source, asCarried = !1) {
+		let target = carrying.get(source), carrier = carriedBy.get(source);
+		if (target !== void 0) this.end(source, target);
+		else if (carrier !== void 0 && (!asCarried || this.agreed.has(source))) this.end(carrier, source);
+		else return !1;
+		return !0;
+	}
+	async ask(carrier, target) {
+		this.asking.add(carrier).add(target);
+		let character = online.character(carrier), name = character ? `${character.firstname} ${character.lastname}` : GetPlayerName(String(carrier)), answer = await triggerClientCallback(EVENTS.carryAsk, target, [name], 1e4).catch(() => !1);
+		return this.asking.delete(carrier), this.asking.delete(target), answer === !0;
+	}
+	end(carrier, target) {
+		carrying.set(carrier, void 0), carriedBy.set(target, void 0), this.agreed.delete(target);
+	}
+}();
+function nearestFree(source) {
+	let me = pos(source), best = null, bestDist = 2;
+	for (let other of playersNear(source, 10)) {
+		if (other === source || carries.busy(other)) continue;
+		let ped = GetPlayerPed(String(other));
+		if (GetVehiclePedIsIn(ped, !1)) continue;
+		let d = dist(me, pos(other));
+		d < bestDist && ([best, bestDist] = [other, d]);
+	}
+	return best;
+}
+onClientCallback(EVENTS.carry, async (source) => {
+	if (carries.stop(source, !0)) return { ok: !0 };
+	if (!content.settings.carry || carries.busy(source) || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1)) return fail("CARRY_ERR_NONE");
+	let target = nearestFree(source);
+	if (target === null) return fail("CARRY_ERR_NONE");
+	let helpless = dead.get(target) === !0 || cuffed.get(target) === !0;
+	return !helpless && !await carries.ask(source, target) ? fail("CARRY_ERR_DECLINED") : carries.busy(source) || carries.busy(target) || dist(pos(source), pos(target)) > 3 ? fail("CARRY_ERR_NONE") : (carries.start(source, target, !helpless), { ok: !0 });
+}, { lock: !0 }), on("playerDropped", () => carries.stop(Number(globalThis.source))), on(CORE.playerDiedEvent, (source) => {
+	typeof source == "number" && carrying.get(source) !== void 0 && carries.stop(source);
 });

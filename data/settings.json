@@ -11,5 +11,17 @@
   "tackle": true,
   "afkMinutes": 20,
   "binoculars": true,
-  "fireworks": true
+  "fireworks": true,
+  "noRadio": false,
+  "fakePlate": true,
+  "boatRope": true,
+  "point": true,
+  "carry": true,
+  "sit": true,
+  "antiPeek": true,
+  "notepad": true,
+  "pedDensity": 80,
+  "scenarioDensity": 80,
+  "trafficDensity": 80,
+  "parkedDensity": 80
 }

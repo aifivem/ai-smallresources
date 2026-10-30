@@ -1,6 +1,15 @@
 import type { PanelSchema } from "@aicore-fivem/shared";
+import { SEAT_TYPES } from "common/seats";
+import { PLACE_TABS } from "./placeTabs";
+import {
+  SETTINGS_CARDS,
+  SETTINGS_DEFAULTS,
+  SETTINGS_SECTIONS,
+} from "./settingsCards";
 
-/** ai-smallresources' panel: small gameplay switches and teleports between two points. */
+const OFFSET = { type: "number" as const, min: -10, max: 10 };
+
+/** ai-smallresources' panel: feature switches, teleports, elevators, boat moorings and the seats on world objects. */
 export const smallSchema: PanelSchema = {
   title: "ADMIN_TITLE",
   icon: "sliders",
@@ -8,20 +17,8 @@ export const smallSchema: PanelSchema = {
     settings: {
       kind: "settings",
       sync: "all",
-      sections: {
-        seatbelt: { type: "bool" },
-        ejectUnbelted: { type: "number", min: 0, max: 500, integer: true },
-        ejectBelted: { type: "number", min: 0, max: 500, integer: true },
-        cruise: { type: "bool" },
-        crouch: { type: "bool" },
-        noShuffle: { type: "bool" },
-        noDispatch: { type: "bool" },
-        hideHud: { type: "bool" },
-        tackle: { type: "bool" },
-        afkMinutes: { type: "number", min: 0, max: 600, integer: true },
-        binoculars: { type: "bool" },
-        fireworks: { type: "bool" },
-      },
+      sections: SETTINGS_SECTIONS,
+      defaults: SETTINGS_DEFAULTS,
     },
     teleports: {
       kind: "records",
@@ -40,6 +37,62 @@ export const smallSchema: PanelSchema = {
         job: { type: "text", lookup: "job", min: 0, max: 32 },
       },
     },
+    elevators: {
+      kind: "records",
+      sync: "all",
+      labelPath: "label",
+      newRecord: { label: "", floors: [] },
+      sections: {
+        label: { type: "text", min: 1, max: 48 },
+        floors: {
+          type: "list",
+          max: 20,
+          of: {
+            type: "object",
+            fields: {
+              label: { type: "text", min: 1, max: 32 },
+              point: { type: "vec4" },
+              job: { type: "text", lookup: "job", min: 0, max: 32 },
+            },
+          },
+        },
+      },
+    },
+    moorings: {
+      kind: "records",
+      sync: "all",
+      labelPath: "label",
+      newRecord: { label: "", point: { x: 0, y: 0, z: 0, heading: 0 } },
+      sections: {
+        label: { type: "text", min: 1, max: 48 },
+        point: { type: "vec4" },
+      },
+    },
+    seats: {
+      kind: "records",
+      sync: "all",
+      labelPath: "model",
+      newRecord: { model: "", type: "chair", teleport: false, seats: [] },
+      sections: {
+        model: { type: "text", min: 1, max: 64 },
+        type: { type: "enum", values: Object.keys(SEAT_TYPES) },
+        teleport: { type: "bool" },
+        seats: {
+          type: "list",
+          min: 1,
+          max: 12,
+          of: {
+            type: "object",
+            fields: {
+              x: OFFSET,
+              y: OFFSET,
+              z: OFFSET,
+              heading: { type: "number", min: 0, max: 360 },
+            },
+          },
+        },
+      },
+    },
   },
   tabs: [
     {
@@ -48,109 +101,7 @@ export const smallSchema: PanelSchema = {
       icon: "sliders",
       label: "ADMIN_TAB_SETTINGS",
       desc: "ADMIN_TAB_SETTINGS_DESC",
-      cards: [
-        {
-          icon: "car",
-          title: "ADMIN_C_DRIVING",
-          desc: "ADMIN_C_DRIVING_DESC",
-          fields: [
-            {
-              widget: "switch",
-              path: "seatbelt",
-              label: "ADMIN_F_SEATBELT",
-              hint: "ADMIN_H_SEATBELT",
-            },
-            {
-              widget: "number",
-              path: "ejectUnbelted",
-              label: "ADMIN_F_EJECT_UNBELTED",
-              hint: "ADMIN_H_EJECT",
-              min: 0,
-              max: 500,
-              unit: "km/h",
-            },
-            {
-              widget: "number",
-              path: "ejectBelted",
-              label: "ADMIN_F_EJECT_BELTED",
-              min: 0,
-              max: 500,
-              unit: "km/h",
-            },
-            {
-              widget: "switch",
-              path: "cruise",
-              label: "ADMIN_F_CRUISE",
-              hint: "ADMIN_H_CRUISE",
-            },
-            {
-              widget: "switch",
-              path: "noShuffle",
-              label: "ADMIN_F_NO_SHUFFLE",
-              hint: "ADMIN_H_NO_SHUFFLE",
-            },
-          ],
-        },
-        {
-          icon: "user",
-          title: "ADMIN_C_PLAYER",
-          desc: "ADMIN_C_PLAYER_DESC",
-          fields: [
-            {
-              widget: "switch",
-              path: "crouch",
-              label: "ADMIN_F_CROUCH",
-              hint: "ADMIN_H_CROUCH",
-            },
-            {
-              widget: "switch",
-              path: "tackle",
-              label: "ADMIN_F_TACKLE",
-              hint: "ADMIN_H_TACKLE",
-            },
-            {
-              widget: "switch",
-              path: "binoculars",
-              label: "ADMIN_F_BINOCULARS",
-              hint: "ADMIN_H_BINOCULARS",
-            },
-            {
-              widget: "switch",
-              path: "fireworks",
-              label: "ADMIN_F_FIREWORKS",
-              hint: "ADMIN_H_FIREWORKS",
-            },
-            {
-              widget: "number",
-              path: "afkMinutes",
-              label: "ADMIN_F_AFK",
-              hint: "ADMIN_H_AFK",
-              min: 0,
-              max: 600,
-              unit: "min",
-            },
-          ],
-        },
-        {
-          icon: "map-location-dot",
-          title: "ADMIN_C_WORLD",
-          desc: "ADMIN_C_WORLD_DESC",
-          fields: [
-            {
-              widget: "switch",
-              path: "noDispatch",
-              label: "ADMIN_F_NO_DISPATCH",
-              hint: "ADMIN_H_NO_DISPATCH",
-            },
-            {
-              widget: "switch",
-              path: "hideHud",
-              label: "ADMIN_F_HIDE_HUD",
-              hint: "ADMIN_H_HIDE_HUD",
-            },
-          ],
-        },
-      ],
+      cards: SETTINGS_CARDS,
     },
     {
       id: "teleports",
@@ -200,5 +151,6 @@ export const smallSchema: PanelSchema = {
         },
       ],
     },
+    ...PLACE_TABS,
   ],
 };

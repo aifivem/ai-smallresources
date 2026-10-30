@@ -1,25 +1,38 @@
 import { AdminWorld } from "@aicore-fivem/lib/client";
-import { readSettings, readTeleports } from "common/small";
+import { readElevators, readMoorings, readTeleports } from "common/places";
+import { readSeats } from "common/seats";
+import { readSettings } from "common/small";
 
-/** The panel files every client module reads; `onSettings` handlers run after each change. */
-const world = new AdminWorld(["settings", "teleports"]);
-export const content = {
-  settings: readSettings(world.get("settings")),
-  teleports: readTeleports(world.get("teleports")),
+const FILES = ["settings", "teleports", "elevators", "moorings", "seats"];
+type File = "settings" | "teleports" | "elevators" | "moorings" | "seats";
+
+/** The panel files every client module reads; `onContent(file)` handlers run after each change of that file. */
+const world = new AdminWorld(FILES);
+const read = {
+  settings: () => readSettings(world.get("settings")),
+  teleports: () => readTeleports(world.get("teleports")),
+  elevators: () => readElevators(world.get("elevators")),
+  moorings: () => readMoorings(world.get("moorings")),
+  seats: () => readSeats(world.get("seats")),
 };
-const settingsHandlers: Array<() => void> = [];
-const teleportHandlers: Array<() => void> = [];
+export const content = {
+  settings: read.settings(),
+  teleports: read.teleports(),
+  elevators: read.elevators(),
+  moorings: read.moorings(),
+  seats: read.seats(),
+};
+const handlers = new Map<File, Array<() => void>>();
 
-world.onChange("settings", () => {
-  content.settings = readSettings(world.get("settings"));
-  for (const handler of settingsHandlers) handler();
-});
-world.onChange("teleports", () => {
-  content.teleports = readTeleports(world.get("teleports"));
-  for (const handler of teleportHandlers) handler();
-});
+for (const file of FILES as File[])
+  world.onChange(file, () => {
+    Object.assign(content, { [file]: read[file]() });
+    for (const handler of handlers.get(file) ?? []) handler();
+  });
 
+export const onContent = (file: File, handler: () => void) =>
+  handlers.set(file, [...(handlers.get(file) ?? []), handler]);
 export const onSettings = (handler: () => void) =>
-  settingsHandlers.push(handler);
+  onContent("settings", handler);
 export const onTeleports = (handler: () => void) =>
-  teleportHandlers.push(handler);
+  onContent("teleports", handler);

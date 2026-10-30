@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ai-smallresources/data/elevators.json",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "This file's JSON Schema (for editors)."
+    }
+  },
+  "patternProperties": {
+    "^[a-z0-9_]{2,32}$": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "Name",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48
+        },
+        "floors": {
+          "description": "Floors: At least two. The player arrives at the floor's point facing its heading.",
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "description": "Floor name",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32
+              },
+              "point": {
+                "description": "Floor point",
+                "type": "object",
+                "required": [
+                  "x",
+                  "y",
+                  "z",
+                  "heading"
+                ],
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  },
+                  "heading": {
+                    "type": "number"
+                  }
+                }
+              },
+              "job": {
+                "description": "Job: Empty: everyone can ride to this floor.",
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 32
+              }
+            },
+            "required": [
+              "label",
+              "point",
+              "job"
+            ]
+          }
+        }
+      },
+      "required": [
+        "label",
+        "floors"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

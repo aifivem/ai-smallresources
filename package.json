@@ -2,7 +2,7 @@
   "name": "ai-smallresources",
   "version": "0.1.0",
   "private": true,
-  "description": "Seatbelt, cruise control, crouch, tackle, binoculars, fireworks, teleports, AFK kick and world tweaks",
+  "description": "Seatbelt, cruise control, crouch, pointing, sitting, carrying, tackle, anti ghost-peek, items, fake plates, boat ropes, teleports, elevators, population and world tweaks",
   "license": "GPL-3.0-only",
   "author": {
     "name": "ai-core"
@@ -40,6 +40,9 @@
   },
   "fxFiles": [
     "data/settings.json",
-    "data/teleports.json"
+    "data/teleports.json",
+    "data/elevators.json",
+    "data/moorings.json",
+    "data/seats.json"
   ]
 }

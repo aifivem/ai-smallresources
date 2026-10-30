@@ -1,0 +1,5725 @@
+{
+  "$schema": "./schemas/seats.schema.json",
+  "prop_chair_06": {
+    "model": "prop_chair_06",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_off_chair_05": {
+    "model": "prop_off_chair_05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.4,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_gc_chair02": {
+    "model": "v_ret_gc_chair02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_club_officechair": {
+    "model": "v_club_officechair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_04a": {
+    "model": "prop_chair_04a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_03_chr": {
+    "model": "prop_table_03_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_serv_ct_chair02": {
+    "model": "v_serv_ct_chair02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_fh_chair01": {
+    "model": "v_ret_fh_chair01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.35,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_offchair": {
+    "model": "v_corp_offchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_03b_chr": {
+    "model": "prop_table_03b_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_02_chr": {
+    "model": "prop_table_02_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_04_chr": {
+    "model": "prop_table_04_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_01_chr_a": {
+    "model": "prop_table_01_chr_a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_clb_officechair_s": {
+    "model": "p_clb_officechair_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_01b": {
+    "model": "prop_chair_01b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.025,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_off_chair_03": {
+    "model": "prop_off_chair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_mbchair": {
+    "model": "v_res_mbchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_01_chr_b": {
+    "model": "prop_table_01_chr_b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 270.0
+      }
+    ]
+  },
+  "prop_skid_chair_02": {
+    "model": "prop_skid_chair_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.025,
+        "z": 0.06,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_skid_chair_03": {
+    "model": "prop_skid_chair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.025,
+        "z": 0.06,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_skid_chair_01": {
+    "model": "prop_skid_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.025,
+        "z": 0.06,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_cs_office_chair": {
+    "model": "prop_cs_office_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ba_prop_battle_club_chair_01": {
+    "model": "ba_prop_battle_club_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ilev_leath_chr": {
+    "model": "v_ilev_leath_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_05_chr": {
+    "model": "prop_table_05_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_lazychair": {
+    "model": "v_corp_lazychair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_off_chair_04": {
+    "model": "prop_off_chair_04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_cd_chair": {
+    "model": "v_corp_cd_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_off_chair_01": {
+    "model": "prop_off_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.075,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_bk_chair3": {
+    "model": "v_corp_bk_chair3",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_09": {
+    "model": "prop_chair_09",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_rub_couch03": {
+    "model": "prop_rub_couch03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.15,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_01a": {
+    "model": "prop_chair_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.52,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_prop_yah_seat_02": {
+    "model": "hei_prop_yah_seat_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_yacht_chair_01_s": {
+    "model": "p_yacht_chair_01_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gr_dlc_gr_yacht_props_seat_02": {
+    "model": "gr_dlc_gr_yacht_props_seat_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_prop_yah_seat_01": {
+    "model": "hei_prop_yah_seat_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.7,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_yacht_seat_01": {
+    "model": "prop_yacht_seat_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_yacht_seat_03": {
+    "model": "prop_yacht_seat_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.7,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_club_stagechair": {
+    "model": "v_club_stagechair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_02": {
+    "model": "prop_chair_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.525,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_gc_chair02": {
+    "model": "prop_gc_chair02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_table_06_chr": {
+    "model": "prop_table_06_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ilev_p_easychair": {
+    "model": "v_ilev_p_easychair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_off_chair_04_s": {
+    "model": "prop_off_chair_04_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_03": {
+    "model": "prop_chair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_m_l_chair1": {
+    "model": "v_res_m_l_chair1",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_waiting_seat_01": {
+    "model": "prop_waiting_seat_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_club_baham_bckt_chr": {
+    "model": "v_club_baham_bckt_chr",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_umpire_01": {
+    "model": "prop_umpire_01",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.85,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_chair_white": {
+    "model": "v_ret_chair_white",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.55,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_04b": {
+    "model": "prop_chair_04b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ex_prop_offchair_exec_02": {
+    "model": "ex_prop_offchair_exec_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ex_prop_offchair_exec_01": {
+    "model": "ex_prop_offchair_exec_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ex_prop_offchair_exec_03": {
+    "model": "ex_prop_offchair_exec_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fa_chair02": {
+    "model": "v_res_fa_chair02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_wheelchair_01": {
+    "model": "prop_wheelchair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.075,
+        "z": 0.075,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ind_ss_chair01": {
+    "model": "v_ind_ss_chair01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ind_ss_chair2": {
+    "model": "v_ind_ss_chair2",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ilev_chair02_ped": {
+    "model": "v_ilev_chair02_ped",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_jarmchair": {
+    "model": "v_res_jarmchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_m_armchair": {
+    "model": "v_res_m_armchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.08,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_05": {
+    "model": "prop_chair_05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_ld_farm_chair01": {
+    "model": "prop_ld_farm_chair01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.0,
+        "heading": 0.0
+      }
+    ]
+  },
+  "v_58_soloff_gchair2": {
+    "model": "v_58_soloff_gchair2",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 0.0
+      }
+    ]
+  },
+  "v_58_soloff_gchair": {
+    "model": "v_58_soloff_gchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 0.0
+      }
+    ]
+  },
+  "prop_chair_10": {
+    "model": "prop_chair_10",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_rock_chair_01": {
+    "model": "prop_rock_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chateau_chair_01": {
+    "model": "prop_chateau_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.035,
+        "y": 0.08,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_old_deck_chair": {
+    "model": "prop_old_deck_chair",
+    "type": "deck",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.15,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_hobo_seat_01": {
+    "model": "prop_hobo_seat_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ilev_m_dinechair": {
+    "model": "v_ilev_m_dinechair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_rub_carpart_05": {
+    "model": "prop_rub_carpart_05",
+    "type": "deck",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.35,
+        "heading": 0.0
+      }
+    ]
+  },
+  "imp_prop_impexp_offchair_01a": {
+    "model": "imp_prop_impexp_offchair_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "vw_prop_vw_offchair_03": {
+    "model": "vw_prop_vw_offchair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ba_prop_battle_club_chair_03": {
+    "model": "ba_prop_battle_club_chair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ba_prop_battle_club_chair_02": {
+    "model": "ba_prop_battle_club_chair_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.075,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fa_chair01": {
+    "model": "v_res_fa_chair01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.29,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_prop_heist_off_chair": {
+    "model": "hei_prop_heist_off_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.075,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sf_prop_sf_bench_piano_01a": {
+    "model": "sf_prop_sf_bench_piano_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sf_prop_sf_sofa_chefield_02a": {
+    "model": "sf_prop_sf_sofa_chefield_02a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_car_seat": {
+    "model": "prop_car_seat",
+    "type": "deck",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.175,
+        "z": 0.225,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_off_chair_04b": {
+    "model": "prop_off_chair_04b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.45,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fh_dineeamesa": {
+    "model": "v_res_fh_dineeamesa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fh_dineeamesb": {
+    "model": "v_res_fh_dineeamesb",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fh_dineeamesc": {
+    "model": "v_res_fh_dineeamesc",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_chair": {
+    "model": "v_ret_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gr_dlc_gr_yacht_props_table_01": {
+    "model": "gr_dlc_gr_yacht_props_table_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_ld_toilet_01": {
+    "model": "prop_ld_toilet_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.135,
+        "heading": 180.0
+      }
+    ]
+  },
+  "vw_prop_casino_chair_01a": {
+    "model": "vw_prop_casino_chair_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.8,
+        "heading": 0.0
+      }
+    ]
+  },
+  "vw_prop_casino_track_chair_01": {
+    "model": "vw_prop_casino_track_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.08,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_chair_pile_01": {
+    "model": "prop_chair_pile_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.78,
+        "heading": 180.0
+      }
+    ]
+  },
+  "h4_prop_h4_chair_01a": {
+    "model": "h4_prop_h4_chair_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.06,
+        "z": 0.03,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_trev_framechair": {
+    "model": "v_res_trev_framechair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.01,
+        "z": 0.51,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_study_chair": {
+    "model": "v_res_study_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fh_barcchair": {
+    "model": "v_res_fh_barcchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fh_easychair": {
+    "model": "v_res_fh_easychair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fh_singleseat": {
+    "model": "v_res_fh_singleseat",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.25,
+        "z": 0.05,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_j_stool": {
+    "model": "v_res_j_stool",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.48,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_m_dinechair": {
+    "model": "v_res_m_dinechair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_tre_chair": {
+    "model": "v_res_tre_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.075,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_tre_officechair": {
+    "model": "v_res_tre_officechair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.05,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_med_p_deskchair": {
+    "model": "v_med_p_deskchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_med_p_easychair": {
+    "model": "v_med_p_easychair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.475,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_med_whickerchair1": {
+    "model": "v_med_whickerchair1",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.05,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_direct_chair_01": {
+    "model": "prop_direct_chair_01",
+    "type": "director",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.15,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_direct_chair_02": {
+    "model": "prop_direct_chair_02",
+    "type": "director",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.17,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_yacht_armchair_01": {
+    "model": "apa_mp_h_yacht_armchair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_yacht_strip_chair_01": {
+    "model": "apa_mp_h_yacht_strip_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_club_barchair": {
+    "model": "v_club_barchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_couch_sm_02": {
+    "model": "prop_couch_sm_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.5,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_couch_sm_05": {
+    "model": "prop_couch_sm_05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_couch_sm_07": {
+    "model": "prop_couch_sm_07",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.5,
+        "y": -0.15,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_couch_sm2_07": {
+    "model": "prop_couch_sm2_07",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.15,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_din_chair_04": {
+    "model": "apa_mp_h_din_chair_04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.075,
+        "z": 0.525,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_din_chair_08": {
+    "model": "apa_mp_h_din_chair_08",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.075,
+        "z": 0.525,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_din_chair_09": {
+    "model": "apa_mp_h_din_chair_09",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.25,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_din_chair_12": {
+    "model": "apa_mp_h_din_chair_12",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.08,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_01": {
+    "model": "apa_mp_h_stn_chairarm_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_02": {
+    "model": "apa_mp_h_stn_chairarm_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.5,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_03": {
+    "model": "apa_mp_h_stn_chairarm_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_09": {
+    "model": "apa_mp_h_stn_chairarm_09",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_11": {
+    "model": "apa_mp_h_stn_chairarm_11",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.25,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_12": {
+    "model": "apa_mp_h_stn_chairarm_12",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_13": {
+    "model": "apa_mp_h_stn_chairarm_13",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.5,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_23": {
+    "model": "apa_mp_h_stn_chairarm_23",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_24": {
+    "model": "apa_mp_h_stn_chairarm_24",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.4,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_25": {
+    "model": "apa_mp_h_stn_chairarm_25",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.25,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairarm_26": {
+    "model": "apa_mp_h_stn_chairarm_26",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.7,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_01": {
+    "model": "apa_mp_h_stn_chairstrip_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.08,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_02": {
+    "model": "apa_mp_h_stn_chairstrip_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.08,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_03": {
+    "model": "apa_mp_h_stn_chairstrip_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.02,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_04": {
+    "model": "apa_mp_h_stn_chairstrip_04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_05": {
+    "model": "apa_mp_h_stn_chairstrip_05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_06": {
+    "model": "apa_mp_h_stn_chairstrip_06",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_07": {
+    "model": "apa_mp_h_stn_chairstrip_07",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstrip_08": {
+    "model": "apa_mp_h_stn_chairstrip_08",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ba_prop_battle_control_seat": {
+    "model": "ba_prop_battle_control_seat",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.08,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_armchair_01_s": {
+    "model": "p_armchair_01_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_dinechair_01_s": {
+    "model": "p_dinechair_01_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_ilev_p_easychair_s": {
+    "model": "p_ilev_p_easychair_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_soloffchair_s": {
+    "model": "p_soloffchair_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_gc_chair03": {
+    "model": "v_ret_gc_chair03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.01,
+        "z": -0.125,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_sol_chair": {
+    "model": "prop_sol_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.025,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ilev_fh_dineeamesa": {
+    "model": "v_ilev_fh_dineeamesa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_01": {
+    "model": "hei_heist_din_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_02": {
+    "model": "hei_heist_din_chair_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_03": {
+    "model": "hei_heist_din_chair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_04": {
+    "model": "hei_heist_din_chair_04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_05": {
+    "model": "hei_heist_din_chair_05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_06": {
+    "model": "hei_heist_din_chair_06",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_08": {
+    "model": "hei_heist_din_chair_08",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_heist_din_chair_09": {
+    "model": "hei_heist_din_chair_09",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_toilet_01": {
+    "model": "prop_toilet_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "xm_prop_x17_avengerchair_02": {
+    "model": "xm_prop_x17_avengerchair_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.07,
+        "z": -0.06,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_sidechair": {
+    "model": "v_corp_sidechair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.52,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_ps_chair": {
+    "model": "v_ret_ps_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.48,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_bk_chair1": {
+    "model": "v_corp_bk_chair1",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.13,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_bk_chair2": {
+    "model": "v_corp_bk_chair2",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.04,
+        "y": 0.05,
+        "z": 0.03,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bar_stool_01": {
+    "model": "prop_bar_stool_01",
+    "type": "bar",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.825,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_gc_chair01": {
+    "model": "v_ret_gc_chair01",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.39,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_club_bahbarstool": {
+    "model": "v_club_bahbarstool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.35,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_din_stool_04": {
+    "model": "apa_mp_h_din_stool_04",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.85,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_kitchnstool": {
+    "model": "v_res_kitchnstool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.75,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_stool_01": {
+    "model": "prop_stool_01",
+    "type": "bar",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.825,
+        "heading": 0.0
+      }
+    ]
+  },
+  "v_med_cor_medstool": {
+    "model": "v_med_cor_medstool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.7,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ret_ta_stool": {
+    "model": "v_ret_ta_stool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.55,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ba_prop_int_glam_stool": {
+    "model": "ba_prop_int_glam_stool",
+    "type": "bar",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.815,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ba_prop_int_edgy_stool": {
+    "model": "ba_prop_int_edgy_stool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.075,
+        "y": 0.0,
+        "z": 0.8,
+        "heading": 90.0
+      }
+    ]
+  },
+  "h4_prop_h4_barstool_01a": {
+    "model": "h4_prop_h4_barstool_01a",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.9,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sf_prop_sf_chair_stool_08a": {
+    "model": "sf_prop_sf_chair_stool_08a",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "sf_prop_sf_chair_stool_09a": {
+    "model": "sf_prop_sf_chair_stool_09a",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.025,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_d_highchair": {
+    "model": "v_res_d_highchair",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.02,
+        "z": 0.21,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_fh_kitnstool": {
+    "model": "v_res_fh_kitnstool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.9,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_tre_stool": {
+    "model": "v_res_tre_stool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.08,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_tre_stool_leather": {
+    "model": "v_res_tre_stool_leather",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.08,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_tre_stool_scuz": {
+    "model": "v_res_tre_stool_scuz",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.08,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_yacht_stool_01": {
+    "model": "apa_mp_h_yacht_stool_01",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_stn_chairstool_12": {
+    "model": "apa_mp_h_stn_chairstool_12",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.48,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_yacht_barstool_01": {
+    "model": "apa_mp_h_yacht_barstool_01",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ilev_fh_kitchenstool": {
+    "model": "v_ilev_fh_kitchenstool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.9,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ex_mp_h_din_stool_04": {
+    "model": "ex_mp_h_din_stool_04",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.85,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ba_prop_int_stool_low": {
+    "model": "ba_prop_int_stool_low",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "bkr_prop_biker_barstool_02": {
+    "model": "bkr_prop_biker_barstool_02",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.08,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_ven_market_stool": {
+    "model": "prop_ven_market_stool",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.25,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_patio_lounger1_s": {
+    "model": "p_patio_lounger1_s",
+    "type": "sunlounger",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.23,
+        "z": 0.4,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_yacht_lounger": {
+    "model": "prop_yacht_lounger",
+    "type": "sunlounger",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_patio_lounger_2": {
+    "model": "prop_patio_lounger_2",
+    "type": "sunlounger",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.25,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_patio_lounger_3": {
+    "model": "prop_patio_lounger_3",
+    "type": "sunlounger",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.18,
+        "z": 0.4,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_patio_lounger1": {
+    "model": "prop_patio_lounger1",
+    "type": "sunlounger",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.2,
+        "z": 0.4,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gr_dlc_gr_yacht_props_lounger": {
+    "model": "gr_dlc_gr_yacht_props_lounger",
+    "type": "sunlounger",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_prop_yah_lounger": {
+    "model": "hei_prop_yah_lounger",
+    "type": "sunlounger",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_patio_lounger1b": {
+    "model": "prop_patio_lounger1b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.3,
+        "z": 0.45,
+        "heading": 270.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.8,
+        "z": 0.45,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_bench_11": {
+    "model": "prop_bench_11",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.8,
+        "y": 0.0,
+        "z": 0.42,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.42,
+        "heading": 180.0
+      },
+      {
+        "x": 0.8,
+        "y": 0.0,
+        "z": 0.42,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_08": {
+    "model": "prop_bench_08",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.7,
+        "y": 0.125,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.7,
+        "y": 0.125,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_09": {
+    "model": "prop_bench_09",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.8,
+        "y": -0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.8,
+        "y": 0.0,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_02": {
+    "model": "prop_bench_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.7,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.7,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_03": {
+    "model": "prop_bench_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.35,
+        "y": 0.05,
+        "z": 0.43,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": 0.05,
+        "z": 0.43,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_05": {
+    "model": "prop_bench_05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.8,
+        "y": 0.0,
+        "z": 0.45,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.45,
+        "heading": 180.0
+      },
+      {
+        "x": 0.8,
+        "y": 0.0,
+        "z": 0.45,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_10": {
+    "model": "prop_bench_10",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -1.1,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": -0.35,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.2,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_07": {
+    "model": "prop_bench_07",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.9,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.8,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_01a": {
+    "model": "prop_bench_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.75,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.75,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_06": {
+    "model": "prop_bench_06",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.9,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.9,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_busstop_02": {
+    "model": "prop_busstop_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.75,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.5,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_busstop_04": {
+    "model": "prop_busstop_04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.6,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.6,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_busstop_05": {
+    "model": "prop_busstop_05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.8,
+        "y": 0.3,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_picnictable_01": {
+    "model": "prop_picnictable_01",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": -0.6,
+        "z": 0.5,
+        "heading": 0.0
+      },
+      {
+        "x": 0.4,
+        "y": -0.6,
+        "z": 0.5,
+        "heading": 0.0
+      },
+      {
+        "x": -0.4,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_picnictable_02": {
+    "model": "prop_picnictable_02",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": -0.6,
+        "z": 0.5,
+        "heading": 0.0
+      },
+      {
+        "x": 0.4,
+        "y": -0.6,
+        "z": 0.5,
+        "heading": 0.0
+      },
+      {
+        "x": -0.4,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hm232870343": {
+    "model": "-232870343",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.5,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 0.0
+      },
+      {
+        "x": 0.5,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 0.0
+      }
+    ]
+  },
+  "prop_ld_bench01": {
+    "model": "prop_ld_bench01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.7,
+        "y": 0.2,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.7,
+        "y": 0.2,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_bench_04": {
+    "model": "prop_bench_04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.7,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.7,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "unknown": {
+    "model": "unknown",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.6,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.6,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_med_hospseating1": {
+    "model": "v_med_hospseating1",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -1.08,
+        "z": 0.07,
+        "heading": 270.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.375,
+        "z": 0.07,
+        "heading": 270.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.375,
+        "z": 0.07,
+        "heading": 270.0
+      },
+      {
+        "x": 0.0,
+        "y": 1.08,
+        "z": 0.07,
+        "heading": 270.0
+      }
+    ]
+  },
+  "ch1_01_bench_for_chris": {
+    "model": "ch1_01_bench_for_chris",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.7,
+        "y": 0.0,
+        "z": -0.1,
+        "heading": 180.0
+      },
+      {
+        "x": 0.7,
+        "y": 0.0,
+        "z": -0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_rub_couch04": {
+    "model": "prop_rub_couch04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.5,
+        "y": -0.1,
+        "z": 0.48,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": -0.1,
+        "z": 0.48,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_rub_couch02": {
+    "model": "prop_rub_couch02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.6,
+        "y": -0.1,
+        "z": 0.48,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": -0.1,
+        "z": 0.45,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_tre_sofa": {
+    "model": "v_res_tre_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "hei_prop_yah_seat_03": {
+    "model": "hei_prop_yah_seat_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gr_dlc_gr_yacht_props_seat_03": {
+    "model": "gr_dlc_gr_yacht_props_seat_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_yacht_seat_02": {
+    "model": "prop_yacht_seat_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "p_yacht_sofa_01_s": {
+    "model": "p_yacht_sofa_01_s",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": -0.1,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "apa_mp_h_yacht_sofa_01": {
+    "model": "apa_mp_h_yacht_sofa_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -1.3,
+        "y": -0.25,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": -0.45,
+        "y": -0.25,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": -0.25,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.3,
+        "y": -0.25,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_wait_bench_01": {
+    "model": "prop_wait_bench_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.9,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.9,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_fib_3b_bench": {
+    "model": "prop_fib_3b_bench",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.95,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.95,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_ld_farm_couch02": {
+    "model": "prop_ld_farm_couch02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": -0.65,
+        "z": 0.0,
+        "heading": 270.0
+      },
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 270.0
+      },
+      {
+        "x": 0.1,
+        "y": 0.65,
+        "z": 0.0,
+        "heading": 270.0
+      }
+    ]
+  },
+  "prop_ld_farm_couch01": {
+    "model": "prop_ld_farm_couch01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": 0.75,
+        "z": 0.0,
+        "heading": 90.0
+      },
+      {
+        "x": -0.1,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 90.0
+      },
+      {
+        "x": -0.1,
+        "y": -0.75,
+        "z": 0.0,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_rub_couch01": {
+    "model": "prop_rub_couch01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.5,
+        "y": 0.0,
+        "z": 0.45,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_ilev_m_sofa": {
+    "model": "v_ilev_m_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -1.25,
+        "y": -0.6,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": -0.5,
+        "y": 0.4,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": 0.4,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.5,
+        "y": 0.4,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_m_h_sofa": {
+    "model": "v_res_m_h_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sf_prop_sf_sofa_chefield_01a": {
+    "model": "sf_prop_sf_sofa_chefield_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sf_prop_sf_sofa_studio_01a": {
+    "model": "sf_prop_sf_sofa_studio_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -1.4,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": -0.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "h4_prop_h4_couch_01a": {
+    "model": "h4_prop_h4_couch_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.35,
+        "y": -0.06,
+        "z": 0.03,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": -0.06,
+        "z": 0.03,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_couch_sm_06": {
+    "model": "prop_couch_sm_06",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": -0.15,
+        "z": 0.45,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": -0.15,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_tre_sofa_mess_b": {
+    "model": "v_res_tre_sofa_mess_b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_res_r_sofa": {
+    "model": "v_res_r_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": -0.2,
+        "z": 0.6,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": -0.2,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_corp_cd_recseat": {
+    "model": "v_corp_cd_recseat",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.35,
+        "y": 0.07,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.35,
+        "y": 0.07,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "v_med_bed1": {
+    "model": "v_med_bed1",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.3,
+        "y": 0.0,
+        "z": 0.4,
+        "heading": 90.0
+      },
+      {
+        "x": 0.2,
+        "y": 0.0,
+        "z": 0.4,
+        "heading": 270.0
+      }
+    ]
+  },
+  "v_med_bed2": {
+    "model": "v_med_bed2",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.25,
+        "y": 0.0,
+        "z": 0.4,
+        "heading": 90.0
+      },
+      {
+        "x": 0.25,
+        "y": 0.0,
+        "z": 0.4,
+        "heading": 270.0
+      }
+    ]
+  },
+  "v_med_emptybed": {
+    "model": "v_med_emptybed",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.25,
+        "y": 0.0,
+        "z": 0.2,
+        "heading": 90.0
+      },
+      {
+        "x": 0.25,
+        "y": 0.0,
+        "z": 0.2,
+        "heading": 270.0
+      }
+    ]
+  },
+  "v_res_tt_bed": {
+    "model": "v_res_tt_bed",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.7,
+        "y": 0.0,
+        "z": 0.65,
+        "heading": 270.0
+      },
+      {
+        "x": 0.4,
+        "y": -0.95,
+        "z": 0.65,
+        "heading": 180.0
+      }
+    ]
+  },
+  "ex_prop_exec_bed_01": {
+    "model": "ex_prop_exec_bed_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.375,
+        "z": 0.75,
+        "heading": 180.0
+      }
+    ]
+  },
+  "bkr_prop_biker_campbed_01": {
+    "model": "bkr_prop_biker_campbed_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.375,
+        "z": 0.75,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.375,
+        "z": 0.75,
+        "heading": 180.0
+      }
+    ]
+  },
+  "imp_prop_impexp_campbed_01": {
+    "model": "imp_prop_impexp_campbed_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.375,
+        "z": 0.75,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.375,
+        "z": 0.75,
+        "heading": 180.0
+      }
+    ]
+  },
+  "imp_prop_impexp_sofabed_01a": {
+    "model": "imp_prop_impexp_sofabed_01a",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.65,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.38,
+        "z": 0.3,
+        "heading": 0.0
+      }
+    ]
+  },
+  "prop_t_sofa_02": {
+    "model": "prop_t_sofa_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.5,
+        "y": -0.6,
+        "z": 0.09,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": -0.6,
+        "z": 0.09,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_t_sofa": {
+    "model": "prop_t_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.5,
+        "y": -0.6,
+        "z": 0.09,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": -0.6,
+        "z": 0.09,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_beach_ring_01": {
+    "model": "prop_beach_ring_01",
+    "type": "deck",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.175,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_homeles_shelter_01": {
+    "model": "prop_homeles_shelter_01",
+    "type": "wall",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.85,
+        "y": -1.3,
+        "z": 0.425,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": 1.35,
+        "z": 0.55,
+        "heading": 0.0
+      }
+    ]
+  },
+  "prop_homeles_shelter_02": {
+    "model": "prop_homeles_shelter_02",
+    "type": "wall",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.2,
+        "y": -1.15,
+        "z": 0.45,
+        "heading": 100.0
+      },
+      {
+        "x": 1.15,
+        "y": 1.4,
+        "z": 0.74,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gabz_pillbox_diagnostics_bed_02": {
+    "model": "gabz_pillbox_diagnostics_bed_02",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": 0.0,
+        "z": 1.0,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gabz_pillbox_diagnostics_bed_03": {
+    "model": "gabz_pillbox_diagnostics_bed_03",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": 0.2,
+        "z": 1.0,
+        "heading": 90.0
+      },
+      {
+        "x": 0.1,
+        "y": 0.2,
+        "z": 1.0,
+        "heading": 270.0
+      },
+      {
+        "x": -0.01,
+        "y": -0.6,
+        "z": 1.0,
+        "heading": 90.0
+      },
+      {
+        "x": 0.01,
+        "y": -0.6,
+        "z": 1.0,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gabz_pdprops_chair01": {
+    "model": "gabz_pdprops_chair01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.55,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pdprops_chair02": {
+    "model": "gabz_pdprops_chair02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.55,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pdprops_chair03": {
+    "model": "gabz_pdprops_chair03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.025,
+        "z": 0.55,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pdprops_chair04": {
+    "model": "gabz_pdprops_chair04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pdprops_chair05": {
+    "model": "gabz_pdprops_chair05",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.075,
+        "z": 0.55,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_lamesapd_chair": {
+    "model": "gabz_lamesapd_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_lamesapd_cellbench": {
+    "model": "gabz_lamesapd_cellbench",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.65,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.65,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sm_pizzeria_armchair": {
+    "model": "sm_pizzeria_armchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": -0.075,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sm_pizzeria_chair_01": {
+    "model": "sm_pizzeria_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.06,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sm_pizzeria_chesterfield_chair": {
+    "model": "sm_pizzeria_chesterfield_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.09,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sm_pizzeria_lounge_chair": {
+    "model": "sm_pizzeria_lounge_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.4,
+        "z": 0.45,
+        "heading": 0.0
+      }
+    ]
+  },
+  "sm_pizzeria_office_chair01": {
+    "model": "sm_pizzeria_office_chair01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sm_pizzeria_office_chair02": {
+    "model": "sm_pizzeria_office_chair02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "sm_pizzeria_wooden_chair": {
+    "model": "sm_pizzeria_wooden_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": 0.0,
+        "z": 0.06,
+        "heading": 270.0
+      }
+    ]
+  },
+  "sm_pizzeria_lounge_sofa": {
+    "model": "sm_pizzeria_lounge_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.45,
+        "y": -1.0,
+        "z": 0.45,
+        "heading": 270.0
+      },
+      {
+        "x": 0.45,
+        "y": 0.0,
+        "z": 0.45,
+        "heading": 270.0
+      },
+      {
+        "x": 0.45,
+        "y": 1.0,
+        "z": 0.45,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gabz_sf_prop_sf_bench_piano_01a": {
+    "model": "gabz_sf_prop_sf_bench_piano_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_sf_prop_sf_chair_stool_08a": {
+    "model": "gabz_sf_prop_sf_chair_stool_08a",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gabz_sf_prop_sf_chair_stool_09a": {
+    "model": "gabz_sf_prop_sf_chair_stool_09a",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.025,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_sf_prop_sf_sofa_chefield_02": {
+    "model": "gabz_sf_prop_sf_sofa_chefield_02a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_sf_prop_sf_sofa_chefield_01": {
+    "model": "gabz_sf_prop_sf_sofa_chefield_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_sf_prop_sf_sofa_studio_01a": {
+    "model": "gabz_sf_prop_sf_sofa_studio_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -1.4,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": -0.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.5,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_davispd_chair01": {
+    "model": "gabz_davispd_chair01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.475,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_binco_puff": {
+    "model": "gabz_binco_puff",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.5,
+        "heading": 0.0
+      }
+    ]
+  },
+  "gabz_binco_sofaseats": {
+    "model": "gabz_binco_sofaseats",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.25,
+        "y": 0.0,
+        "z": 0.25,
+        "heading": 90.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.6,
+        "z": 0.25,
+        "heading": 135.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.6,
+        "z": 0.25,
+        "heading": 45.0
+      }
+    ]
+  },
+  "gabz_bmlegion_armchair": {
+    "model": "gabz_bmlegion_armchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.52,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bmlegion_barstool": {
+    "model": "gabz_bmlegion_barstool",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.85,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bmlegion_soloffchair": {
+    "model": "gabz_bmlegion_soloffchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bmlegion_sofa": {
+    "model": "gabz_bmlegion_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.95,
+        "y": -0.1,
+        "z": 0.52,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.1,
+        "z": 0.52,
+        "heading": 180.0
+      },
+      {
+        "x": -0.95,
+        "y": -0.1,
+        "z": 0.52,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_townhall_bench_wait": {
+    "model": "gabz_townhall_bench_wait",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_townhall_courtroom_bench": {
+    "model": "gabz_townhall_courtroom_bench",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.6,
+        "y": -0.05,
+        "z": -0.07,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": -0.07,
+        "heading": 180.0
+      },
+      {
+        "x": 0.6,
+        "y": -0.05,
+        "z": -0.07,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_mba_prop_arena_chair_01": {
+    "model": "gabz_mba_prop_arena_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_mba_prop_arena_chair_02": {
+    "model": "gabz_mba_prop_arena_chair_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_mba_prop_arena_chair_03": {
+    "model": "gabz_mba_prop_arena_chair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_mba_prop_chair_01": {
+    "model": "gabz_mba_prop_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bahama_couchmodule_01": {
+    "model": "gabz_bahama_couchmodule_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": 0.1,
+        "z": 0.5,
+        "heading": 225.0
+      }
+    ]
+  },
+  "gabz_bahama_couchmodule_02": {
+    "model": "gabz_bahama_couchmodule_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bahama_couchmodule_03": {
+    "model": "gabz_bahama_couchmodule_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bahama_barstool_01": {
+    "model": "gabz_bahama_barstool_01",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.9,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bahama_makeupchair": {
+    "model": "gabz_bahama_makeupchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.1,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_bahama_sofa_01": {
+    "model": "gabz_bahama_sofa_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.15,
+        "y": -0.65,
+        "z": 0.48,
+        "heading": 270.0
+      },
+      {
+        "x": 0.15,
+        "y": 0.0,
+        "z": 0.45,
+        "heading": 270.0
+      },
+      {
+        "x": 0.15,
+        "y": 0.65,
+        "z": 0.48,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gabz_bennys_prop_chair_01": {
+    "model": "gabz_bennys_prop_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_hornys_prop_chair_01": {
+    "model": "gabz_hornys_prop_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_hornys_prop_chair_02": {
+    "model": "gabz_hornys_prop_chair_02",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.9,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_hornys_prop_seat_01": {
+    "model": "gabz_hornys_prop_seat_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": -0.3,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": -0.3,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_atom_seat_01": {
+    "model": "gabz_atom_seat_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.35,
+        "y": -0.4,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": 0.35,
+        "y": 0.4,
+        "z": 0.5,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gabz_atom_seat_02": {
+    "model": "gabz_atom_seat_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.32,
+        "y": 0.4,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": 0.32,
+        "y": -0.4,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": -0.32,
+        "y": 0.4,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": -0.32,
+        "y": -0.4,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gabz_burgershot_stool_01": {
+    "model": "gabz_burgershot_stool_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.08,
+        "z": 0.6,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pearls_prop_stool": {
+    "model": "gabz_pearls_prop_stool",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.9,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pearls_prop_bench_01a": {
+    "model": "gabz_pearls_prop_bench_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": -0.28,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": -0.28,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pearls_prop_bench_02a": {
+    "model": "gabz_pearls_prop_bench_02a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.25,
+        "y": -1.1,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": 1.1,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 1.9,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pearls_prop_bench_03a": {
+    "model": "gabz_pearls_prop_bench_03a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.25,
+        "y": -1.1,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": -1.0,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": -1.8,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_pearls_prop_bench_04a": {
+    "model": "gabz_pearls_prop_bench_04a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.25,
+        "y": -1.1,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": -0.9,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": -1.6,
+        "y": -0.2,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gabz_koi_chair_1": {
+    "model": "gabz_koi_chair_1",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.075,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_clinic_seat_x3_prop": {
+    "model": "gn_clinic_seat_x3_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.58,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.58,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_clinic_seat_x2_prop": {
+    "model": "gn_clinic_seat_x2_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.3,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.3,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_med_seat_x3_prop": {
+    "model": "gn_med_seat_x3_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.58,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.58,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_med_seat_x2_prop": {
+    "model": "gn_med_seat_x2_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.3,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.3,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_med_bed_prop": {
+    "model": "gn_med_bed_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.3,
+        "y": -0.8,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": 0.2,
+        "y": -0.8,
+        "z": 0.5,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gn_med_xray_3_prop": {
+    "model": "gn_med_xray_3_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.65,
+        "y": -0.2,
+        "z": -0.2,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_med_ope_table_prop": {
+    "model": "gn_med_ope_table_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.05,
+        "y": 0.0,
+        "z": 0.2,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_medical_stretcher_unfold_r": {
+    "model": "gn_medical_stretcher_unfold_r",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.05,
+        "y": 0.55,
+        "z": 1.1,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_medical_stretcher_unfold_y": {
+    "model": "gn_medical_stretcher_unfold_y",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.05,
+        "y": 0.55,
+        "z": 1.1,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gn_medic_diagtable": {
+    "model": "gn_medic_diagtable",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": -0.7,
+        "z": 0.35,
+        "heading": 90.0
+      },
+      {
+        "x": 0.1,
+        "y": -0.7,
+        "z": 0.35,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gn_med_irm_3_prop": {
+    "model": "gn_med_irm_3_prop",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.05,
+        "y": -0.7,
+        "z": 0.0,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gus_hos_seating01": {
+    "model": "gus_hos_seating01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.7,
+        "y": 0.0,
+        "z": 0.1,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.1,
+        "heading": 180.0
+      },
+      {
+        "x": 0.7,
+        "y": 0.0,
+        "z": 0.1,
+        "heading": 180.0
+      },
+      {
+        "x": 1.45,
+        "y": 0.0,
+        "z": 0.1,
+        "heading": 180.0
+      },
+      {
+        "x": 2.2,
+        "y": 0.0,
+        "z": 0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_table_oscu": {
+    "model": "gn_table_oscu",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": -0.7,
+        "z": 0.35,
+        "heading": 90.0
+      },
+      {
+        "x": 0.1,
+        "y": -0.7,
+        "z": 0.35,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gn_mazebank_w_chair": {
+    "model": "gn_mazebank_w_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.075,
+        "z": 0.525,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_sheriff_toilet_01": {
+    "model": "gn_sheriff_toilet_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.1,
+        "y": 0.4,
+        "z": 0.5,
+        "heading": 0.0
+      }
+    ]
+  },
+  "gn_jail_s_bed": {
+    "model": "gn_jail_s_bed",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.2,
+        "y": -0.3,
+        "z": 0.6,
+        "heading": 270.0
+      },
+      {
+        "x": 0.2,
+        "y": 0.55,
+        "z": 0.6,
+        "heading": 270.0
+      }
+    ]
+  },
+  "prop_gn_fire_recept_bench_01": {
+    "model": "prop_gn_fire_recept_bench_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.05,
+        "y": -0.55,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": -0.05,
+        "y": 0.6,
+        "z": 0.5,
+        "heading": 270.0
+      }
+    ]
+  },
+  "prop_gn_fire_recept_bench_02": {
+    "model": "prop_gn_fire_recept_bench_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.05,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": -0.05,
+        "y": 0.35,
+        "z": 0.5,
+        "heading": 270.0
+      }
+    ]
+  },
+  "prop_gn_fire_sofa_01": {
+    "model": "prop_gn_fire_sofa_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.05,
+        "y": 0.85,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": -0.05,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": -0.05,
+        "y": -0.85,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_fire_locker_bench_01": {
+    "model": "prop_gn_fire_locker_bench_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.05,
+        "y": 0.85,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": 0.05,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": 0.05,
+        "y": -0.85,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_fire_chair_02_b": {
+    "model": "prop_gn_fire_chair_02_b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_gn_fire_chair_02_r": {
+    "model": "prop_gn_fire_chair_02_r",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_gn_fire_chair_dirt_01": {
+    "model": "prop_gn_fire_chair_dirt_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_fire_chair_dirt_02": {
+    "model": "prop_gn_fire_chair_dirt_02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_fire_chair_dirt_03": {
+    "model": "prop_gn_fire_chair_dirt_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_fire_chair_dirt_04": {
+    "model": "prop_gn_fire_chair_dirt_04",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_burger_simple_wallseat": {
+    "model": "gn_burger_simple_wallseat",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": -0.3,
+        "z": 0.1,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": -0.3,
+        "z": 0.1,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_burger_double_wallseat": {
+    "model": "gn_burger_double_wallseat",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.45,
+        "y": -0.3,
+        "z": 0.1,
+        "heading": 180.0
+      },
+      {
+        "x": -0.45,
+        "y": -0.3,
+        "z": 0.1,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": 0.3,
+        "z": 0.1,
+        "heading": 0.0
+      },
+      {
+        "x": -0.45,
+        "y": 0.3,
+        "z": 0.1,
+        "heading": 0.0
+      }
+    ]
+  },
+  "gn_upnatom_vw_stool": {
+    "model": "gn_upnatom_vw_stool",
+    "type": "bar",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_upnatom_vw_chair": {
+    "model": "gn_upnatom_vw_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_upnatom_vw_bench": {
+    "model": "gn_upnatom_vw_bench",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_upnatom_vw_table_chair": {
+    "model": "gn_upnatom_vw_table_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.75,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": -0.75,
+        "y": 0.35,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": 0.75,
+        "y": 0.35,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": 0.75,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_cluckin_stool": {
+    "model": "gn_cluckin_stool",
+    "type": "bar",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_cluckin_table_chair4": {
+    "model": "gn_cluckin_table_chair4",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.75,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": -0.75,
+        "y": 0.35,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": 0.75,
+        "y": 0.35,
+        "z": 0.5,
+        "heading": 90.0
+      },
+      {
+        "x": 0.75,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_cluckin_table_chair2": {
+    "model": "gn_cluckin_table_chair2",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.75,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 270.0
+      },
+      {
+        "x": 0.75,
+        "y": -0.35,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_vonpack_chefield02": {
+    "model": "gn_vonpack_chefield02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_vonpack_bench": {
+    "model": "gn_vonpack_bench",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.3,
+        "heading": 0.0
+      }
+    ]
+  },
+  "gn_vonpack_bench_room": {
+    "model": "gn_vonpack_bench_room",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_vonpack_bed": {
+    "model": "gn_vonpack_bed",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.85,
+        "y": -0.55,
+        "z": 0.0,
+        "heading": 90.0
+      },
+      {
+        "x": 0.85,
+        "y": -0.55,
+        "z": 0.0,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gn_hot_bed": {
+    "model": "gn_hot_bed",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.85,
+        "y": -0.55,
+        "z": -0.5,
+        "heading": 90.0
+      },
+      {
+        "x": 0.85,
+        "y": -0.55,
+        "z": -0.5,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gn_hot_bed_sofa": {
+    "model": "gn_hot_bed_sofa",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.45,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      },
+      {
+        "x": 0.45,
+        "y": 0.05,
+        "z": 0.3,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_hot_chair": {
+    "model": "gn_hot_chair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.25,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_hot_chair_footrest": {
+    "model": "gn_hot_chair_footrest",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.28,
+        "heading": 0.0
+      }
+    ]
+  },
+  "prop_gn_sm_old_chair_01": {
+    "model": "prop_gn_sm_old_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_sm_old_chair_03": {
+    "model": "prop_gn_sm_old_chair_03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_sm_d_old_chair_01": {
+    "model": "prop_gn_sm_d_old_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.1,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_sm_sofa_c_01": {
+    "model": "prop_gn_sm_sofa_c_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.15,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_sm_sofa_b_01": {
+    "model": "prop_gn_sm_sofa_b_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.15,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "prop_gn_sm_clean_bed_m_01": {
+    "model": "prop_gn_sm_clean_bed_m_01",
+    "type": "chair",
+    "teleport": true,
+    "seats": [
+      {
+        "x": -0.5,
+        "y": 0.5,
+        "z": 0.6,
+        "heading": 0.0
+      },
+      {
+        "x": -0.5,
+        "y": -0.5,
+        "z": 0.6,
+        "heading": 180.0
+      },
+      {
+        "x": -0.9,
+        "y": 0.0,
+        "z": 0.6,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_hh_tabouret": {
+    "model": "gn_hh_tabouret",
+    "type": "bar",
+    "teleport": true,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.15,
+        "z": 0.8,
+        "heading": 180.0
+      }
+    ]
+  },
+  "gn_hh_tabouret02": {
+    "model": "gn_hh_tabouret02",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.15,
+        "z": 0.3,
+        "heading": 0.0
+      }
+    ]
+  },
+  "gn_hh_tabouret03": {
+    "model": "gn_hh_tabouret03",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.15,
+        "z": 0.55,
+        "heading": 0.0
+      }
+    ]
+  },
+  "gn_collection_wc_a": {
+    "model": "gn_collection_wc_a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": 0.07,
+        "z": 0.5,
+        "heading": 270.0
+      }
+    ]
+  },
+  "gn_collec_wc_b": {
+    "model": "gn_collec_wc_b",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.3,
+        "y": 0.0,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "gn_folding_chair_01a": {
+    "model": "gn_folding_chair_01a",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 180.0
+      }
+    ]
+  },
+  "prop_gn_chair_01": {
+    "model": "prop_gn_chair_01",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.05,
+        "z": 0.5,
+        "heading": 90.0
+      }
+    ]
+  },
+  "bs_ab_dinerchair": {
+    "model": "bs_ab_dinerchair",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.0,
+        "y": -0.02,
+        "z": -0.01,
+        "heading": 0.0
+      }
+    ]
+  },
+  "bs_ab_burger_seat1c": {
+    "model": "bs_ab_burger_seat1c",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.7,
+        "y": 1.2,
+        "z": 0.0,
+        "heading": 180.0
+      },
+      {
+        "x": 0.0,
+        "y": 1.2,
+        "z": 0.0,
+        "heading": 180.0
+      },
+      {
+        "x": 0.7,
+        "y": 0.4,
+        "z": 0.0,
+        "heading": 90.0
+      },
+      {
+        "x": 0.7,
+        "y": -0.4,
+        "z": 0.0,
+        "heading": 90.0
+      },
+      {
+        "x": 0.0,
+        "y": -1.2,
+        "z": 0.0,
+        "heading": 180.0
+      },
+      {
+        "x": -0.7,
+        "y": -1.2,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  },
+  "bs_ab_burger_seat2l": {
+    "model": "bs_ab_burger_seat2l",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": 0.8,
+        "y": -0.9,
+        "z": 0.0,
+        "heading": 0.0
+      },
+      {
+        "x": 0.0,
+        "y": -0.9,
+        "z": 0.0,
+        "heading": 0.0
+      },
+      {
+        "x": -0.9,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 270.0
+      },
+      {
+        "x": -0.9,
+        "y": 0.8,
+        "z": 0.0,
+        "heading": 270.0
+      }
+    ]
+  },
+  "bs_ab_dinerbench": {
+    "model": "bs_ab_dinerbench",
+    "type": "chair",
+    "teleport": false,
+    "seats": [
+      {
+        "x": -0.4,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 180.0
+      },
+      {
+        "x": 0.4,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 180.0
+      }
+    ]
+  }
+}

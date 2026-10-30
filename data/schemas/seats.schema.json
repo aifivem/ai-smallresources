@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ai-smallresources/data/seats.json",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "This file's JSON Schema (for editors)."
+    }
+  },
+  "patternProperties": {
+    "^[a-z0-9_]{2,32}$": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "description": "Object: The chair, bench or stool model.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "type": {
+          "description": "How to sit: The sitting pose the player takes.",
+          "enum": [
+            "chair",
+            "armchair",
+            "bench",
+            "bar",
+            "deck",
+            "sunlounger",
+            "strip",
+            "wall",
+            "steps",
+            "ledge",
+            "tattoo",
+            "lounge",
+            "director"
+          ]
+        },
+        "teleport": {
+          "description": "Place straight on the seat: For stools and booths the player cannot walk into; otherwise they walk to the seat.",
+          "type": "boolean"
+        },
+        "seats": {
+          "description": "Seats on the object: One row per place to sit, measured from the object's centre; heading 180 faces the object's front. The nearest free seat is taken.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "description": "Right",
+                "type": "number",
+                "minimum": -10,
+                "maximum": 10
+              },
+              "y": {
+                "description": "Forward",
+                "type": "number",
+                "minimum": -10,
+                "maximum": 10
+              },
+              "z": {
+                "description": "Up",
+                "type": "number",
+                "minimum": -10,
+                "maximum": 10
+              },
+              "heading": {
+                "description": "Facing",
+                "type": "number",
+                "minimum": 0,
+                "maximum": 360
+              }
+            },
+            "required": [
+              "x",
+              "y",
+              "z",
+              "heading"
+            ]
+          }
+        }
+      },
+      "required": [
+        "model",
+        "type",
+        "teleport",
+        "seats"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

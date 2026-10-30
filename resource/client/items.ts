@@ -10,7 +10,8 @@ import {
 } from "@aicore-fivem/lib/client";
 import { asArgs, record, sleep } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
-import { EVENTS, FIREWORKS } from "common/small";
+import { FIREWORKS } from "common/items";
+import { EVENTS } from "common/small";
 
 const MAX_FOV = 70;
 const MIN_FOV = 5;
