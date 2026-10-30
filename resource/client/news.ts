@@ -1,4 +1,4 @@
-import { cache, Keybind, requestAnimDict, requestModel } from "@aicore-fivem/lib/client";
+import { cache, Keybind, player as localPlayer, requestModel } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
 import { HOLD_STATE, NEWS_ITEMS } from "common/small";
 import { binoculars } from "./items";
@@ -32,10 +32,7 @@ class NewsGear {
     AttachEntityToEntity(prop, ped, GetPedBoneIndex(ped, gear.bone), ox, oy, oz, rx, ry, rz, true, true, false, true, 0, true);
     SetModelAsNoLongerNeeded(model);
     this.props.set(player, prop);
-    if (mine) {
-      const dict = await requestAnimDict(gear.dict);
-      TaskPlayAnim(cache.ped, dict, gear.clip, 1.0, -1, -1, 50, 0, false, false, false);
-    }
+    if (mine) await localPlayer.playAnim(gear.dict, gear.clip, { blendIn: 1.0, blendOut: -1, flag: 50 });
   }
 
   view(): void {

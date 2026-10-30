@@ -1,4 +1,4 @@
-import { cache, Keybind, onServerEvent, requestAnimDict, TickLoop } from "@aicore-fivem/lib/client";
+import { cache, Keybind, onServerEvent, player, TickLoop } from "@aicore-fivem/lib/client";
 import { waitFor } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS } from "common/small";
@@ -27,15 +27,14 @@ new Keybind({ name: "smallresources_crouch", description: Locale("KEYBIND_CROUCH
 async function tackle(): Promise<void> {
   if (!content.settings.tackle || cache.vehicle !== false || !IsPedSprinting(cache.ped)) return;
   const [x = 0, y = 0, z = 0] = GetOffsetFromEntityInWorldCoords(cache.ped, 0, 1.2, 0);
-  const target = GetActivePlayers().find((player: number) => {
-    if (player === cache.playerId) return false;
-    const [px = 0, py = 0, pz = 0] = GetEntityCoords(GetPlayerPed(player), false);
+  const target = GetActivePlayers().find((other: number) => {
+    if (other === cache.playerId) return false;
+    const [px = 0, py = 0, pz = 0] = GetEntityCoords(GetPlayerPed(other), false);
     return Math.hypot(px - x, py - y, pz - z) <= 1.6;
   });
   if (target === undefined) return;
   emitNet(EVENTS.tackle, GetPlayerServerId(target));
-  const dict = await requestAnimDict("missmic2ig_11");
-  TaskPlayAnim(cache.ped, dict, "mic_2_ig_11_intro_goon", 8.0, -8.0, 1200, 0, 0, false, false, false);
+  await player.playAnim("missmic2ig_11", "mic_2_ig_11_intro_goon", { duration: 1200, flag: 0 });
   setTimeout(() => SetPedToRagdoll(cache.ped, 1000, 1000, 0, false, false, false), 700);
 }
 new Keybind({ name: "smallresources_tackle", description: Locale("KEYBIND_TACKLE"), defaultKey: "G", onPressed: () => void tackle() });
