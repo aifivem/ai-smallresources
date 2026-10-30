@@ -1,12 +1,13 @@
 # ai-smallresources
 
-Small gameplay features, each behind a panel switch: seatbelt, cruise control, no seat shuffle, vehicle radio off, fake plates, boat ropes, crouch, finger pointing, sitting on objects, carrying players, tackle, anti ghost-peek, binoculars, firework, news gear and notepad items, AFK kick, no GTA dispatch / wanted level, hidden GTA HUD parts, ambient population, teleports between two points and elevators with floors. Depends on ai-core (prompts, progress, menus, jobs); uses the active inventory through ai-core's inventory layer (lib `inventory`) for the items.
+Small gameplay features, each behind a panel switch: seatbelt, cruise control, no seat shuffle, vehicle radio off, fake plates, boat ropes, crouch, finger pointing, hands up, falling over (ragdoll), sitting on objects, carrying players, tackle, anti ghost-peek, binoculars, firework, news gear and notepad items, AFK kick, no GTA dispatch / wanted level, hidden GTA HUD parts, ambient population, teleports between two points and elevators with floors. Depends on ai-core (prompts, progress, menus, jobs); uses the active inventory through ai-core's inventory layer (lib `inventory`) for the items.
 
 ## Decisions
 
 - Windscreen ejection is GTA's own (`SetFlyThroughWindscreenParams`), only the speeds change with the belt.
 - The seat belt reaches HUDs as the client local event `SEATBELT_EVENT` (boolean while the feature is on, null otherwise) and the client export `GetSeatbelt()` for late starters; ai-hud shows its belt warning from it. The exit key is blocked through lib `controls` while buckled.
 - Every per-frame job (blocking keys, hiding HUD parts, the binocular camera, pointing, density multipliers) is a `TickLoop` that runs only while needed; anti ghost-peek checks every 50 ms only while armed.
+- Gestures (`client/gestures.ts`): pointing stops by itself when the player aims, falls, fights or ragdolls; hands up (`random@mugging3`, also in vehicles) never starts over another script's animation (tasks 134 / 135 / 118) and ends when its animation is replaced, the player falls or dies; ragdoll lasts while its key is held.
 - Item actions that need the player's client (firework placing, plate work, writing a note) are a server token: the item use sends it, the client answers it after its progress or dialog, the server checks the token, the time and the distance (`server/items.ts` `Pending`, `server/vehicles.ts`).
 - Fireworks: the server fans the spot out to players within 400 m; effects are local per client.
 - News gear: the server toggles the player state `aiHold` (item name or false); every client attaches a local prop to that player's ped (`resource/client/news.ts`).
@@ -18,7 +19,7 @@ Small gameplay features, each behind a panel switch: seatbelt, cruise control, n
 
 ## Contracts
 
-- Events and callbacks: `resource/common/small.ts`. Client local event `SEATBELT_EVENT` and export `GetSeatbelt()`; replicated player states `aiHold`, `aiCarrying`, `aiCarriedBy`; vehicle states `aiRealPlate`, `aiMoored`.
+- Events and callbacks: `resource/common/small.ts`. Client local event `SEATBELT_EVENT` and export `GetSeatbelt()`; client exports `IsHandsUp()`, `IsPointing()`; replicated player states `aiHold`, `aiCarrying`, `aiCarriedBy`; vehicle states `aiRealPlate`, `aiMoored`.
 - Items: `binoculars`, `firework1`-`firework4`, `newscam`, `newsmic`, `newsboom`, `fakeplate`, `notepad`, `note` (ai-inventory `data/items.json`).
 - Panel files: `settings`, `teleports`, `elevators`, `moorings`, `seats` (all `sync: "all"`).
 
