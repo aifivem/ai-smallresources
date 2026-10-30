@@ -23,5 +23,7 @@
   "pedDensity": 80,
   "scenarioDensity": 80,
   "trafficDensity": 80,
-  "parkedDensity": 80
+  "parkedDensity": 80,
+  "handsUp": true,
+  "ragdoll": true
 }

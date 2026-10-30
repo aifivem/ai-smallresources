@@ -52,7 +52,15 @@
       "type": "boolean"
     },
     "point": {
-      "description": "Point with finger: B points where the camera looks; everyone sees it.",
+      "description": "Point with finger: B points where the camera looks; everyone sees it. Ends when the player aims, falls or fights.",
+      "type": "boolean"
+    },
+    "handsUp": {
+      "description": "Hands up: U raises the hands, also in a vehicle (no fighting, aiming or getting in while they are up); U again lowers them. Other scripts ask the client export IsHandsUp.",
+      "type": "boolean"
+    },
+    "ragdoll": {
+      "description": "Fall over: While M is held on foot the player falls over and lies limp.",
       "type": "boolean"
     },
     "carry": {

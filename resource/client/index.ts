@@ -4,7 +4,7 @@ import "./items";
 import "./news";
 import "./teleports";
 import "./ambient";
-import "./point";
+import "./gestures";
 import "./combat";
 import "./carry";
 import "./papers";

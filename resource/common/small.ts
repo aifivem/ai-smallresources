@@ -70,6 +70,8 @@ export interface Settings {
   parkedDensity: number;
   tackle: boolean;
   point: boolean;
+  handsUp: boolean;
+  ragdoll: boolean;
   carry: boolean;
   sit: boolean;
   antiPeek: boolean;
@@ -102,6 +104,8 @@ export function readSettings(raw: unknown): Settings {
     parkedDensity: percent(v.parkedDensity, 80),
     tackle: bool(v.tackle, true),
     point: bool(v.point, true),
+    handsUp: bool(v.handsUp, true),
+    ragdoll: bool(v.ragdoll, true),
     carry: bool(v.carry, true),
     sit: bool(v.sit, true),
     antiPeek: bool(v.antiPeek, true),

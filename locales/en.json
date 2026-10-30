@@ -102,7 +102,7 @@
   "ADMIN_F_BOAT_ROPE": "Boat rope",
   "ADMIN_H_BOAT_ROPE": "On foot next to a boat near a mooring (Moorings tab), the player ties it so it cannot drift or be driven off, and unties it again.",
   "ADMIN_F_POINT": "Point with finger",
-  "ADMIN_H_POINT": "B points where the camera looks; everyone sees it.",
+  "ADMIN_H_POINT": "B points where the camera looks; everyone sees it. Ends when the player aims, falls or fights.",
   "ADMIN_F_SIT": "Sit on objects",
   "ADMIN_H_SIT": "Chairs, benches and stools from the Seats tab get a Sit down prompt.",
   "ADMIN_F_CARRY": "Carry players",
@@ -178,5 +178,11 @@
   "ADMIN_F_SEAT_X": "Right",
   "ADMIN_F_SEAT_Y": "Forward",
   "ADMIN_F_SEAT_Z": "Up",
-  "ADMIN_F_SEAT_HEADING": "Facing"
+  "ADMIN_F_SEAT_HEADING": "Facing",
+  "KEYBIND_HANDS_UP": "Hands up",
+  "ADMIN_F_HANDS_UP": "Hands up",
+  "ADMIN_H_HANDS_UP": "U raises the hands, also in a vehicle (no fighting, aiming or getting in while they are up); U again lowers them. Other scripts ask the client export IsHandsUp.",
+  "KEYBIND_RAGDOLL": "Fall over (hold)",
+  "ADMIN_F_RAGDOLL": "Fall over",
+  "ADMIN_H_RAGDOLL": "While M is held on foot the player falls over and lies limp."
 }
