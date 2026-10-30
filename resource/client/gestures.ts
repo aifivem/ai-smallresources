@@ -8,6 +8,7 @@ import {
   requestAnimDict,
   stateBoolean,
   TickLoop,
+  gestures,
 } from "@aicore-fivem/lib/client";
 import { PLAYER_BAGS } from "@aicore-fivem/shared";
 import { Locale } from "common";
@@ -15,6 +16,8 @@ import { content } from "./settings";
 
 const dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean);
 const cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean);
+/** Another emote script (tgiann-emotes) does the gestures: these keys stay quiet so the two never fight. */
+const mine = () => gestures.provider() === "ai-smallresources";
 const helpless = () =>
   dead.get(cache.serverId) === true || cuffed.get(cache.serverId) === true;
 
@@ -48,7 +51,7 @@ class Pointing {
 
   async toggle(): Promise<void> {
     if (this.active) return this.stop();
-    if (!content.settings.point || !this.possible(cache.ped)) return;
+    if (!content.settings.point || !mine() || !this.possible(cache.ped)) return;
     if (!(await requestAnimDict(POINT_DICT).catch(() => false))) return;
     hands.down();
     this.active = true;
@@ -132,7 +135,8 @@ class HandsUp {
   async toggle(): Promise<void> {
     if (this.active) return this.down();
     const ped = cache.ped;
-    if (!content.settings.handsUp || helpless() || IsPedRagdoll(ped)) return;
+    if (!content.settings.handsUp || !mine() || helpless() || IsPedRagdoll(ped))
+      return;
     // Another script's animation keeps running; the key does not raise the hands over it.
     if (playingAnimation(ped)) return;
     if (!(await requestAnimDict(HANDS.dict).catch(() => false))) return;
@@ -201,7 +205,12 @@ new Keybind({
   description: Locale("KEYBIND_RAGDOLL"),
   defaultKey: "M",
   onPressed: () => {
-    if (content.settings.ragdoll && IsPedOnFoot(cache.ped) && !helpless()) {
+    if (
+      content.settings.ragdoll &&
+      mine() &&
+      IsPedOnFoot(cache.ped) &&
+      !helpless()
+    ) {
       pointing.stop();
       hands.down();
       ragdoll.set(true);
