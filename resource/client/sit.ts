@@ -46,6 +46,8 @@ class Sitting {
       label: Locale("SIT_PROMPT"),
       icon: "chair",
       radius: 2,
+      // Seats are everywhere: a prompt next to every bench would follow the player around (owner decision).
+      preferTarget: true,
       canShow: () => !this.pose && cache.vehicle === false,
       onPressed: (entity) => this.sit(entity),
     });

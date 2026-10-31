@@ -5,6 +5,7 @@ import {
   keyHints,
   onServerEvent,
   requestPtfxAsset,
+  ScriptCamera,
   TickLoop,
 } from "@aicore-fivem/lib/client";
 import { readFinite, sleep } from "@aicore-fivem/lib/shared";
@@ -21,13 +22,13 @@ const MIN_FOV = 5;
  * hides (lib `hud`).
  */
 export class Binoculars {
-  private cam = 0;
+  private readonly camera = new ScriptCamera("DEFAULT_SCRIPTED_FLY_CAMERA");
   private scaleform = 0;
   private fov = (MAX_FOV + MIN_FOV) / 2;
   private readonly frame = new TickLoop(() => this.draw());
 
   get active(): boolean {
-    return this.cam !== 0;
+    return this.camera.active;
   }
 
   private news = false;
@@ -38,11 +39,15 @@ export class Binoculars {
     this.news = news;
     if (!news)
       TaskStartScenarioInPlace(cache.ped, "WORLD_HUMAN_BINOCULARS", 0, true);
-    this.cam = CreateCam("DEFAULT_SCRIPTED_FLY_CAMERA", true);
-    AttachCamToEntity(this.cam, cache.ped, 0.0, 0.2, 0.7, true);
-    SetCamRot(this.cam, 0.0, 0.0, GetEntityHeading(cache.ped), 2);
-    SetCamFov(this.cam, this.fov);
-    RenderScriptCams(true, false, 500, true, false);
+    const [x = 0, y = 0, z = 0] = GetEntityCoords(cache.ped, false);
+    this.camera.start(
+      { x, y, z },
+      {
+        rotation: { x: 0, y: 0, z: GetEntityHeading(cache.ped) },
+        fov: this.fov,
+      },
+    );
+    this.camera.attach(cache.ped, { x: 0, y: 0.2, z: 0.7 });
     this.scaleform = RequestScaleformMovie(
       news ? "BREAKING_NEWS" : "BINOCULARS",
     );
@@ -70,10 +75,8 @@ export class Binoculars {
     if (!this.active) return;
     this.frame.set(false);
     if (!this.news) ClearPedTasks(cache.ped);
-    RenderScriptCams(false, false, 500, true, false);
-    DestroyCam(this.cam, false);
+    this.camera.stop();
     SetScaleformMovieAsNoLongerNeeded(this.scaleform);
-    this.cam = 0;
     this.fov = (MAX_FOV + MIN_FOV) / 2;
     hud.show("binoculars");
     keyHints.hide("binoculars_zoom");
@@ -85,10 +88,10 @@ export class Binoculars {
     const x = GetDisabledControlNormal(0, 220);
     const y = GetDisabledControlNormal(0, 221);
     if (x !== 0 || y !== 0) {
-      const [rx = 0, , rz = 0] = GetCamRot(this.cam, 2);
+      const [rx = 0, , rz = 0] = GetCamRot(this.camera.cam, 2);
       const heading = rz - x * 8 * (zoom + 0.1);
       SetCamRot(
-        this.cam,
+        this.camera.cam,
         Math.max(-89.5, Math.min(20, rx - y * 8 * (zoom + 0.1))),
         0.0,
         heading,
@@ -97,8 +100,9 @@ export class Binoculars {
       SetEntityHeading(cache.ped, heading);
     }
     SetCamFov(
-      this.cam,
-      GetCamFov(this.cam) + (this.fov - GetCamFov(this.cam)) * 0.05,
+      this.camera.cam,
+      GetCamFov(this.camera.cam) +
+        (this.fov - GetCamFov(this.camera.cam)) * 0.05,
     );
     if (HasScaleformMovieLoaded(this.scaleform))
       DrawScaleformMovieFullscreen(this.scaleform, 255, 255, 255, 255, 0);
