@@ -7,7 +7,7 @@
   "author": {
     "name": "TGIANN"
   },
-  "repository": "github:TGIANN/ai-smallresources",
+  "repository": "github:aifivem/ai-smallresources",
   "type": "module",
   "fxDependencies": [
     "/onesync",

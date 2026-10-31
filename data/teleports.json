@@ -15,5 +15,21 @@
       "heading": 67.5
     },
     "job": ""
+  },
+  "coke_processing": {
+    "label": "Coke processing",
+    "from": {
+      "x": 909.49,
+      "y": -1589.22,
+      "z": 30.51,
+      "heading": 92.24
+    },
+    "to": {
+      "x": 1088.81,
+      "y": -3187.57,
+      "z": -38.99,
+      "heading": 181.7
+    },
+    "job": ""
   }
 }
