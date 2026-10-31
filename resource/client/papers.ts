@@ -1,47 +1,13 @@
 import {
-  cache,
   callAction,
   input,
   notify,
   onServerEvent,
-  progress,
 } from "@aicore-fivem/lib/client";
 import { asArgs, oneArg, readId } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS, NOTE_MAX } from "common/small";
 import { FALLBACK } from "./settings";
-
-/** Fake plate: the server picked the vehicle; the player works on its plate, the server swaps it when done. */
-onServerEvent(
-  EVENTS.plateWork,
-  {
-    args: ([token, netId, removing]): [number, number, boolean] | null => {
-      const t = readId(token);
-      const id = readId(netId);
-      return t !== null && id !== null && typeof removing === "boolean"
-        ? [t, id, removing]
-        : null;
-    },
-  },
-  async (token, netId, removing) => {
-    if (NetworkDoesEntityExistWithNetworkId(netId))
-      TaskTurnPedToFaceEntity(cache.ped, NetToVeh(netId), 800);
-    const done = await progress({
-      label: Locale(removing ? "PLATE_REMOVING" : "PLATE_FITTING"),
-      duration: 6000,
-      anim: {
-        dict: "anim@amb@clubhouse@tutorial@bkr_tut_ig3@",
-        clip: "machinic_loop_mechandplayer",
-        flag: 1,
-      },
-    });
-    ClearPedTasks(cache.ped);
-    if (!done) return;
-    if (await callAction(EVENTS.plateDone, [token], FALLBACK))
-      notify(Locale(removing ? "PLATE_REMOVED" : "PLATE_FITTED"), "success");
-  },
-);
-
 /** Notepad: write a page, the server tears it off as a note item carrying the text. */
 onServerEvent(EVENTS.noteWrite, { args: oneArg(readId) }, async (token) => {
   const values = await input({

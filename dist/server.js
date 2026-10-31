@@ -249,6 +249,8 @@ const CORE = {
 	clientCancelProgressEvent: "ai-core:client:cancelProgress",
 	clientDefinitionsEvent: "ai-core:client:definitions",
 	vehicleTypeCallback: "ai-core:vehicleType",
+	progressForCallback: "ai-core:progressFor",
+	progressForCancelEvent: "ai-core:client:progressForCancel",
 	interactionStateKey: "ai:interaction",
 	charactersCallback: "ai-core:characters",
 	createCharacterCallback: "ai-core:createCharacter",
@@ -1139,6 +1141,23 @@ var PendingActions = class {
 		return this.actions.size;
 	}
 };
+// ../../../packages/lib/src/server/progressFor.ts
+const running = new PlayerMap({ onDrop: (_source, settle) => settle(!1) });
+on(CORE.playerUnloadedEvent, (source) => {
+	let settle = running.get(source);
+	settle && settle(!1);
+});
+function progressFor(source, options) {
+	let previous = running.get(source);
+	previous && (previous(!1), emitNet(CORE.progressForCancelEvent, source));
+	let { minRatio = .8, ...bar } = options, startedAt = GetGameTimer();
+	return new Promise((resolve) => {
+		let done = !1, settle = (ok) => {
+			done || (done = !0, running.get(source) === settle && running.delete(source), resolve(ok));
+		};
+		running.set(source, settle), triggerClientCallback(CORE.progressForCallback, source, [bar], bar.duration + 15e3).then((answer) => settle(answer === !0 && GetGameTimer() - startedAt >= bar.duration * minRatio), () => settle(!1));
+	});
+}
 // ../../../packages/lib/src/server/command.ts
 const resource = GetCurrentResourceName();
 createLogger(resource), new class {
@@ -1447,13 +1466,9 @@ const EVENTS = {
 	teleport: "ai-smallresources:teleport",
 	elevator: "ai-smallresources:elevator",
 	binoculars: "ai-smallresources:client:binoculars",
-	fireworkPlace: "ai-smallresources:client:fireworkPlace",
-	fireworkPlaced: "ai-smallresources:fireworkPlaced",
 	firework: "ai-smallresources:client:firework",
 	carry: "ai-smallresources:carry",
 	carryAsk: "ai-smallresources:client:carryAsk",
-	plateWork: "ai-smallresources:client:plateWork",
-	plateDone: "ai-smallresources:plateDone",
 	noteWrite: "ai-smallresources:client:noteWrite",
 	noteSave: "ai-smallresources:noteSave",
 	noteRead: "ai-smallresources:client:noteRead",
@@ -2252,17 +2267,21 @@ const NEWS_ITEMS = {
 			"scr_indep_firework_fountain"
 		]
 	}
-}, hold = new PlayerState("aiHold", stateString), fireworks = new PendingActions(), notes = new PendingActions({ minRatio: 0 });
-onClientCallback(EVENTS.fireworkPlaced, {
-	args: oneArg(readId),
-	lock: !0
-}, (source, token) => {
-	let item = fireworks.take(source, token);
-	if (!item || !inventory.removeItem(source, item, 1)) return fail("SMALL_ERR_FAR");
+}, hold = new PlayerState("aiHold", stateString), notes = new PendingActions({ minRatio: 0 });
+async function placeFirework(source, item) {
+	if (!await progressFor(source, {
+		label: Locale("SMALL_FIREWORK_PLACING"),
+		duration: 3e3,
+		anim: {
+			dict: "anim@mp_fireworks",
+			clip: "place_firework_3_box"
+		}
+	}) || !inventory.removeItem(source, item, 1)) return;
 	let p = coordsOf(source);
 	for (let player of playersNear(source, 400)) emitNet(EVENTS.firework, player, p.x, p.y, p.z - .9, item);
-	return { ok: !0 };
-}), onClientCallback(EVENTS.noteSave, {
+	notify(source, Locale("SMALL_FIREWORK_RUN"), "warning", 3e3);
+}
+onClientCallback(EVENTS.noteSave, {
 	args: ([token, text]) => {
 		let id = readId(token), note = readText(text, 500);
 		return id !== null && note !== null ? [id, note] : null;
@@ -2277,38 +2296,41 @@ onClientCallback(EVENTS.fireworkPlaced, {
 	return inventory.canCarryItem(source, ITEMS.note, 1, metadata) ? inventory.addItem(source, ITEMS.note, 1, metadata) ? { ok: !0 } : fail("NOTE_ERR_FAILED") : fail("NOTE_ERR_FULL");
 }), inventory.registerUsableItem("binoculars", (source) => (content.settings.binoculars && emitNet(EVENTS.binoculars, source), !1));
 for (let item of Object.keys(NEWS_ITEMS)) inventory.registerUsableItem(item, (source) => (hold.set(source, hold.get(source) === item ? void 0 : item), !1));
-for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1) || emitNet(EVENTS.fireworkPlace, source, fireworks.start(source, item, 3e3)), !1));
+for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1) || placeFirework(source, item), !1));
 inventory.registerUsableItem(ITEMS.notepad, (source) => (content.settings.notepad && emitNet(EVENTS.noteWrite, source, notes.start(source, ITEMS.notepad, 0)), !1)), inventory.registerUsableItem(ITEMS.note, (source, used) => {
 	let text = used.metadata.text;
 	return typeof text == "string" && text && emitNet(EVENTS.noteRead, source, text), !1;
 });
 // resource/server/vehicles.ts
-const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean), plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim(), work = new PendingActions({ minRatio: .9 });
+const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean), plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim();
 inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
 	if (!content.settings.fakePlate) return !1;
 	let ped = GetPlayerPed(String(source)), vehicle = GetVehiclePedIsIn(ped, !1) ? 0 : nearestVehicleTo(source, 3);
 	if (!vehicle) return notify(source, Locale("PLATE_ERR_NONE"), "error"), !1;
 	let removing = realPlate.get(vehicle) !== void 0;
-	return !removing && !vehicleKeys.has(source, vehicle) ? (notify(source, Locale("PLATE_ERR_KEYS"), "error"), !1) : (emitNet(EVENTS.plateWork, source, work.start(source, {
-		vehicle,
-		removing
-	}, 6e3), NetworkGetNetworkIdFromEntity(vehicle), removing), !1);
-}), onClientCallback(EVENTS.plateDone, {
-	args: oneArg(readId),
-	lock: !0
-}, (source, token) => {
-	let job = work.take(source, token);
-	if (!job) return fail("SMALL_ERR_FAR");
-	let { vehicle, removing } = job;
-	if (!DoesEntityExist(vehicle) || !isNear(source, entityCoords(vehicle), 4) || realPlate.get(vehicle) !== void 0 !== removing) return fail("SMALL_ERR_FAR");
+	return !removing && !vehicleKeys.has(source, vehicle) ? (notify(source, Locale("PLATE_ERR_KEYS"), "error"), !1) : (plateWork(source, vehicle, removing), !1);
+});
+async function plateWork(source, vehicle, removing) {
+	if (!await progressFor(source, {
+		label: Locale(removing ? "PLATE_REMOVING" : "PLATE_FITTING"),
+		duration: 6e3,
+		anim: {
+			dict: "anim@amb@clubhouse@tutorial@bkr_tut_ig3@",
+			clip: "machinic_loop_mechandplayer",
+			flag: 1
+		},
+		face: entityCoords(vehicle),
+		minRatio: .9
+	}) || !DoesEntityExist(vehicle) || !isNear(source, entityCoords(vehicle), 4) || realPlate.get(vehicle) !== void 0 !== removing) return;
 	let keyHolder = vehicleKeys.has(source, vehicle), shown;
 	if (removing) shown = realPlate.get(vehicle) ?? plateOf(vehicle), realPlate.set(vehicle, void 0), inventory.canCarryItem(source, ITEMS.fakePlate, 1) && inventory.addItem(source, ITEMS.fakePlate, 1);
 	else {
-		if (!inventory.removeItem(source, ITEMS.fakePlate, 1)) return fail("PLATE_ERR_NONE");
+		if (!inventory.removeItem(source, ITEMS.fakePlate, 1)) return notify(source, Locale("PLATE_ERR_NONE"), "error");
 		realPlate.set(vehicle, plateOf(vehicle)), shown = randomPlate();
 	}
-	return SetVehicleNumberPlateText(vehicle, shown), keyHolder && vehicleKeys.give(source, shown, "temporary"), { ok: !0 };
-}), onClientCallback(EVENTS.moor, {
+	SetVehicleNumberPlateText(vehicle, shown), keyHolder && vehicleKeys.give(source, shown, "temporary"), notify(source, Locale(removing ? "PLATE_REMOVED" : "PLATE_FITTED"), "success");
+}
+onClientCallback(EVENTS.moor, {
 	args: oneArg(readId),
 	lock: !0
 }, (source, netId) => {

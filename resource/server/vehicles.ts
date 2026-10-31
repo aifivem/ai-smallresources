@@ -6,7 +6,7 @@ import {
   nearestVehicleTo,
   notify,
   onClientCallback,
-  PendingActions,
+  progressFor,
   randomPlate,
   stateBoolean,
   stateString,
@@ -24,12 +24,8 @@ const moored = new EntityState(VEHICLE_STATE.moored, stateBoolean);
 
 const plateOf = (vehicle: number) => GetVehicleNumberPlateText(vehicle).trim();
 
-/** The plate work's progress on the client (6 s); the answer must come after 90% of it. */
+/** How long fitting or taking off a plate takes (counted after 90 % of it). */
 const PLATE_MS = 6000;
-/** Plate work waiting for the player's progress: the vehicle and whether the fake plate comes off. */
-const work = new PendingActions<{ vehicle: number; removing: boolean }>({
-  minRatio: 0.9,
-});
 
 /**
  * Fake plate: fitted on a vehicle the player has the keys to (the real plate kept in the vehicle's state), taken off
@@ -50,47 +46,55 @@ inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
     notify(source, Locale("PLATE_ERR_KEYS"), "error");
     return false;
   }
-  emitNet(
-    EVENTS.plateWork,
-    source,
-    work.start(source, { vehicle, removing }, PLATE_MS),
-    NetworkGetNetworkIdFromEntity(vehicle),
-    removing,
-  );
+  void plateWork(source, vehicle, removing);
   return false;
 });
 
-onClientCallback(
-  EVENTS.plateDone,
-  { args: oneArg(readId), lock: true },
-  (source, token) => {
-    const job = work.take(source, token);
-    if (!job) return fail("SMALL_ERR_FAR");
-    const { vehicle, removing } = job;
-    if (
-      !DoesEntityExist(vehicle) ||
-      !isNear(source, entityCoords(vehicle), 4) ||
-      (realPlate.get(vehicle) !== undefined) !== removing
-    )
-      return fail("SMALL_ERR_FAR");
-    const keyHolder = vehicleKeys.has(source, vehicle);
-    let shown: string;
-    if (removing) {
-      shown = realPlate.get(vehicle) ?? plateOf(vehicle);
-      realPlate.set(vehicle, undefined);
-      if (inventory.canCarryItem(source, ITEMS.fakePlate, 1))
-        inventory.addItem(source, ITEMS.fakePlate, 1);
-    } else {
-      if (!inventory.removeItem(source, ITEMS.fakePlate, 1))
-        return fail("PLATE_ERR_NONE");
-      realPlate.set(vehicle, plateOf(vehicle));
-      shown = randomPlate();
-    }
-    SetVehicleNumberPlateText(vehicle, shown);
-    if (keyHolder) vehicleKeys.give(source, shown, "temporary");
-    return { ok: true };
-  },
-);
+/** The plate work: the server-timed progress facing the vehicle, then the plate swap if nothing changed meanwhile. */
+async function plateWork(
+  source: number,
+  vehicle: number,
+  removing: boolean,
+): Promise<void> {
+  const done = await progressFor(source, {
+    label: Locale(removing ? "PLATE_REMOVING" : "PLATE_FITTING"),
+    duration: PLATE_MS,
+    anim: {
+      dict: "anim@amb@clubhouse@tutorial@bkr_tut_ig3@",
+      clip: "machinic_loop_mechandplayer",
+      flag: 1,
+    },
+    face: entityCoords(vehicle),
+    minRatio: 0.9,
+  });
+  if (
+    !done ||
+    !DoesEntityExist(vehicle) ||
+    !isNear(source, entityCoords(vehicle), 4) ||
+    (realPlate.get(vehicle) !== undefined) !== removing
+  )
+    return;
+  const keyHolder = vehicleKeys.has(source, vehicle);
+  let shown: string;
+  if (removing) {
+    shown = realPlate.get(vehicle) ?? plateOf(vehicle);
+    realPlate.set(vehicle, undefined);
+    if (inventory.canCarryItem(source, ITEMS.fakePlate, 1))
+      inventory.addItem(source, ITEMS.fakePlate, 1);
+  } else {
+    if (!inventory.removeItem(source, ITEMS.fakePlate, 1))
+      return notify(source, Locale("PLATE_ERR_NONE"), "error");
+    realPlate.set(vehicle, plateOf(vehicle));
+    shown = randomPlate();
+  }
+  SetVehicleNumberPlateText(vehicle, shown);
+  if (keyHolder) vehicleKeys.give(source, shown, "temporary");
+  notify(
+    source,
+    Locale(removing ? "PLATE_REMOVED" : "PLATE_FITTED"),
+    "success",
+  );
+}
 
 /** Boat rope: a boat within reach of a mooring is frozen in place; untying frees it. Never a boat someone else drives. */
 onClientCallback(

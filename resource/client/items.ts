@@ -1,16 +1,13 @@
 import {
   cache,
-  callAction,
   hud,
   Keybind,
   keyHints,
-  notify,
   onServerEvent,
-  progress,
   requestPtfxAsset,
   TickLoop,
 } from "@aicore-fivem/lib/client";
-import { oneArg, readFinite, readId, sleep } from "@aicore-fivem/lib/shared";
+import { readFinite, sleep } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { FIREWORKS } from "common/items";
 import { EVENTS } from "common/small";
@@ -132,20 +129,6 @@ new Keybind({
   defaultMapper: "MOUSE_WHEEL",
   onPressed: () => binoculars.zoom(10),
 });
-
-onServerEvent(EVENTS.fireworkPlace, { args: oneArg(readId) }, async (token) => {
-  const placed = await progress({
-    label: Locale("SMALL_FIREWORK_PLACING"),
-    duration: 3000,
-    anim: { dict: "anim@mp_fireworks", clip: "place_firework_3_box" },
-  });
-  if (!placed) return;
-  const done = await callAction(EVENTS.fireworkPlaced, [token], {
-    fallback: "SMALL_ERR_FAR",
-  });
-  if (done) notify(Locale("SMALL_FIREWORK_RUN"), "warning", 3000);
-});
-
 /** A firework someone placed nearby: after a short fuse, a burst of effects high above it. */
 onServerEvent(
   EVENTS.firework,

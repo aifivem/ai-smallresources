@@ -13,20 +13,12 @@ export const EVENTS = {
   elevator: "ai-smallresources:elevator",
   /** Server -> player: () the binoculars item was used. */
   binoculars: "ai-smallresources:client:binoculars",
-  /** Server -> player: (token) place the firework (progress). */
-  fireworkPlace: "ai-smallresources:client:fireworkPlace",
-  /** Callback: (token) -> { ok } the firework is placed. */
-  fireworkPlaced: "ai-smallresources:fireworkPlaced",
   /** Server -> players nearby: (x, y, z, item) a firework item goes off there. */
   firework: "ai-smallresources:client:firework",
   /** Callback: () -> { ok } pick up the nearest player, or put the carried one down. */
   carry: "ai-smallresources:carry",
   /** Server callback to the player asked: (carrierName) -> boolean they agree to be carried. */
   carryAsk: "ai-smallresources:client:carryAsk",
-  /** Server -> player: (token, netId, removing) work on the plate of that vehicle (progress). */
-  plateWork: "ai-smallresources:client:plateWork",
-  /** Callback: (token) -> { ok } the plate work is done. */
-  plateDone: "ai-smallresources:plateDone",
   /** Server -> player: (token) write a page of the notepad. */
   noteWrite: "ai-smallresources:client:noteWrite",
   /** Callback: (token, text) -> { ok } tear the written page off as a note item. */

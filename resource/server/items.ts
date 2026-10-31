@@ -1,45 +1,40 @@
 import {
   coordsOf,
   inventory,
+  notify,
   onClientCallback,
   PendingActions,
   playersNear,
   PlayerState,
+  progressFor,
   stateString,
 } from "@aicore-fivem/lib/server";
-import {
-  fail,
-  logSafe,
-  oneArg,
-  readId,
-  readText,
-} from "@aicore-fivem/lib/shared";
+import { fail, logSafe, readId, readText } from "@aicore-fivem/lib/shared";
+import { Locale } from "common";
 import { FIREWORKS, HOLD_STATE, NEWS_ITEMS } from "common/items";
 import { EVENTS, ITEMS, NOTE_MAX } from "common/small";
 import { content } from "./content";
 
 const hold = new PlayerState(HOLD_STATE, stateString);
 
-/** The firework's progress on the client (3 s; lib `PendingActions` wants 80% of it). */
+/** How long placing a firework takes. */
 const FIREWORK_MS = 3000;
-/** Item actions waiting for the player's client (the firework progress, the note dialog), one per player each. */
-const fireworks = new PendingActions<string>();
+/** The note dialog waiting for the player's text (no minimum time), one per player. */
 const notes = new PendingActions<string>({ minRatio: 0 });
 
-/** Fireworks: placed after the progress; the show goes to everyone within 400 m (scope candidates). */
-onClientCallback(
-  EVENTS.fireworkPlaced,
-  { args: oneArg(readId), lock: true },
-  (source, token) => {
-    const item = fireworks.take(source, token);
-    if (!item || !inventory.removeItem(source, item, 1))
-      return fail("SMALL_ERR_FAR");
-    const p = coordsOf(source);
-    for (const player of playersNear(source, 400))
-      emitNet(EVENTS.firework, player, p.x, p.y, p.z - 0.9, item);
-    return { ok: true };
-  },
-);
+/** Fireworks: placed after the server-timed progress; the show goes to everyone within 400 m (scope candidates). */
+async function placeFirework(source: number, item: string): Promise<void> {
+  const placed = await progressFor(source, {
+    label: Locale("SMALL_FIREWORK_PLACING"),
+    duration: FIREWORK_MS,
+    anim: { dict: "anim@mp_fireworks", clip: "place_firework_3_box" },
+  });
+  if (!placed || !inventory.removeItem(source, item, 1)) return;
+  const p = coordsOf(source);
+  for (const player of playersNear(source, 400))
+    emitNet(EVENTS.firework, player, p.x, p.y, p.z - 0.9, item);
+  notify(source, Locale("SMALL_FIREWORK_RUN"), "warning", 3000);
+}
 
 /** A written notepad page becomes a note item carrying the text. */
 onClientCallback(
@@ -83,11 +78,7 @@ for (const item of Object.keys(FIREWORKS))
       GetVehiclePedIsIn(GetPlayerPed(String(source)), false)
     )
       return false;
-    emitNet(
-      EVENTS.fireworkPlace,
-      source,
-      fireworks.start(source, item, FIREWORK_MS),
-    );
+    void placeFirework(source, item);
     return false;
   });
 inventory.registerUsableItem(ITEMS.notepad, (source) => {
