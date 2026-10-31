@@ -210,5 +210,6 @@
   "HINT_BELT": "Seatbelt",
   "HINT_POINT": "Point",
   "HINT_HANDSUP": "Hands up",
-  "HINT_RAGDOLL": "Fall over"
+  "HINT_RAGDOLL": "Fall over",
+  "KEYBIND_SIT_GETUP": "Stand up from a seat"
 }

@@ -15,6 +15,7 @@ import {
 import { PLAYER_BAGS } from "@aicore-fivem/shared";
 import { Locale } from "common";
 import { content } from "./settings";
+import { sitting } from "./sit";
 
 const dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean);
 const cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean);
@@ -216,7 +217,10 @@ new Keybind({
   hint: "foot",
   icon: "hand",
   hintLabel: Locale("HINT_HANDSUP"),
-  onPressed: () => void hands.toggle(),
+  // X also stands up from a seat; that press is not a hands up.
+  onPressed: () => {
+    if (!sitting.seated) void hands.toggle();
+  },
 });
 new Keybind({
   name: "smallresources_ragdoll",

@@ -1,19 +1,18 @@
 import {
   cache,
   every,
-  hidePrompt,
+  Keybind,
+  keyHints,
   notify,
-  onPromptPressed,
   player,
   Points,
   requestAnimDict,
-  showPrompt,
 } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
 import { SEAT_TYPES, type SeatModel, type SeatPose } from "common/seats";
 import { content, onContent, onSettings } from "./settings";
 
-const PROMPT = "getup";
+const HINT = "sit_getup";
 const SCENARIO_TASK = GetHashKey("SCRIPT_TASK_START_SCENARIO_AT_POSITION");
 /** Objects tipped over more than this (degrees, x plus y) are not sat on. */
 const MAX_TILT = 20;
@@ -23,11 +22,17 @@ const hashOf = (model: string) =>
 
 /**
  * Sitting on world objects: the panel's seat list names the models and where on them a player sits; the nearest free
- * seat of the object is taken with its type's scenario or animation; the prompt stands the player up.
+ * seat of the object is taken with its type's scenario or animation; the stand-up key (X) gets the player up. Its
+ * own key, not the interaction key: that one goes to a focused target first, which is the seat just sat on.
  */
 class Sitting {
   private byModel = new Map<number, SeatModel>();
   private pose: SeatPose | null = null;
+
+  /** On a seat: X stands up then, so other X actions (hands up) skip it. */
+  get seated(): boolean {
+    return this.pose !== null;
+  }
   private from: number[] = [];
   private readonly job = every(500, () => this.watch(), {
     active: false,
@@ -124,7 +129,11 @@ class Sitting {
       });
     }
     this.pose = pose;
-    showPrompt(PROMPT, Locale("SIT_GETUP"));
+    keyHints.show(HINT, {
+      label: Locale("SIT_GETUP"),
+      keybind: "smallresources_sit_getup",
+      icon: "person-walking",
+    });
     this.job.set(true);
   }
 
@@ -154,14 +163,17 @@ class Sitting {
   private end(): void {
     this.pose = null;
     this.job.set(false);
-    hidePrompt(PROMPT);
+    keyHints.hide(HINT);
   }
 }
 
-const sitting = new Sitting();
+export const sitting = new Sitting();
 sitting.rebuild();
 onContent("seats", () => sitting.rebuild());
 onSettings(() => sitting.rebuild());
-onPromptPressed((id) => {
-  if (id === PROMPT) sitting.stand();
+new Keybind({
+  name: "smallresources_sit_getup",
+  description: Locale("KEYBIND_SIT_GETUP"),
+  defaultKey: "X",
+  onPressed: () => sitting.stand(),
 });
