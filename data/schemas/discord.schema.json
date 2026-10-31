@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ai-smallresources/data/discord.json",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "This file's JSON Schema (for editors)."
+    },
+    "enabled": {
+      "description": "Discord Rich Presence: Shows your application's name, pictures, text lines and buttons on every player's Discord profile. Needs the application id. Off: players keep FiveM's own presence.",
+      "type": "boolean"
+    },
+    "appId": {
+      "description": "Application id: On discord.com/developers open your application, General Information, and copy the Application ID (17 to 20 digits). It is public, not a secret.",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 20,
+      "pattern": "^(\\d{17,20})?$"
+    },
+    "largeImage": {
+      "description": "Large picture: The name of an Art Asset of your application: the big square picture next to the text, usually your logo. Empty: no picture.",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 128
+    },
+    "largeText": {
+      "description": "Large picture text: Shown when someone moves the mouse over the large picture.",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 128
+    },
+    "smallImage": {
+      "description": "Small picture: The name of an Art Asset of your application: the small round picture on the corner of the large one. Empty: no small picture.",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 128
+    },
+    "smallText": {
+      "description": "Small picture text: Shown when someone moves the mouse over the small picture.",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 128
+    },
+    "top": {
+      "description": "First line: The upper line, up to 128 characters. Updates by itself when a placeholder's value changes (the street at most every 15 seconds).",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 128
+    },
+    "bottom": {
+      "description": "Second line: The lower line, up to 128 characters, with the same placeholders.",
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 128
+    },
+    "buttons": {
+      "description": "Buttons: Two at most, shown in this order.",
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "description": "Button text: The text on the button, up to 32 characters.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "url": {
+            "description": "Link: The page the button opens; it must start with https://.",
+            "type": "string",
+            "minLength": 9,
+            "maxLength": 512,
+            "pattern": "^https://\\S+$"
+          }
+        },
+        "required": [
+          "label",
+          "url"
+        ]
+      }
+    }
+  },
+  "required": []
+}
