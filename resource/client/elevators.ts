@@ -1,25 +1,29 @@
 import { menu, Points } from "@aicore-fivem/lib/client";
+import { RecordObjects } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
-import type { Elevator } from "common/places";
+import { readElevator, type Elevator } from "common/places";
 import { EVENTS } from "common/small";
-import { content, onContent } from "./settings";
+import { world } from "./settings";
 import { moveBy } from "./teleports";
 
 /** A point on every floor of every elevator; the menu lists the other floors, the server checks the ride. */
 const points = new Points();
-function rebuild(): void {
-  points.clear();
-  for (const elevator of content.elevators.values())
-    elevator.floors.forEach((floor, index) =>
-      points.add(`lift:${elevator.id}:${index}`, {
-        coords: floor.point,
-        label: Locale("ELEVATOR_PROMPT", elevator.label),
-        icon: "elevator",
-        radius: 1.5,
-        onPressed: () => ride(elevator, index),
-      }),
+/** An edited elevator rebuilds only its own floor points. */
+new RecordObjects(world, "elevators", readElevator, (id, elevator) => {
+  elevator.floors.forEach((floor, index) =>
+    points.add(`lift:${id}:${index}`, {
+      coords: floor.point,
+      label: Locale("ELEVATOR_PROMPT", elevator.label),
+      icon: "elevator",
+      radius: 1.5,
+      onPressed: () => ride(elevator, index),
+    }),
+  );
+  return () =>
+    elevator.floors.forEach((_floor, index) =>
+      points.remove(`lift:${id}:${index}`),
     );
-}
+});
 
 async function ride(elevator: Elevator, from: number): Promise<void> {
   const picked = await menu({
@@ -35,6 +39,3 @@ async function ride(elevator: Elevator, from: number): Promise<void> {
   if (picked === null) return;
   await moveBy(EVENTS.elevator, [elevator.id, from, Number(picked)]);
 }
-
-rebuild();
-onContent("elevators", rebuild);

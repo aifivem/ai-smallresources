@@ -87,6 +87,28 @@
       "description": "Notepad item: Using the notepad writes a page that becomes a note item; using the note shows its text.",
       "type": "boolean"
     },
+    "diveGear": {
+      "description": "Diving gear: Using diving_gear puts an air tank and a mask on (or takes them off); while worn the player breathes underwater until the tank is empty. diving_fill refills the tank.",
+      "type": "boolean"
+    },
+    "diveAir": {
+      "description": "Air in a full tank: Seconds a player breathes underwater on one full tank. Air is spent only underwater and kept per character.",
+      "type": "integer",
+      "minimum": 10,
+      "maximum": 3600
+    },
+    "diveWearSeconds": {
+      "description": "Putting on / taking off: Seconds the animation takes.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 60
+    },
+    "diveFillSeconds": {
+      "description": "Refilling: Seconds refilling the tank with a diving_fill item takes.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 60
+    },
     "afkMinutes": {
       "description": "AFK kick: Players who do not move for this long are kicked (admins never). 0 turns it off.",
       "type": "integer",

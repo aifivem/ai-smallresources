@@ -1,5 +1,5 @@
 import { AdminWorld } from "@aicore-fivem/lib/client";
-import { readElevator, readMooring, readTeleport } from "common/places";
+import { readMooring } from "common/places";
 import { readSeat } from "common/seats";
 import { readSettings } from "common/small";
 
@@ -7,14 +7,12 @@ const FILES = ["settings", "teleports", "elevators", "moorings", "seats"];
 type File = "settings" | "teleports" | "elevators" | "moorings" | "seats";
 
 /** The panel files every client module reads (kept current by the panel's views); `onContent(file)` runs after a change. */
-const world = new AdminWorld(FILES);
+export const world = new AdminWorld(FILES);
 const settings = world.view("settings", readSettings);
 export const content = {
   get settings() {
     return settings.value;
   },
-  teleports: world.records("teleports", readTeleport),
-  elevators: world.records("elevators", readElevator),
   moorings: world.records("moorings", readMooring),
   seats: world.records("seats", readSeat),
 };
@@ -23,8 +21,6 @@ export const onContent = (file: File, handler: () => void) =>
   world.onChange(file, handler);
 export const onSettings = (handler: () => void) =>
   onContent("settings", handler);
-export const onTeleports = (handler: () => void) =>
-  onContent("teleports", handler);
 
 /** The refusal shown when a reply is missing. */
 export const FALLBACK = { fallback: "SMALL_ERR_FAR" };

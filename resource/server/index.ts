@@ -4,3 +4,4 @@ import "./places";
 import "./items";
 import "./vehicles";
 import "./carry";
+import "./dive";

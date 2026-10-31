@@ -1,0 +1,135 @@
+import {
+  cache,
+  every,
+  onServerCallback,
+  onServerEvent,
+  PlayerState,
+  requestModel,
+  stateBoolean,
+  TickLoop,
+} from "@aicore-fivem/lib/client";
+import { readInt } from "@aicore-fivem/lib/shared";
+import { Locale, ResourceName } from "common";
+import { DIVE_PROPS, DIVE_STATE } from "common/items";
+import { EVENTS } from "common/small";
+
+/** Breathing time GTA gives with scuba on; the air count, not GTA, ends it. */
+const SCUBA_SECONDS = 2000;
+
+/**
+ * Dive gear: every client puts a local tank and mask on each player whose state says so; the wearer breathes
+ * underwater while the tank has air, spends one second of air per second underwater and reports it every 10 s.
+ */
+class DiveGear {
+  private readonly props = new Map<number, number[]>();
+  private worn = false;
+  private air = 0;
+  private label = "";
+  private readonly breath = every(1000, () => this.tick(), {
+    active: false,
+    name: "dive",
+  });
+  private readonly text = new TickLoop(() => this.draw());
+
+  async dress(player: number, on: boolean): Promise<void> {
+    for (const prop of this.props.get(player) ?? []) DeleteObject(prop);
+    this.props.delete(player);
+    const ped = GetPlayerPed(player);
+    if (!on || !ped) return;
+    const made: number[] = [];
+    this.props.set(player, made);
+    for (const gear of DIVE_PROPS) {
+      const model = await requestModel(gear.model).catch(() => 0);
+      // Taken off while the model loaded.
+      if (!model || this.props.get(player) !== made) return;
+      const [x = 0, y = 0, z = 0] = GetEntityCoords(ped, false);
+      const prop = CreateObject(model, x, y, z, false, false, false);
+      SetEntityCollision(prop, false, false);
+      const [ox, oy, oz, rx, ry, rz] = gear.offset;
+      AttachEntityToEntity(
+        prop,
+        ped,
+        GetPedBoneIndex(ped, gear.bone),
+        ox,
+        oy,
+        oz,
+        rx,
+        ry,
+        rz,
+        true,
+        true,
+        false,
+        false,
+        2,
+        true,
+      );
+      SetModelAsNoLongerNeeded(model);
+      made.push(prop);
+    }
+  }
+
+  /** The server put the gear on with `air` seconds, or took it off (null). */
+  wear(air: number | null): void {
+    this.worn = air !== null;
+    this.setAir(air ?? 0);
+    this.breath.set(this.worn);
+    if (!this.worn) this.text.set(false);
+    this.scuba(this.worn && this.air > 0, this.worn ? 1 : 50);
+  }
+
+  stop(): void {
+    for (const player of this.props.keys()) void this.dress(player, false);
+    if (this.worn) this.wear(null);
+  }
+
+  private setAir(air: number): void {
+    this.air = air;
+    this.label = Locale("DIVE_AIR", air);
+  }
+
+  /** Scuba on, or off with GTA's breath-hold time set to `seconds`. */
+  private scuba(on: boolean, seconds: number): void {
+    SetEnableScuba(cache.ped, on);
+    SetPedMaxTimeUnderwater(cache.ped, on ? SCUBA_SECONDS : seconds);
+  }
+
+  private tick(): void {
+    const under = IsPedSwimmingUnderWater(cache.ped);
+    this.text.set(under);
+    if (!under || this.air <= 0) return;
+    this.setAir(this.air - 1);
+    if (this.air === 0) {
+      this.scuba(false, 1);
+      emitNet(EVENTS.diveAir, 0);
+    } else if (this.air % 10 === 0) emitNet(EVENTS.diveAir, this.air);
+  }
+
+  private draw(): void {
+    SetTextFont(4);
+    SetTextScale(0.45, 0.45);
+    SetTextColour(255, 255, 255, 230);
+    SetTextOutline();
+    SetTextCentre(true);
+    BeginTextCommandDisplayText("STRING");
+    AddTextComponentSubstringPlayerName(this.label);
+    EndTextCommandDisplayText(0.5, 0.93);
+  }
+}
+
+const gear = new DiveGear();
+new PlayerState(DIVE_STATE, stateBoolean).onChange((serverId, on) => {
+  const player = GetPlayerFromServerId(serverId);
+  if (NetworkIsPlayerActive(player)) void gear.dress(player, on === true);
+});
+onServerEvent(
+  EVENTS.diveGear,
+  { args: ([air]) => [air == null ? null : readInt(air, 0, 3600)] as const },
+  (air) => gear.wear(air),
+);
+onServerCallback(EVENTS.diveWater, () => ({
+  swimming: IsPedSwimming(cache.ped),
+  underwater: IsPedSwimmingUnderWater(cache.ped),
+}));
+on("onResourceStop", (resource: string) => {
+  if (resource === ResourceName) gear.stop();
+});

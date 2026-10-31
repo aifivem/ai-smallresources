@@ -7,6 +7,7 @@ import {
   progress,
   stateBoolean,
 } from "@aicore-fivem/lib/client";
+import { nearestOf } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { MOOR_RANGE } from "common/places";
 import { EVENTS, VEHICLE_STATE } from "common/small";
@@ -25,9 +26,10 @@ const isMoored = (boat: number) =>
 /** A mooring within reach of the boat (the server checks the same distance). */
 function nearMooring(boat: number): boolean {
   const [x = 0, y = 0, z = 0] = GetEntityCoords(boat, false);
-  return [...content.moorings.values()].some(
-    (m) =>
-      Math.hypot(m.point.x - x, m.point.y - y, m.point.z - z) <= MOOR_RANGE,
+  const at = { x, y, z };
+  return (
+    nearestOf(content.moorings.values(), at, (m) => m.point, MOOR_RANGE) !==
+    undefined
   );
 }
 

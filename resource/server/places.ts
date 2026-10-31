@@ -3,9 +3,6 @@ import { fail, readInt, readText } from "@aicore-fivem/lib/shared";
 import { EVENTS } from "common/small";
 import { content } from "./content";
 
-const hasJob = (source: number, job: string) =>
-  !job || online.jobs(source).includes(job);
-
 /** A teleport: the server checks the end the player stands at and answers the other one; the client teleports. */
 onClientCallback(
   EVENTS.teleport,
@@ -22,7 +19,7 @@ onClientCallback(
     const teleport = content.teleports.get(id);
     if (!teleport || !isNear(source, teleport[end], 3))
       return fail("SMALL_ERR_FAR");
-    if (!hasJob(source, teleport.job)) return fail("SMALL_ERR_JOB");
+    if (!online.allows(source, teleport.access)) return fail("SMALL_ERR_JOB");
     return { ok: true, to: end === "from" ? teleport.to : teleport.from };
   },
 );
@@ -45,7 +42,7 @@ onClientCallback(
     const floor = elevator?.floors[to];
     if (!start || !floor || from === to || !isNear(source, start.point, 3))
       return fail("SMALL_ERR_FAR");
-    if (!hasJob(source, floor.job)) return fail("SMALL_ERR_JOB");
+    if (!online.allows(source, floor.access)) return fail("SMALL_ERR_JOB");
     return { ok: true, to: floor.point };
   },
 );

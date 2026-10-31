@@ -37,6 +37,23 @@ export const NEWS_ITEMS: Record<
   },
 };
 
+/** Player state key (server written): true while the player wears the dive gear. */
+export const DIVE_STATE = "aiDiving";
+
+/** Dive gear props (qbx_divegear): model, bone and offset on the ped. */
+export const DIVE_PROPS: Array<{
+  model: string;
+  bone: number;
+  offset: [number, number, number, number, number, number];
+}> = [
+  {
+    model: "p_s_scuba_tank_s",
+    bone: 24818,
+    offset: [-0.25, -0.25, 0, 180, 90, 0],
+  },
+  { model: "p_d_scuba_mask_s", bone: 12844, offset: [0, 0, 0, 180, 90, 0] },
+];
+
 /** Firework items and the particle asset and effects each one shows. */
 export const FIREWORKS: Record<string, { asset: string; effects: string[] }> = {
   firework1: {

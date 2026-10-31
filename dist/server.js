@@ -71,7 +71,71 @@ const oneArg = (read) => ([value]) => {
 }, fail = (error) => ({
 	ok: !1,
 	error
-}), distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z), isObject = (value) => typeof value == "object" && !!value && !Array.isArray(value);
+}), distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+function nearestOf(items, point, pos, max = Infinity) {
+	let best, bestSq = max * max;
+	for (let item of items) {
+		let p = pos(item), dx = p.x - point.x, dy = p.y - point.y, dz = p.z - point.z, sq = dx * dx + dy * dy + dz * dz;
+		sq <= bestSq && (bestSq = sq, best = item);
+	}
+	return best;
+}
+// ../../../packages/lib/src/shared/access.ts
+const names = (v) => Array.isArray(v) ? v.filter((x) => typeof x == "string") : [];
+function readAccess(value) {
+	let v = record(value), grades = {};
+	for (let [name, grade] of Object.entries(record(v.grades))) typeof grade == "number" && Number.isInteger(grade) && grade >= 0 && (grades[name] = grade);
+	return {
+		jobs: names(v.jobs),
+		gangs: names(v.gangs),
+		grades,
+		onDuty: bool(v.onDuty, !1)
+	};
+}
+const isPublic = (rule) => rule.jobs.length === 0 && rule.gangs.length === 0, ACCESS_FIELDS = {
+	jobs: {
+		type: "names",
+		lookup: "job",
+		optional: !0
+	},
+	gangs: {
+		type: "names",
+		lookup: "gang",
+		optional: !0
+	},
+	onDuty: {
+		type: "bool",
+		optional: !0
+	}
+};
+function accessFields() {
+	return [
+		{
+			widget: "tags",
+			lookup: "job",
+			path: "jobs",
+			label: "ADMIN_F_ACCESS_JOBS",
+			hint: "ADMIN_H_ACCESS_JOBS",
+			placeholder: "ADMIN_P_ACCESS_JOBS"
+		},
+		{
+			widget: "tags",
+			lookup: "gang",
+			path: "gangs",
+			label: "ADMIN_F_ACCESS_GANGS",
+			hint: "ADMIN_H_ACCESS_GANGS",
+			placeholder: "ADMIN_P_ACCESS_GANGS"
+		},
+		{
+			widget: "switch",
+			path: "onDuty",
+			label: "ADMIN_F_ACCESS_ON_DUTY",
+			hint: "ADMIN_H_ACCESS_ON_DUTY"
+		}
+	];
+}
+// ../../../packages/lib/src/shared/records.ts
+const isObject = (value) => typeof value == "object" && !!value && !Array.isArray(value);
 function readRecords(raw, readOne) {
 	let out = new Map();
 	if (!isObject(raw)) return out;
@@ -165,6 +229,7 @@ function previewJson(value, max) {
 	};
 	return walk(value, 0), out.slice(0, max);
 }
+const asArgs = (value) => value === null ? null : [value];
 function createLogger(resource) {
 	let prefix = `[${resource}]`;
 	return {
@@ -263,6 +328,7 @@ const CORE = {
 }, ADMIN = {
 	ace: "ai.admin",
 	openCallback: "ai-core:admin:open",
+	panelDataCallback: "ai-core:admin:panelData",
 	applyCallback: "ai-core:admin:apply",
 	closeEvent: "ai-core:admin:close",
 	showEvent: "ai-core:admin:show",
@@ -454,7 +520,7 @@ function toPatch(value) {
 		default: return null;
 	}
 }
-const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(value)), core$15 = resourceExport(CORE.resource), ERR = {
+const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(value)), core$17 = resourceExport(CORE.resource), ERR = {
 	type: "ADMIN_ERR_TYPE",
 	range: "ADMIN_ERR_RANGE",
 	length: "ADMIN_ERR_LENGTH",
@@ -468,7 +534,7 @@ const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(va
 		if (cached && Date.now() - cached.at < 2e3) return cached.values.size > 0 ? cached.values : null;
 		let list = [];
 		try {
-			list = core$15.GetLookupValues(source);
+			list = core$17.GetLookupValues(source);
 		} catch {}
 		let values = new Set(Array.isArray(list) ? list.filter((v) => typeof v == "string") : []);
 		return this.lists.set(source, {
@@ -733,7 +799,7 @@ function writeSchema(resource, name, text, log) {
 	(0, node_fs_promises.mkdir)(dir, { recursive: !0 }).then(() => (0, node_fs_promises.writeFile)(`${dir}/${name}.schema.json`, text, "utf8")).catch((error) => log.error(`writing ${resource}/${path} failed`, error));
 }
 // ../../../packages/lib/src/server/admin/panel.ts
-const core$14 = resourceExport(CORE.resource);
+const core$16 = resourceExport(CORE.resource);
 var AdminPanel = class {
 	schema;
 	data = new Map();
@@ -749,10 +815,10 @@ var AdminPanel = class {
 	constructor(schema) {
 		this.schema = schema;
 		for (let [name, spec] of Object.entries(schema.files)) this.load(name, spec);
-		registerExport("AdminPanelSnapshot", () => this.snapshot()), registerExport("AdminPanelApply", (admin, patch) => this.apply(admin, patch)), onClientCallback(ADMIN.worldChangesCallback(this.resource), () => Object.fromEntries(this.worldChanges), { rate: {
+		registerExport("AdminPanelSnapshot", () => this.snapshot()), registerExport("AdminPanelSummary", () => this.summary()), registerExport("AdminPanelApply", (admin, patch) => this.apply(admin, patch)), onClientCallback(ADMIN.worldChangesCallback(this.resource), () => Object.fromEntries(this.worldChanges), { rate: {
 			count: 4,
 			windowMs: 1e4
-		} }), setImmediate(() => core$14.RegisterAdminPanel(this.resource));
+		} }), setImmediate(() => core$16.RegisterAdminPanel(this.resource));
 	}
 	get(file) {
 		return this.data.get(file) ?? {};
@@ -778,6 +844,27 @@ var AdminPanel = class {
 			schema: this.schema,
 			texts: loadLocaleTexts(),
 			data: clone(Object.fromEntries(this.data))
+		};
+	}
+	summary() {
+		let data = {}, index = {};
+		for (let [file, spec] of Object.entries(this.schema.files)) {
+			let content = this.data.get(file);
+			if (spec.kind !== "records") {
+				data[file] = clone(content ?? {});
+				continue;
+			}
+			let labels = {};
+			for (let [key, record] of Object.entries(content ?? {})) labels[key] = labelOf(record, spec.labelPath) ?? key;
+			index[file] = labels;
+		}
+		return {
+			resource: this.resource,
+			schema: this.schema,
+			texts: loadLocaleTexts(),
+			data,
+			loaded: !1,
+			index
 		};
 	}
 	apply(admin, raw) {
@@ -842,7 +929,7 @@ var AdminPanel = class {
 		let spec = this.schema.files[file], data = this.get(file), value = key === void 0 ? data : data[key] ?? null;
 		this.dataFiles.get(file)?.write(data), this.views.changed(file, key, value);
 		for (let handler of this.handlers.get(file) ?? []) handler(key, value);
-		if (core$14.AdminPanelChanged({
+		if (core$16.AdminPanelChanged({
 			resource: this.resource,
 			file,
 			key,
@@ -863,6 +950,15 @@ var AdminPanel = class {
 		this.data.set(name, data), (filled || raw === null || !file.hasSchemaRef()) && file.write(data);
 	}
 };
+function labelOf(record, path) {
+	if (!path) return null;
+	let at = record;
+	for (let part of path.split(".")) {
+		if (typeof at != "object" || !at) return null;
+		at = at[part];
+	}
+	return typeof at == "string" && at !== "" ? at : null;
+}
 // ../../../packages/lib/src/server/notify.ts
 function notify(source, text, kind = "info", duration) {
 	let notification = {
@@ -873,19 +969,19 @@ function notify(source, text, kind = "info", duration) {
 	emitNet(LIB_UI.notifyEvent, source, notification);
 }
 // ../../../packages/lib/src/server/inventory.ts
-const core$13 = resourceExport(CORE.resource), inventory = {
-	addItem: (inv, item, count = 1, metadata, slot) => core$13.AddItem(inv, item, count, metadata, slot),
-	removeItem: (inv, item, count = 1, metadata, slot) => core$13.RemoveItem(inv, item, count, metadata, slot),
-	getItemCount: (inv, item, metadata) => core$13.GetItemCount(inv, item, metadata),
-	hasItem: (inv, item, count = 1) => core$13.HasItem(inv, item, count),
-	canCarryItem: (inv, item, count = 1, metadata) => core$13.CanCarryItem(inv, item, count, metadata),
-	getItems: (inv) => core$13.GetItems(inv),
-	clearInventory: (inv) => core$13.ClearInventory(inv),
-	registerStash: (name, label, slots, maxWeight, jobs = []) => core$13.RegisterStash(name, label, slots, maxWeight, jobs),
-	openInventory: (source, inv) => core$13.OpenInventory(source, inv),
-	registerUsableItem: (name, handler) => core$13.RegisterUsableItem(name, handler),
-	getItemDefinition: (name) => core$13.GetItemDefinition(name)
-}, core$12 = resourceExport(CORE.resource);
+const core$15 = resourceExport(CORE.resource), inventory = {
+	addItem: (inv, item, count = 1, metadata, slot) => core$15.AddItem(inv, item, count, metadata, slot),
+	removeItem: (inv, item, count = 1, metadata, slot) => core$15.RemoveItem(inv, item, count, metadata, slot),
+	getItemCount: (inv, item, metadata) => core$15.GetItemCount(inv, item, metadata),
+	hasItem: (inv, item, count = 1) => core$15.HasItem(inv, item, count),
+	canCarryItem: (inv, item, count = 1, metadata) => core$15.CanCarryItem(inv, item, count, metadata),
+	getItems: (inv) => core$15.GetItems(inv),
+	clearInventory: (inv) => core$15.ClearInventory(inv),
+	registerStash: (name, label, slots, maxWeight, jobs = []) => core$15.RegisterStash(name, label, slots, maxWeight, jobs),
+	openInventory: (source, inv) => core$15.OpenInventory(source, inv),
+	registerUsableItem: (name, handler) => core$15.RegisterUsableItem(name, handler),
+	getItemDefinition: (name) => core$15.GetItemDefinition(name)
+}, core$14 = resourceExport(CORE.resource);
 function reindex(index, source, before, after) {
 	for (let name of before) {
 		let set = index.get(name);
@@ -913,11 +1009,11 @@ var OnlinePlayers = class {
 				gangs: [],
 				gangNames: [],
 				duty: null
-			}), this.setJobs(source, core$12.GetJobs(source) ?? []), this.setGangs(source, core$12.GetGangs(source) ?? []), this.setDuty(source, core$12.GetDutyJob(source));
+			}), this.setJobs(source, core$14.GetJobs(source) ?? []), this.setGangs(source, core$14.GetGangs(source) ?? []), this.setDuty(source, core$14.GetDutyJob(source));
 		};
 		on(CORE.playerLoadedEvent, load), on(CORE.playerUnloadedEvent, (source) => this.drop(source)), on(CORE.jobsChangedEvent, (source, jobs) => this.setJobs(source, jobs)), on(CORE.gangsChangedEvent, (source, gangs) => this.setGangs(source, gangs)), on(CORE.dutyChangedEvent, (source, job) => this.setDuty(source, job));
-		for (let source of core$12.GetLoadedSources()) {
-			let character = core$12.GetCharacter(source);
+		for (let source of core$14.GetLoadedSources()) {
+			let character = core$14.GetCharacter(source);
 			character && load(source, character);
 		}
 	}
@@ -986,6 +1082,20 @@ var OnlinePlayers = class {
 		let duty = this.dutyJob(source);
 		return duty !== null && jobs.includes(duty);
 	}
+	allows(source, rule) {
+		if (isPublic(rule)) return !0;
+		let min = (name) => rule.grades[name] ?? 0;
+		for (let gang of rule.gangs) {
+			let grade = this.gangGrade(source, gang);
+			if (grade !== null && grade >= min(gang)) return !0;
+		}
+		let duty = rule.onDuty ? this.dutyJob(source) : null;
+		for (let job of rule.jobs) {
+			let grade = this.jobGrade(source, job);
+			if (grade !== null && grade >= min(job) && (!rule.onDuty || duty === job)) return !0;
+		}
+		return !1;
+	}
 	countOnDuty(jobs) {
 		this.start();
 		let count = 0;
@@ -996,10 +1106,10 @@ var OnlinePlayers = class {
 		return this.start(), this.onDuty.get(job) ?? EMPTY;
 	}
 };
-const EMPTY = new Set(), online = new OnlinePlayers(), core$11 = resourceExport(CORE.resource), vehicleKeys = {
-	give: (source, vehicle, purpose = "temporary") => core$11.GiveVehicleKeys(source, vehicle, purpose),
-	remove: (source, vehicle) => core$11.RemoveVehicleKeys(source, vehicle),
-	has: (source, vehicle) => core$11.HasVehicleKeys(source, vehicle)
+const EMPTY = new Set(), online = new OnlinePlayers(), core$13 = resourceExport(CORE.resource), vehicleKeys = {
+	give: (source, vehicle, purpose = "temporary") => core$13.GiveVehicleKeys(source, vehicle, purpose),
+	remove: (source, vehicle) => core$13.RemoveVehicleKeys(source, vehicle),
+	has: (source, vehicle) => core$13.HasVehicleKeys(source, vehicle)
 };
 function randomPlate(prefix) {
 	let digit = () => String(Math.floor(Math.random() * 10));
@@ -1026,7 +1136,7 @@ function entityFromNet(netId, type) {
 	let entity = NetworkGetEntityFromNetworkId(netId);
 	return !entity || !DoesEntityExist(entity) ? 0 : type === void 0 || GetEntityType(entity) === type ? entity : 0;
 }
-const vehicleFromNet = (netId) => entityFromNet(netId, 2), core$10 = resourceExport(CORE.resource);
+const vehicleFromNet = (netId) => entityFromNet(netId, 2), core$12 = resourceExport(CORE.resource);
 function within(point, radius, candidates) {
 	let out = [];
 	for (let source of candidates) {
@@ -1036,11 +1146,11 @@ function within(point, radius, candidates) {
 	return out;
 }
 function playersNear(source, radius) {
-	return within(coordsOf(source), radius, [source, ...core$10.GetPlayersInScope(source)]);
+	return within(coordsOf(source), radius, [source, ...core$12.GetPlayersInScope(source)]);
 }
 function nearestPlayerTo(source, metres, filter) {
 	let from = coordsOf(source), best = null, bestDistance = metres;
-	for (let other of core$10.GetPlayersInScope(source)) {
+	for (let other of core$12.GetPlayersInScope(source)) {
 		if (other === source) continue;
 		let p = coordsOf(other), d = Math.hypot(p.x - from.x, p.y - from.y, p.z - from.z);
 		d > bestDistance || filter && !filter(other) || (best = other, bestDistance = d);
@@ -1161,6 +1271,25 @@ function progressFor(source, options) {
 		running.set(source, settle), triggerClientCallback(LIB_UI.progressForCallback, source, [bar], bar.duration + 15e3).then((answer) => settle(answer === !0 && GetGameTimer() - startedAt >= bar.duration * minRatio), () => settle(!1));
 	});
 }
+// ../../../packages/lib/src/server/definitions.ts
+const core$11 = resourceExport("ai-core");
+new class {
+	jobs = new Map();
+	gangs = new Map();
+	constructor() {
+		on(CORE.definitionsChangedEvent, (file, name) => {
+			typeof name == "string" && (file === "jobs" ? this.jobs.delete(name) : file === "gangs" && this.gangs.delete(name));
+		});
+	}
+	job(name) {
+		let def = this.jobs.get(name);
+		return def === void 0 && this.jobs.set(name, def = core$11.GetJobDefinition(name) ?? null), def;
+	}
+	gang(name) {
+		let def = this.gangs.get(name);
+		return def === void 0 && this.gangs.set(name, def = core$11.GetGangDefinition(name) ?? null), def;
+	}
+}();
 // ../../../packages/lib/src/server/command.ts
 const resource = GetCurrentResourceName();
 createLogger(resource), new class {
@@ -1199,6 +1328,8 @@ function onClientEvent(name, first, second) {
 	});
 }
 createLogger("aicore-lib");
+// ../../../packages/lib/src/fivem/byResource.ts
+const plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim().toUpperCase();
 let log = null;
 var ScheduledJob = class {
 	interval;
@@ -1433,16 +1564,16 @@ function readTeleport(id, v) {
 		label: str(v.label, id, 48),
 		from: vec4(v.from, ZERO),
 		to: vec4(v.to, ZERO),
-		job: str(v.job, "", 32)
+		access: readAccess(v)
 	};
 }
 function readElevator(id, v) {
 	let floors = (Array.isArray(v.floors) ? v.floors : []).map((row, i) => {
-		let f = record(row);
+		let f = record(row), job = str(f.job, "", 32);
 		return {
 			label: str(f.label, String(i + 1), 32),
 			point: vec4(f.point, ZERO),
-			job: str(f.job, "", 32)
+			access: readAccess({ jobs: job ? [job] : [] })
 		};
 	});
 	return floors.length >= 2 ? {
@@ -1475,7 +1606,10 @@ const EVENTS = {
 	noteWrite: "ai-smallresources:client:noteWrite",
 	noteSave: "ai-smallresources:noteSave",
 	noteRead: "ai-smallresources:client:noteRead",
-	moor: "ai-smallresources:moor"
+	moor: "ai-smallresources:moor",
+	diveGear: "ai-smallresources:client:diveGear",
+	diveAir: "ai-smallresources:diveAir",
+	diveWater: "ai-smallresources:client:diveWater"
 }, CARRY_STATE = {
 	carrying: "aiCarrying",
 	carriedBy: "aiCarriedBy"
@@ -1485,7 +1619,9 @@ const EVENTS = {
 }, ITEMS = {
 	fakePlate: "fakeplate",
 	notepad: "notepad",
-	note: "note"
+	note: "note",
+	divingGear: "diving_gear",
+	divingFill: "diving_fill"
 };
 function readSettings(raw) {
 	let v = record(raw), percent = (value, fallback) => int(value, fallback, 0, 100);
@@ -1515,7 +1651,11 @@ function readSettings(raw) {
 		afkMinutes: int(v.afkMinutes, 20, 0, 600),
 		binoculars: bool(v.binoculars, !0),
 		fireworks: bool(v.fireworks, !0),
-		notepad: bool(v.notepad, !0)
+		notepad: bool(v.notepad, !0),
+		diveGear: bool(v.diveGear, !0),
+		diveAir: int(v.diveAir, 100, 10, 3600),
+		diveWearSeconds: int(v.diveWearSeconds, 5, 1, 60),
+		diveFillSeconds: int(v.diveFillSeconds, 5, 1, 60)
 	};
 }
 // resource/common/seats.ts
@@ -1807,6 +1947,25 @@ const SEAT_TYPES = {
 	binoculars: BOOL,
 	fireworks: BOOL,
 	notepad: BOOL,
+	diveGear: BOOL,
+	diveAir: {
+		type: "number",
+		min: 10,
+		max: 3600,
+		integer: !0
+	},
+	diveWearSeconds: {
+		type: "number",
+		min: 1,
+		max: 60,
+		integer: !0
+	},
+	diveFillSeconds: {
+		type: "number",
+		min: 1,
+		max: 60,
+		integer: !0
+	},
 	afkMinutes: {
 		type: "number",
 		min: 0,
@@ -1830,6 +1989,10 @@ const SEAT_TYPES = {
 	sit: !0,
 	antiPeek: !0,
 	notepad: !0,
+	diveGear: !0,
+	diveAir: 100,
+	diveWearSeconds: 5,
+	diveFillSeconds: 5,
 	pedDensity: 80,
 	scenarioDensity: 80,
 	trafficDensity: 80,
@@ -1896,7 +2059,37 @@ const SEAT_TYPES = {
 		fields: [
 			switchField("binoculars", "BINOCULARS"),
 			switchField("fireworks", "FIREWORKS"),
-			switchField("notepad", "NOTEPAD")
+			switchField("notepad", "NOTEPAD"),
+			switchField("diveGear", "DIVE_GEAR"),
+			...[
+				[
+					"diveAir",
+					"DIVE_AIR",
+					3600
+				],
+				[
+					"diveWearSeconds",
+					"DIVE_WEAR",
+					60
+				],
+				[
+					"diveFillSeconds",
+					"DIVE_FILL",
+					60
+				]
+			].map(([path, key, max]) => ({
+				widget: "number",
+				path,
+				label: `ADMIN_F_${key}`,
+				hint: `ADMIN_H_${key}`,
+				min: path === "diveAir" ? 10 : 1,
+				max,
+				unit: "s",
+				showIf: {
+					path: "diveGear",
+					values: [!0]
+				}
+			}))
 		]
 	},
 	{
@@ -1948,7 +2141,8 @@ const SEAT_TYPES = {
 					z: 0,
 					heading: 0
 				},
-				job: ""
+				jobs: [],
+				gangs: []
 			},
 			sections: {
 				label: {
@@ -1958,12 +2152,7 @@ const SEAT_TYPES = {
 				},
 				from: { type: "vec4" },
 				to: { type: "vec4" },
-				job: {
-					type: "text",
-					lookup: "job",
-					min: 0,
-					max: 32
-				}
+				...ACCESS_FIELDS
 			}
 		},
 		elevators: {
@@ -2082,7 +2271,6 @@ const SEAT_TYPES = {
 			icon: "location-dot",
 			label: "ADMIN_TAB_TELEPORTS",
 			desc: "ADMIN_TAB_TELEPORTS_DESC",
-			listSub: "job",
 			createLabel: "ADMIN_NEW_TELEPORT",
 			deleteLabel: "ADMIN_DELETE_TELEPORT",
 			cards: [{
@@ -2111,14 +2299,7 @@ const SEAT_TYPES = {
 						heading: !0,
 						ground: !0
 					},
-					{
-						widget: "text",
-						lookup: "job",
-						path: "job",
-						label: "ADMIN_F_JOB",
-						hint: "ADMIN_H_JOB",
-						placeholder: "ADMIN_P_JOB"
-					}
+					...accessFields()
 				]
 			}]
 		},
@@ -2154,10 +2335,7 @@ every(6e4, function() {
 			since: now
 		}) : now - last.since < minutes * 6e4 || IsPlayerAceAllowed(String(source), "ai.admin") || (still.delete(source), DropPlayer(String(source), Locale("SMALL_AFK_KICK", minutes)));
 	}
-});
-// resource/server/places.ts
-const hasJob = (source, job) => !job || online.jobs(source).includes(job);
-onClientCallback(EVENTS.teleport, {
+}), onClientCallback(EVENTS.teleport, {
 	args: ([id, end]) => {
 		let key = readText(id, 64);
 		return key !== null && (end === "from" || end === "to") ? [key, end] : null;
@@ -2165,7 +2343,7 @@ onClientCallback(EVENTS.teleport, {
 	lock: !0
 }, (source, id, end) => {
 	let teleport = content.teleports.get(id);
-	return !teleport || !isNear(source, teleport[end], 3) ? fail("SMALL_ERR_FAR") : hasJob(source, teleport.job) ? {
+	return !teleport || !isNear(source, teleport[end], 3) ? fail("SMALL_ERR_FAR") : online.allows(source, teleport.access) ? {
 		ok: !0,
 		to: end === "from" ? teleport.to : teleport.from
 	} : fail("SMALL_ERR_JOB");
@@ -2181,7 +2359,7 @@ onClientCallback(EVENTS.teleport, {
 	lock: !0
 }, (source, id, from, to) => {
 	let elevator = content.elevators.get(id), start = elevator?.floors[from], floor = elevator?.floors[to];
-	return !start || !floor || from === to || !isNear(source, start.point, 3) ? fail("SMALL_ERR_FAR") : hasJob(source, floor.job) ? {
+	return !start || !floor || from === to || !isNear(source, start.point, 3) ? fail("SMALL_ERR_FAR") : online.allows(source, floor.access) ? {
 		ok: !0,
 		to: floor.point
 	} : fail("SMALL_ERR_JOB");
@@ -2305,7 +2483,7 @@ inventory.registerUsableItem(ITEMS.notepad, (source) => (content.settings.notepa
 	return typeof text == "string" && text && emitNet(EVENTS.noteRead, source, text), !1;
 });
 // resource/server/vehicles.ts
-const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean), plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim();
+const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean);
 inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
 	if (!content.settings.fakePlate) return !1;
 	let ped = GetPlayerPed(String(source)), vehicle = GetVehiclePedIsIn(ped, !1) ? 0 : nearestVehicleTo(source, 3);
@@ -2340,11 +2518,7 @@ onClientCallback(EVENTS.moor, {
 	let boat = vehicleFromNet(netId);
 	if (!content.settings.boatRope || !boat || GetVehicleType(boat) !== "boat" || !isNear(source, entityCoords(boat), 6)) return fail("SMALL_ERR_FAR");
 	let driver = GetPedInVehicleSeat(boat, -1);
-	if (driver && driver !== GetPlayerPed(String(source))) return fail("MOOR_ERR_DRIVEN");
-	if (moored.get(boat) === !0) return FreezeEntityPosition(boat, !1), moored.set(boat, void 0), { ok: !0 };
-	let at = entityCoords(boat), inReach = !1;
-	for (let m of content.moorings.values()) distance(m.point, at) <= 14 && (inReach = !0);
-	return inReach ? (FreezeEntityPosition(boat, !0), moored.set(boat, !0), { ok: !0 }) : fail("MOOR_ERR_FAR");
+	return driver && driver !== GetPlayerPed(String(source)) ? fail("MOOR_ERR_DRIVEN") : moored.get(boat) === !0 ? (FreezeEntityPosition(boat, !1), moored.set(boat, void 0), { ok: !0 }) : nearestOf(content.moorings.values(), entityCoords(boat), (m) => m.point, 14) ? (FreezeEntityPosition(boat, !0), moored.set(boat, !0), { ok: !0 }) : fail("MOOR_ERR_FAR");
 });
 // resource/server/carry.ts
 const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber), carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber), dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean), cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean), asks = new Cooldowns(), carries = new class {
@@ -2385,4 +2559,62 @@ onClientCallback(EVENTS.carry, async (source) => {
 	return carries.busy(source) || carries.busy(target) || !isNear(source, coordsOf(target), 3) ? fail("CARRY_ERR_NONE") : (carries.start(source, target, !helpless), { ok: !0 });
 }, { lock: !0 }), onCharacter({ unloaded: (source) => void carries.stop(source) }), on(CORE.playerDiedEvent, (source) => {
 	typeof source == "number" && carrying.get(source) !== void 0 && carries.stop(source);
+});
+// resource/server/dive.ts
+const core = resourceExport("ai-core"), diving = new PlayerState("aiDiving", stateBoolean), META = "diveOxygen", ANIM = {
+	dict: "clothingshirt",
+	clip: "try_shirt_positive_d"
+}, airOf = (source) => int(core.GetMeta(source, META), 0, 0, 3600);
+async function waterOf(source) {
+	let answer = await triggerClientCallback(EVENTS.diveWater, source).catch(() => null);
+	return isRecord(answer) ? {
+		swimming: answer.swimming === !0,
+		underwater: answer.underwater === !0
+	} : null;
+}
+function takeOff(source) {
+	diving.set(source, void 0), emitNet(EVENTS.diveGear, source, null);
+}
+async function toggleGear(source) {
+	let { diveWearSeconds } = content.settings, bar = {
+		duration: diveWearSeconds * 1e3,
+		anim: ANIM,
+		canCancel: !0
+	};
+	if (diving.get(source)) {
+		if (!await progressFor(source, {
+			...bar,
+			label: Locale("DIVE_TAKING_OFF")
+		}) || !diving.get(source)) return;
+		takeOff(source), notify(source, Locale("DIVE_TOOK_OFF"), "info");
+		return;
+	}
+	if (airOf(source) <= 0) return notify(source, Locale("DIVE_ERR_EMPTY"), "error");
+	let water = await waterOf(source);
+	if (!water || water.swimming || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1)) return notify(source, Locale("DIVE_ERR_GROUND"), "error");
+	await progressFor(source, {
+		...bar,
+		label: Locale("DIVE_PUTTING_ON")
+	}) && !diving.get(source) && inventory.hasItem(source, ITEMS.divingGear) && (diving.set(source, !0), emitNet(EVENTS.diveGear, source, airOf(source)));
+}
+async function refill(source) {
+	let water = await waterOf(source);
+	if (!water || water.underwater) return notify(source, Locale("DIVE_ERR_UNDERWATER"), "error");
+	let { diveFillSeconds, diveAir } = content.settings;
+	await progressFor(source, {
+		label: Locale("DIVE_FILLING"),
+		duration: diveFillSeconds * 1e3,
+		anim: ANIM,
+		canCancel: !0
+	}) && inventory.removeItem(source, ITEMS.divingFill, 1) && (core.SetMeta(source, META, diveAir), diving.get(source) && emitNet(EVENTS.diveGear, source, diveAir), notify(source, Locale("DIVE_FILLED"), "success"));
+}
+inventory.registerUsableItem(ITEMS.divingGear, (source) => (content.settings.diveGear && toggleGear(source), !1)), inventory.registerUsableItem(ITEMS.divingFill, (source) => (content.settings.diveGear && refill(source), !1)), onClientEvent(EVENTS.diveAir, { args: ([air]) => asArgs(readInt(air, 0, 3600)) }, (source, air) => {
+	diving.get(source) && air < airOf(source) && core.SetMeta(source, META, air);
+}), onCharacter({
+	loaded: (source) => {
+		diving.get(source) && takeOff(source);
+	},
+	unloaded: (source) => {
+		isOnline(source) && diving.get(source) && takeOff(source);
+	}
 });

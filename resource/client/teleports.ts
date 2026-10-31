@@ -1,14 +1,17 @@
 import {
+  allows,
   callAction,
   fadeIn,
   fadeOut,
+  onMembershipChange,
   player,
   Points,
 } from "@aicore-fivem/lib/client";
-import { isRecord, vec4 } from "@aicore-fivem/lib/shared";
+import { isRecord, RecordObjects, vec4 } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
+import { readTeleport } from "common/places";
 import { EVENTS } from "common/small";
-import { content, FALLBACK, onTeleports } from "./settings";
+import { FALLBACK, world } from "./settings";
 
 /** Runs a move action behind a fade: the server checks it and answers the target, the client teleports there. */
 export async function moveBy(name: string, args: unknown[]): Promise<void> {
@@ -19,21 +22,25 @@ export async function moveBy(name: string, args: unknown[]): Promise<void> {
   await player.teleport(to, { heading: to.heading });
 }
 
-/** A point at both ends of every teleport; the player goes to the other end behind a fade. */
+/**
+ * A point at both ends of every teleport (only for who passes its access rule); the player goes to the other end
+ * behind a fade. An edited teleport rebuilds only its own points.
+ */
 const points = new Points();
-function rebuild(): void {
-  points.clear();
-  for (const teleport of content.teleports.values())
-    for (const end of ["from", "to"] as const)
-      points.add(`tp:${teleport.id}:${end}`, {
-        coords: teleport[end],
-        label: Locale("SMALL_PROMPT_TELEPORT", teleport.label),
-        icon: "location-dot",
-        radius: 1.5,
-        interval: 400,
-        onPressed: () => moveBy(EVENTS.teleport, [teleport.id, end]),
-      });
-}
-
-rebuild();
-onTeleports(rebuild);
+new RecordObjects(world, "teleports", readTeleport, (id, teleport) => {
+  for (const end of ["from", "to"] as const)
+    points.add(`tp:${id}:${end}`, {
+      coords: teleport[end],
+      label: Locale("SMALL_PROMPT_TELEPORT", teleport.label),
+      icon: "location-dot",
+      radius: 1.5,
+      interval: 400,
+      canShow: () => allows(teleport.access),
+      onPressed: () => moveBy(EVENTS.teleport, [id, end]),
+    });
+  return () => {
+    points.remove(`tp:${id}:from`);
+    points.remove(`tp:${id}:to`);
+  };
+});
+onMembershipChange(() => points.refresh());

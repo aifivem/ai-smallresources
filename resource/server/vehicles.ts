@@ -6,6 +6,7 @@ import {
   nearestVehicleTo,
   notify,
   onClientCallback,
+  plateOf,
   progressFor,
   randomPlate,
   stateBoolean,
@@ -13,7 +14,7 @@ import {
   vehicleFromNet,
   vehicleKeys,
 } from "@aicore-fivem/lib/server";
-import { distance, fail, oneArg, readId } from "@aicore-fivem/lib/shared";
+import { fail, nearestOf, oneArg, readId } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { MOOR_RANGE } from "common/places";
 import { EVENTS, ITEMS, VEHICLE_STATE } from "common/small";
@@ -21,8 +22,6 @@ import { content } from "./content";
 
 const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString);
 const moored = new EntityState(VEHICLE_STATE.moored, stateBoolean);
-
-const plateOf = (vehicle: number) => GetVehicleNumberPlateText(vehicle).trim();
 
 /** How long fitting or taking off a plate takes (counted after 90 % of it). */
 const PLATE_MS = 6000;
@@ -117,11 +116,13 @@ onClientCallback(
       moored.set(boat, undefined);
       return { ok: true };
     }
-    const at = entityCoords(boat);
-    let inReach = false;
-    for (const m of content.moorings.values())
-      if (distance(m.point, at) <= MOOR_RANGE + 2) inReach = true;
-    if (!inReach) return fail("MOOR_ERR_FAR");
+    const near = nearestOf(
+      content.moorings.values(),
+      entityCoords(boat),
+      (m) => m.point,
+      MOOR_RANGE + 2,
+    );
+    if (!near) return fail("MOOR_ERR_FAR");
     FreezeEntityPosition(boat, true);
     moored.set(boat, true);
     return { ok: true };

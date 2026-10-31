@@ -27,6 +27,12 @@ export const EVENTS = {
   noteRead: "ai-smallresources:client:noteRead",
   /** Callback: (netId) -> { ok } moor the boat at the nearest mooring, or untie it. */
   moor: "ai-smallresources:moor",
+  /** Server -> player: (air: number | null) the dive gear is on with this many seconds of air, or off (null). */
+  diveGear: "ai-smallresources:client:diveGear",
+  /** Client -> server: (air) seconds of air left in the worn tank (every 10 s underwater and at 0). */
+  diveAir: "ai-smallresources:diveAir",
+  /** Server callback to the player: () -> { swimming, underwater } before putting on the gear or refilling. */
+  diveWater: "ai-smallresources:client:diveWater",
 } as const;
 
 /** Player state keys (server written): who a player carries, who carries them (server ids). */
@@ -38,6 +44,8 @@ export const ITEMS = {
   fakePlate: "fakeplate",
   notepad: "notepad",
   note: "note",
+  divingGear: "diving_gear",
+  divingFill: "diving_fill",
 };
 /** Longest note text. */
 export const NOTE_MAX = 500;
@@ -72,6 +80,13 @@ export interface Settings {
   binoculars: boolean;
   fireworks: boolean;
   notepad: boolean;
+  diveGear: boolean;
+  /** Seconds of air a full tank holds (spent only underwater). */
+  diveAir: number;
+  /** Seconds putting the gear on or taking it off takes. */
+  diveWearSeconds: number;
+  /** Seconds refilling the tank takes. */
+  diveFillSeconds: number;
 }
 
 export function readSettings(raw: unknown): Settings {
@@ -105,5 +120,9 @@ export function readSettings(raw: unknown): Settings {
     binoculars: bool(v.binoculars, true),
     fireworks: bool(v.fireworks, true),
     notepad: bool(v.notepad, true),
+    diveGear: bool(v.diveGear, true),
+    diveAir: int(v.diveAir, 100, 10, 3600),
+    diveWearSeconds: int(v.diveWearSeconds, 5, 1, 60),
+    diveFillSeconds: int(v.diveFillSeconds, 5, 1, 60),
   };
 }

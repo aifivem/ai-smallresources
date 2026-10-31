@@ -1,3 +1,4 @@
+import { ACCESS_FIELDS, accessFields } from "@aicore-fivem/lib/shared";
 import type { PanelSchema } from "@aicore-fivem/shared";
 import { SEAT_TYPES } from "common/seats";
 import { PLACE_TABS } from "./placeTabs";
@@ -28,13 +29,14 @@ export const smallSchema: PanelSchema = {
         label: "",
         from: { x: 0, y: 0, z: 0, heading: 0 },
         to: { x: 0, y: 0, z: 0, heading: 0 },
-        job: "",
+        jobs: [],
+        gangs: [],
       },
       sections: {
         label: { type: "text", min: 1, max: 48 },
         from: { type: "vec4" },
         to: { type: "vec4" },
-        job: { type: "text", lookup: "job", min: 0, max: 32 },
+        ...ACCESS_FIELDS,
       },
     },
     elevators: {
@@ -109,7 +111,6 @@ export const smallSchema: PanelSchema = {
       icon: "location-dot",
       label: "ADMIN_TAB_TELEPORTS",
       desc: "ADMIN_TAB_TELEPORTS_DESC",
-      listSub: "job",
       createLabel: "ADMIN_NEW_TELEPORT",
       deleteLabel: "ADMIN_DELETE_TELEPORT",
       cards: [
@@ -139,14 +140,7 @@ export const smallSchema: PanelSchema = {
               heading: true,
               ground: true,
             },
-            {
-              widget: "text",
-              lookup: "job",
-              path: "job",
-              label: "ADMIN_F_JOB",
-              hint: "ADMIN_H_JOB",
-              placeholder: "ADMIN_P_JOB",
-            },
+            ...accessFields(),
           ],
         },
       ],

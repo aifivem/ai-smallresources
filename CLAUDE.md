@@ -1,6 +1,6 @@
 # ai-smallresources
 
-Small gameplay features, each behind a panel switch: seatbelt, cruise control, no seat shuffle, vehicle radio off, fake plates, boat ropes, crouch, finger pointing, hands up, falling over (ragdoll), sitting on objects, carrying players, tackle, anti ghost-peek, binoculars, firework, news gear and notepad items, AFK kick, no GTA dispatch / wanted level, hidden GTA HUD parts, ambient population, teleports between two points and elevators with floors. Depends on ai-core (prompts, progress, menus, jobs); uses the active inventory through ai-core's inventory layer (lib `inventory`) for the items.
+Small gameplay features, each behind a panel switch: seatbelt, cruise control, no seat shuffle, vehicle radio off, fake plates, boat ropes, crouch, finger pointing, hands up, falling over (ragdoll), sitting on objects, carrying players, tackle, anti ghost-peek, binoculars, firework, news gear, notepad and dive gear items, AFK kick, no GTA dispatch / wanted level, hidden GTA HUD parts, ambient population, teleports between two points and elevators with floors. Depends on ai-core (prompts, progress, menus, jobs); uses the active inventory through ai-core's inventory layer (lib `inventory`) for the items.
 
 ## Decisions
 
@@ -15,17 +15,19 @@ Small gameplay features, each behind a panel switch: seatbelt, cruise control, n
 - Fake plate: the real plate is kept in the vehicle state `aiRealPlate`; ai-vehicles saves owned vehicles with their real plate anyway. Fitting needs the vehicle's keys; the key holder gets keys for the plate the vehicle shows.
 - Boat rope: a boat within 12 m of a panel mooring is frozen on the server and marked `aiMoored`; the boats are every class 14 model, found as vehicle model points. A boat another player drives is never tied or freed.
 - Seats are panel records (one model each, seat offsets relative to the object, a seat type = scenario or animation in `common/seats.ts`); seeded from a community sit list's vanilla and prop models. The nearest free seat of the object is taken; the getting-up prompt is ai-core's prompt.
-- Teleports and elevators: the server checks the end / floor the player stands at (and the job) and answers the target; the client teleports with lib `player.teleport` behind a fade (collision loaded).
+- Teleports and elevators: the server checks the end / floor the player stands at (and access: a teleport's lib access fields, `online.allows`; an elevator floor's `job` text, read into an access rule because list rows have no job / gang pickers) and answers the target; the client teleports with lib `player.teleport` behind a fade (collision loaded). Teleport and elevator points come from `RecordObjects` (one record's points per edit); a teleport's points show only to who passes its access rule.
+- Seats stay one model point over every seat model (364 seeded): one model point per record would query GTA per model, so a seat edit re-adds that one point. Moorings are no world objects (the two boat model points read them through `nearestOf`), so a mooring edit only re-adds those two points.
 - Binoculars and the news camera hide the HUD (lib `hud`) and show their zoom and close keybinds as key hints; zoom is two keybinds on the mouse wheel. Pointing's "blocked" probe reads the previous frame's async shape test.
+- Dive gear (port of qbx_divegear, its timings: 5 s on / off / refill, 100 s of air): `diving_gear` toggles the gear through lib `progressFor`, `diving_fill` refills the tank (taken after the bar). Air is seconds per character in ai-core's metadata `diveOxygen` (a new character starts empty, as in Qbox) and is spent only underwater, counted on the wearer's client (one per second, `every(1000)`), which reports it every 10 s and at 0; the server only lowers the stored value. While worn and with air the client sets `SetEnableScuba` and a long breath time; empty or taken off gives GTA's breath back (1 s empty, 50 s off, as Qbox). The "swimming / underwater" checks before wearing and refilling are the client's answer to the `diveWater` server callback. Props: the server sets the player state `aiDiving`, every client attaches a local tank and mask (like news gear). Taking the gear item away while worn does not take the gear off (as Qbox). A restart or character switch takes it off.
 - Notes: the notepad item stays; a note item carries `text` and a `description` (the inventory tooltip shows it) in its metadata; reading uses ai-core's input dialog with a read-only multiline field.
 
 ## Contracts
 
-- Events and callbacks: `resource/common/small.ts`. Client local event `SEATBELT_EVENT` and export `GetSeatbelt()`; client exports `IsHandsUp()`, `IsPointing()`; replicated player states `aiHold`, `aiCarrying`, `aiCarriedBy`; vehicle states `aiRealPlate`, `aiMoored`.
-- Items: `binoculars`, `firework1`-`firework4`, `newscam`, `newsmic`, `newsboom`, `fakeplate`, `notepad`, `note` (ai-inventory `data/items.json`).
+- Events and callbacks: `resource/common/small.ts`. Client local event `SEATBELT_EVENT` and export `GetSeatbelt()`; client exports `IsHandsUp()`, `IsPointing()`; replicated player states `aiHold`, `aiCarrying`, `aiCarriedBy`, `aiDiving`; character metadata `diveOxygen`; vehicle states `aiRealPlate`, `aiMoored`.
+- Items: `binoculars`, `firework1`-`firework4`, `newscam`, `newsmic`, `newsboom`, `fakeplate`, `notepad`, `note` (ai-inventory `data/items.json`), `diving_gear`, `diving_fill` (Qbox names; must exist in the active inventory).
 - Panel files: `settings`, `teleports`, `elevators`, `moorings`, `seats` (all `sync: "all"`).
 
 ## Entry points
 
-- Server: panel content `resource/server/content.ts`, schema `server/schema.ts` (+ `settingsCards.ts`, `placeTabs.ts`), tackle and AFK `player.ts`, teleports and elevators `places.ts`, items `items.ts`, fake plate and boat rope `vehicles.ts`, carry `carry.ts`.
+- Server: panel content `resource/server/content.ts`, schema `server/schema.ts` (+ `settingsCards.ts`, `placeTabs.ts`), tackle and AFK `player.ts`, teleports and elevators `places.ts`, items `items.ts`, dive gear `dive.ts`, fake plate and boat rope `vehicles.ts`, carry `carry.ts`.
 - Client: one module per feature in `resource/client/`; panel files `client/settings.ts`.

@@ -14,7 +14,8 @@
       "z": 243,
       "heading": 67.5
     },
-    "job": ""
+    "jobs": [],
+    "gangs": []
   },
   "coke_processing": {
     "label": "Coke processing",
@@ -30,6 +31,7 @@
       "z": -38.99,
       "heading": 181.7
     },
-    "job": ""
+    "jobs": [],
+    "gangs": []
   }
 }

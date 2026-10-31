@@ -1,4 +1,11 @@
-import { record, str, vec4, type Vec4 } from "@aicore-fivem/lib/shared";
+import {
+  type AccessRule,
+  readAccess,
+  record,
+  str,
+  vec4,
+  type Vec4,
+} from "@aicore-fivem/lib/shared";
 
 /** Panel records with places: teleports, elevators and moorings (no natives). */
 
@@ -7,8 +14,8 @@ export interface Teleport {
   label: string;
   from: Vec4;
   to: Vec4;
-  /** Empty: everyone; otherwise members of this job. */
-  job: string;
+  /** Who may use it (lib access fields; empty: everyone). */
+  access: AccessRule;
 }
 
 const ZERO = { x: 0, y: 0, z: 0, heading: 0 };
@@ -20,15 +27,15 @@ export function readTeleport(id: string, v: Record<string, unknown>): Teleport {
     label: str(v.label, id, 48),
     from: vec4(v.from, ZERO),
     to: vec4(v.to, ZERO),
-    job: str(v.job, "", 32),
+    access: readAccess(v),
   };
 }
 
 export interface Floor {
   label: string;
   point: Vec4;
-  /** Empty: everyone; otherwise members of this job reach this floor. */
-  job: string;
+  /** Who reaches this floor: the row's `job` (a list row has no job / gang pickers); empty: everyone. */
+  access: AccessRule;
 }
 
 export interface Elevator {
@@ -44,10 +51,11 @@ export function readElevator(
 ): Elevator | null {
   const floors = (Array.isArray(v.floors) ? v.floors : []).map((row, i) => {
     const f = record(row);
+    const job = str(f.job, "", 32);
     return {
       label: str(f.label, String(i + 1), 32),
       point: vec4(f.point, ZERO),
-      job: str(f.job, "", 32),
+      access: readAccess({ jobs: job ? [job] : [] }),
     };
   });
   return floors.length >= 2

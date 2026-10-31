@@ -25,5 +25,9 @@
   "trafficDensity": 80,
   "parkedDensity": 80,
   "handsUp": true,
-  "ragdoll": true
+  "ragdoll": true,
+  "diveGear": true,
+  "diveAir": 100,
+  "diveWearSeconds": 5,
+  "diveFillSeconds": 5
 }
