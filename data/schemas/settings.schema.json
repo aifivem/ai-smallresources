@@ -120,7 +120,130 @@
       "type": "boolean"
     },
     "hideHud": {
-      "description": "Hide GTA HUD parts: Hides GTA's cash, area, street and vehicle names (the ai-hud shows its own).",
+      "description": "Hide GTA HUD parts: Hides GTA's cash, ammo count, area, street and vehicle names (the ai-hud shows its own).",
+      "type": "boolean"
+    },
+    "noEmergencySpawns": {
+      "description": "No GTA police and emergency vehicles: GTA spawns no police, ambulance, fire or army vehicles and no police, medic, guard or soldier NPCs anywhere. Vehicles and NPCs that scripts create are not affected.",
+      "type": "boolean"
+    },
+    "emergencyAreas": {
+      "description": "Areas without parked vehicles: At police stations, hospitals, the prison and bases GTA parks no vehicles at all, so their car parks stay free for players.",
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "description": "Name",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "point": {
+            "description": "Middle of the area",
+            "type": "object",
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            }
+          },
+          "radius": {
+            "description": "Size: Metres from the middle in every direction.",
+            "type": "integer",
+            "minimum": 10,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "label",
+          "point",
+          "radius"
+        ]
+      }
+    },
+    "noAircraft": {
+      "description": "No GTA planes: No planes take off from or park at the airports and the army base, and no jets fly over the map.",
+      "type": "boolean"
+    },
+    "noPoliceAudio": {
+      "description": "No police radio: GTA's police scanner voice and police sounds around the city are silent.",
+      "type": "boolean"
+    },
+    "quietAmbience": {
+      "description": "Quiet city sounds: Mutes far away sirens, car alarms and the music GTA plays while flying.",
+      "type": "boolean"
+    },
+    "noGarbageTrucks": {
+      "description": "No garbage trucks: GTA's garbage trucks that stop in the middle of the road do not drive around.",
+      "type": "boolean"
+    },
+    "noIdleCam": {
+      "description": "No idle camera: The camera does not start circling round a player who stands still, on foot or as a passenger.",
+      "type": "boolean"
+    },
+    "noStealth": {
+      "description": "No GTA stealth walk: Left Ctrl no longer starts GTA's sneaking walk, so it only crouches.",
+      "type": "boolean"
+    },
+    "sprintIndoors": {
+      "description": "Sprint indoors: Players can sprint inside buildings too, not only outside.",
+      "type": "boolean"
+    },
+    "noAutoHelmet": {
+      "description": "No automatic helmet: Getting on a motorbike or into an aircraft does not put a helmet on by itself.",
+      "type": "boolean"
+    },
+    "keepProps": {
+      "description": "Hats stay on: Hats, glasses and helmets do not fall off when the player is hit or pushed.",
+      "type": "boolean"
+    },
+    "noActionMode": {
+      "description": "No combat stance: After a punch or a shot the player walks normally again at once instead of staying in GTA's hunched combat walk.",
+      "type": "boolean"
+    },
+    "noPistolWhip": {
+      "description": "No pistol whip: With a gun in hand the melee keys do nothing, so close up the player shoots instead of hitting with the gun.",
+      "type": "boolean"
+    },
+    "noCoverPeek": {
+      "description": "No blind peeking from cover: A player in cover cannot lean out to look without aiming.",
+      "type": "boolean"
+    },
+    "noCriticalHits": {
+      "description": "No one shot headshots: A headshot on a player does the same damage as a body shot.",
+      "type": "boolean"
+    },
+    "noBunnyHop": {
+      "description": "No bunny hopping: A second jump within 5 seconds makes the player trip and fall.",
+      "type": "boolean"
+    },
+    "noPickups": {
+      "description": "No GTA pickups: Weapons, ammo, armour, health and money that GTA drops (from dead NPCs, for example) cannot be picked up. Items come only from the inventory.",
+      "type": "boolean"
+    },
+    "noVehicleRewards": {
+      "description": "No weapons from vehicles: Getting into a police car or another armed vehicle gives no weapon.",
+      "type": "boolean"
+    },
+    "noMouseSteer": {
+      "description": "No mouse steering: Cars, bikes and boats cannot be steered with the mouse. Planes and helicopters still can.",
+      "type": "boolean"
+    },
+    "noAirControl": {
+      "description": "No steering in the air: A car or bike in the air cannot be tilted or rolled with the keys, so a jump lands the way it took off.",
       "type": "boolean"
     },
     "pedDensity": {

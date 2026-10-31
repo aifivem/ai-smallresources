@@ -1,4 +1,5 @@
 import { bool, int, record } from "@aicore-fivem/lib/shared";
+import { type EmergencyArea, readAreas } from "./areas";
 
 /** ai-smallresources' contracts and panel settings. No natives. */
 
@@ -63,6 +64,27 @@ export interface Settings {
   boatRope: boolean;
   noDispatch: boolean;
   hideHud: boolean;
+  /** No police, ambulance, fire or army vehicles and peds from GTA's population, none at all in `emergencyAreas`. */
+  noEmergencySpawns: boolean;
+  emergencyAreas: EmergencyArea[];
+  noAircraft: boolean;
+  noPoliceAudio: boolean;
+  quietAmbience: boolean;
+  noGarbageTrucks: boolean;
+  noIdleCam: boolean;
+  noStealth: boolean;
+  sprintIndoors: boolean;
+  noAutoHelmet: boolean;
+  keepProps: boolean;
+  noActionMode: boolean;
+  noPistolWhip: boolean;
+  noCoverPeek: boolean;
+  noCriticalHits: boolean;
+  noBunnyHop: boolean;
+  noPickups: boolean;
+  noVehicleRewards: boolean;
+  noMouseSteer: boolean;
+  noAirControl: boolean;
   /** Ambient population in percent of GTA's normal (100 = untouched). */
   pedDensity: number;
   scenarioDensity: number;
@@ -105,6 +127,26 @@ export function readSettings(raw: unknown): Settings {
     boatRope: bool(v.boatRope, true),
     noDispatch: bool(v.noDispatch, true),
     hideHud: bool(v.hideHud, true),
+    noEmergencySpawns: bool(v.noEmergencySpawns, true),
+    emergencyAreas: readAreas(v.emergencyAreas),
+    noAircraft: bool(v.noAircraft, true),
+    noPoliceAudio: bool(v.noPoliceAudio, true),
+    quietAmbience: bool(v.quietAmbience, true),
+    noGarbageTrucks: bool(v.noGarbageTrucks, true),
+    noIdleCam: bool(v.noIdleCam, true),
+    noStealth: bool(v.noStealth, true),
+    sprintIndoors: bool(v.sprintIndoors, true),
+    noAutoHelmet: bool(v.noAutoHelmet, true),
+    keepProps: bool(v.keepProps, true),
+    noActionMode: bool(v.noActionMode, true),
+    noPistolWhip: bool(v.noPistolWhip, true),
+    noCoverPeek: bool(v.noCoverPeek, true),
+    noCriticalHits: bool(v.noCriticalHits, false),
+    noBunnyHop: bool(v.noBunnyHop, true),
+    noPickups: bool(v.noPickups, true),
+    noVehicleRewards: bool(v.noVehicleRewards, true),
+    noMouseSteer: bool(v.noMouseSteer, true),
+    noAirControl: bool(v.noAirControl, true),
     pedDensity: percent(v.pedDensity, 80),
     scenarioDensity: percent(v.scenarioDensity, 80),
     trafficDensity: percent(v.trafficDensity, 80),

@@ -1606,6 +1606,40 @@ function readMooring(id, v) {
 		}
 	};
 }
+// resource/common/areas.ts
+const area = (label, x, y, z, radius) => ({
+	label,
+	point: {
+		x,
+		y,
+		z
+	},
+	radius
+}), EMERGENCY_AREAS = [
+	area("Central Los Santos Medical Center", 335.26, -1432.46, 46.51, 100),
+	area("Mission Row Police Department", 441.85, -987.99, 30.68, 100),
+	area("Pillbox Hill Medical Center", 316.79, -592.36, 43.28, 100),
+	area("Fort Zancudo", -2150.44, 3075.99, 32.8, 500),
+	area("Altruist camp", -1108.35, 4920.64, 217.2, 150),
+	area("Paleto Bay Sheriff", -458.24, 6019.81, 31.34, 100),
+	area("Sandy Shores Sheriff", 1854.82, 3679.4, 33.82, 100),
+	area("Vespucci helipad", -724.46, -1444.03, 5, 100),
+	area("Bolingbroke Penitentiary", 1691, 2580, 45.6, 250)
+];
+function readAreas(raw) {
+	return Array.isArray(raw) ? raw.slice(0, 40).map((row, i) => {
+		let v = record(row), p = record(v.point);
+		return {
+			label: str(v.label, String(i + 1), 48),
+			point: {
+				x: num(p.x, 0),
+				y: num(p.y, 0),
+				z: num(p.z, 0)
+			},
+			radius: int(v.radius, 100, 10, 1e3)
+		};
+	}) : EMERGENCY_AREAS;
+}
 // resource/common/small.ts
 const EVENTS = {
 	tackle: "ai-smallresources:tackle",
@@ -1650,6 +1684,26 @@ function readSettings(raw) {
 		boatRope: bool(v.boatRope, !0),
 		noDispatch: bool(v.noDispatch, !0),
 		hideHud: bool(v.hideHud, !0),
+		noEmergencySpawns: bool(v.noEmergencySpawns, !0),
+		emergencyAreas: readAreas(v.emergencyAreas),
+		noAircraft: bool(v.noAircraft, !0),
+		noPoliceAudio: bool(v.noPoliceAudio, !0),
+		quietAmbience: bool(v.quietAmbience, !0),
+		noGarbageTrucks: bool(v.noGarbageTrucks, !0),
+		noIdleCam: bool(v.noIdleCam, !0),
+		noStealth: bool(v.noStealth, !0),
+		sprintIndoors: bool(v.sprintIndoors, !0),
+		noAutoHelmet: bool(v.noAutoHelmet, !0),
+		keepProps: bool(v.keepProps, !0),
+		noActionMode: bool(v.noActionMode, !0),
+		noPistolWhip: bool(v.noPistolWhip, !0),
+		noCoverPeek: bool(v.noCoverPeek, !0),
+		noCriticalHits: bool(v.noCriticalHits, !1),
+		noBunnyHop: bool(v.noBunnyHop, !0),
+		noPickups: bool(v.noPickups, !0),
+		noVehicleRewards: bool(v.noVehicleRewards, !0),
+		noMouseSteer: bool(v.noMouseSteer, !0),
+		noAirControl: bool(v.noAirControl, !0),
 		pedDensity: percent(v.pedDensity, 80),
 		scenarioDensity: percent(v.scenarioDensity, 80),
 		trafficDensity: percent(v.trafficDensity, 80),
@@ -1916,7 +1970,96 @@ const SEAT_TYPES = {
 	path,
 	label: `ADMIN_F_${key}`,
 	hint: `ADMIN_H_${key}`
-}), percentField = (path, key) => ({
+}), EMERGENCY_AREAS_SPEC = {
+	type: "list",
+	max: 40,
+	of: {
+		type: "object",
+		fields: {
+			label: {
+				type: "text",
+				min: 1,
+				max: 48
+			},
+			point: { type: "vec3" },
+			radius: {
+				type: "number",
+				min: 10,
+				max: 1e3,
+				integer: !0
+			}
+		}
+	}
+}, COMBAT_CARD = {
+	icon: "gun",
+	title: "ADMIN_C_COMBAT",
+	desc: "ADMIN_C_COMBAT_DESC",
+	fields: [
+		switchField("noActionMode", "NO_ACTION_MODE"),
+		switchField("noPistolWhip", "NO_PISTOL_WHIP"),
+		switchField("noCoverPeek", "NO_COVER_PEEK"),
+		switchField("noCriticalHits", "NO_CRITICAL_HITS"),
+		switchField("noBunnyHop", "NO_BUNNY_HOP"),
+		switchField("noPickups", "NO_PICKUPS"),
+		switchField("noVehicleRewards", "NO_VEHICLE_REWARDS")
+	]
+}, WORLD_CARD = {
+	icon: "map-location-dot",
+	title: "ADMIN_C_WORLD",
+	desc: "ADMIN_C_WORLD_DESC",
+	fields: [
+		switchField("noDispatch", "NO_DISPATCH"),
+		switchField("noEmergencySpawns", "NO_EMERGENCY_SPAWNS"),
+		{
+			widget: "list",
+			path: "emergencyAreas",
+			label: "ADMIN_F_EMERGENCY_AREAS",
+			hint: "ADMIN_H_EMERGENCY_AREAS",
+			addLabel: "ADMIN_ADD_EMERGENCY_AREA",
+			max: 40,
+			newRow: {
+				label: "",
+				point: {
+					x: 0,
+					y: 0,
+					z: 0
+				},
+				radius: 100
+			},
+			showIf: {
+				path: "noEmergencySpawns",
+				values: [!0]
+			},
+			rows: [
+				{
+					widget: "text",
+					path: "label",
+					label: "ADMIN_F_LABEL",
+					placeholder: "ADMIN_P_EMERGENCY_AREA"
+				},
+				{
+					widget: "point",
+					path: "point",
+					label: "ADMIN_F_AREA_POINT"
+				},
+				{
+					widget: "number",
+					path: "radius",
+					label: "ADMIN_F_AREA_RADIUS",
+					hint: "ADMIN_H_AREA_RADIUS",
+					min: 10,
+					max: 1e3,
+					step: 10,
+					unit: "m"
+				}
+			]
+		},
+		switchField("noAircraft", "NO_AIRCRAFT"),
+		switchField("noPoliceAudio", "NO_POLICE_AUDIO"),
+		switchField("quietAmbience", "QUIET_AMBIENCE"),
+		switchField("hideHud", "HIDE_HUD")
+	]
+}, percentField = (path, key) => ({
 	widget: "number",
 	path,
 	label: `ADMIN_F_${key}`,
@@ -1987,6 +2130,26 @@ const SEAT_TYPES = {
 	},
 	noDispatch: BOOL,
 	hideHud: BOOL,
+	noEmergencySpawns: BOOL,
+	emergencyAreas: EMERGENCY_AREAS_SPEC,
+	noAircraft: BOOL,
+	noPoliceAudio: BOOL,
+	quietAmbience: BOOL,
+	noGarbageTrucks: BOOL,
+	noIdleCam: BOOL,
+	noStealth: BOOL,
+	sprintIndoors: BOOL,
+	noAutoHelmet: BOOL,
+	keepProps: BOOL,
+	noActionMode: BOOL,
+	noPistolWhip: BOOL,
+	noCoverPeek: BOOL,
+	noCriticalHits: BOOL,
+	noBunnyHop: BOOL,
+	noPickups: BOOL,
+	noVehicleRewards: BOOL,
+	noMouseSteer: BOOL,
+	noAirControl: BOOL,
 	pedDensity: PERCENT,
 	scenarioDensity: PERCENT,
 	trafficDensity: PERCENT,
@@ -2009,7 +2172,27 @@ const SEAT_TYPES = {
 	pedDensity: 80,
 	scenarioDensity: 80,
 	trafficDensity: 80,
-	parkedDensity: 80
+	parkedDensity: 80,
+	noEmergencySpawns: !0,
+	emergencyAreas: EMERGENCY_AREAS,
+	noAircraft: !0,
+	noPoliceAudio: !0,
+	quietAmbience: !0,
+	noGarbageTrucks: !0,
+	noIdleCam: !0,
+	noStealth: !0,
+	sprintIndoors: !0,
+	noAutoHelmet: !0,
+	keepProps: !0,
+	noActionMode: !0,
+	noPistolWhip: !0,
+	noCoverPeek: !0,
+	noCriticalHits: !1,
+	noBunnyHop: !0,
+	noPickups: !0,
+	noVehicleRewards: !0,
+	noMouseSteer: !0,
+	noAirControl: !0
 }, SETTINGS_CARDS = [
 	{
 		icon: "car",
@@ -2038,7 +2221,9 @@ const SEAT_TYPES = {
 			switchField("noShuffle", "NO_SHUFFLE"),
 			switchField("noRadio", "NO_RADIO"),
 			switchField("fakePlate", "FAKE_PLATE"),
-			switchField("boatRope", "BOAT_ROPE")
+			switchField("boatRope", "BOAT_ROPE"),
+			switchField("noMouseSteer", "NO_MOUSE_STEER"),
+			switchField("noAirControl", "NO_AIR_CONTROL")
 		]
 	},
 	{
@@ -2047,6 +2232,7 @@ const SEAT_TYPES = {
 		desc: "ADMIN_C_PLAYER_DESC",
 		fields: [
 			switchField("crouch", "CROUCH"),
+			switchField("noStealth", "NO_STEALTH"),
 			switchField("point", "POINT"),
 			switchField("handsUp", "HANDS_UP"),
 			switchField("ragdoll", "RAGDOLL"),
@@ -2054,6 +2240,10 @@ const SEAT_TYPES = {
 			switchField("carry", "CARRY"),
 			switchField("tackle", "TACKLE"),
 			switchField("antiPeek", "ANTI_PEEK"),
+			switchField("sprintIndoors", "SPRINT_INDOORS"),
+			switchField("noAutoHelmet", "NO_AUTO_HELMET"),
+			switchField("keepProps", "KEEP_PROPS"),
+			switchField("noIdleCam", "NO_IDLE_CAM"),
 			{
 				widget: "number",
 				path: "afkMinutes",
@@ -2065,6 +2255,7 @@ const SEAT_TYPES = {
 			}
 		]
 	},
+	COMBAT_CARD,
 	{
 		icon: "box",
 		title: "ADMIN_C_ITEMS",
@@ -2105,12 +2296,7 @@ const SEAT_TYPES = {
 			}))
 		]
 	},
-	{
-		icon: "map-location-dot",
-		title: "ADMIN_C_WORLD",
-		desc: "ADMIN_C_WORLD_DESC",
-		fields: [switchField("noDispatch", "NO_DISPATCH"), switchField("hideHud", "HIDE_HUD")]
-	},
+	WORLD_CARD,
 	{
 		icon: "people-group",
 		title: "ADMIN_C_DENSITY",
@@ -2119,7 +2305,8 @@ const SEAT_TYPES = {
 			percentField("pedDensity", "PED_DENSITY"),
 			percentField("scenarioDensity", "SCENARIO_DENSITY"),
 			percentField("trafficDensity", "TRAFFIC_DENSITY"),
-			percentField("parkedDensity", "PARKED_DENSITY")
+			percentField("parkedDensity", "PARKED_DENSITY"),
+			switchField("noGarbageTrucks", "NO_GARBAGE_TRUCKS")
 		]
 	}
 ], OFFSET = {

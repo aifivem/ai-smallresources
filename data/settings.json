@@ -29,5 +29,107 @@
   "diveGear": true,
   "diveAir": 100,
   "diveWearSeconds": 5,
-  "diveFillSeconds": 5
+  "diveFillSeconds": 5,
+  "noEmergencySpawns": true,
+  "emergencyAreas": [
+    {
+      "label": "Central Los Santos Medical Center",
+      "point": {
+        "x": 335.26,
+        "y": -1432.46,
+        "z": 46.51
+      },
+      "radius": 100
+    },
+    {
+      "label": "Mission Row Police Department",
+      "point": {
+        "x": 441.85,
+        "y": -987.99,
+        "z": 30.68
+      },
+      "radius": 100
+    },
+    {
+      "label": "Pillbox Hill Medical Center",
+      "point": {
+        "x": 316.79,
+        "y": -592.36,
+        "z": 43.28
+      },
+      "radius": 100
+    },
+    {
+      "label": "Fort Zancudo",
+      "point": {
+        "x": -2150.44,
+        "y": 3075.99,
+        "z": 32.8
+      },
+      "radius": 500
+    },
+    {
+      "label": "Altruist camp",
+      "point": {
+        "x": -1108.35,
+        "y": 4920.64,
+        "z": 217.2
+      },
+      "radius": 150
+    },
+    {
+      "label": "Paleto Bay Sheriff",
+      "point": {
+        "x": -458.24,
+        "y": 6019.81,
+        "z": 31.34
+      },
+      "radius": 100
+    },
+    {
+      "label": "Sandy Shores Sheriff",
+      "point": {
+        "x": 1854.82,
+        "y": 3679.4,
+        "z": 33.82
+      },
+      "radius": 100
+    },
+    {
+      "label": "Vespucci helipad",
+      "point": {
+        "x": -724.46,
+        "y": -1444.03,
+        "z": 5
+      },
+      "radius": 100
+    },
+    {
+      "label": "Bolingbroke Penitentiary",
+      "point": {
+        "x": 1691,
+        "y": 2580,
+        "z": 45.6
+      },
+      "radius": 250
+    }
+  ],
+  "noAircraft": true,
+  "noPoliceAudio": true,
+  "quietAmbience": true,
+  "noGarbageTrucks": true,
+  "noIdleCam": true,
+  "noStealth": true,
+  "sprintIndoors": true,
+  "noAutoHelmet": true,
+  "keepProps": true,
+  "noActionMode": true,
+  "noPistolWhip": true,
+  "noCoverPeek": true,
+  "noCriticalHits": false,
+  "noBunnyHop": true,
+  "noPickups": true,
+  "noVehicleRewards": true,
+  "noMouseSteer": true,
+  "noAirControl": true
 }

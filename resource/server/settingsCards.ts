@@ -1,11 +1,8 @@
 import type { CardSpec, DataSpec, WidgetSpec } from "@aicore-fivem/shared";
+import { EMERGENCY_AREAS } from "common/areas";
+import { switchField } from "./fields";
+import { COMBAT_CARD, EMERGENCY_AREAS_SPEC, WORLD_CARD } from "./worldCards";
 
-const switchField = (path: string, key: string): WidgetSpec => ({
-  widget: "switch",
-  path,
-  label: `ADMIN_F_${key}`,
-  hint: `ADMIN_H_${key}`,
-});
 const percentField = (path: string, key: string): WidgetSpec => ({
   widget: "number",
   path,
@@ -48,6 +45,26 @@ export const SETTINGS_SECTIONS: Record<string, DataSpec> = {
   afkMinutes: { type: "number", min: 0, max: 600, integer: true },
   noDispatch: BOOL,
   hideHud: BOOL,
+  noEmergencySpawns: BOOL,
+  emergencyAreas: EMERGENCY_AREAS_SPEC,
+  noAircraft: BOOL,
+  noPoliceAudio: BOOL,
+  quietAmbience: BOOL,
+  noGarbageTrucks: BOOL,
+  noIdleCam: BOOL,
+  noStealth: BOOL,
+  sprintIndoors: BOOL,
+  noAutoHelmet: BOOL,
+  keepProps: BOOL,
+  noActionMode: BOOL,
+  noPistolWhip: BOOL,
+  noCoverPeek: BOOL,
+  noCriticalHits: BOOL,
+  noBunnyHop: BOOL,
+  noPickups: BOOL,
+  noVehicleRewards: BOOL,
+  noMouseSteer: BOOL,
+  noAirControl: BOOL,
   pedDensity: PERCENT,
   scenarioDensity: PERCENT,
   trafficDensity: PERCENT,
@@ -74,6 +91,26 @@ export const SETTINGS_DEFAULTS = {
   scenarioDensity: 80,
   trafficDensity: 80,
   parkedDensity: 80,
+  noEmergencySpawns: true,
+  emergencyAreas: EMERGENCY_AREAS,
+  noAircraft: true,
+  noPoliceAudio: true,
+  quietAmbience: true,
+  noGarbageTrucks: true,
+  noIdleCam: true,
+  noStealth: true,
+  sprintIndoors: true,
+  noAutoHelmet: true,
+  keepProps: true,
+  noActionMode: true,
+  noPistolWhip: true,
+  noCoverPeek: true,
+  noCriticalHits: false,
+  noBunnyHop: true,
+  noPickups: true,
+  noVehicleRewards: true,
+  noMouseSteer: true,
+  noAirControl: true,
 };
 
 /** The cards of the Settings tab. */
@@ -106,6 +143,8 @@ export const SETTINGS_CARDS: CardSpec[] = [
       switchField("noRadio", "NO_RADIO"),
       switchField("fakePlate", "FAKE_PLATE"),
       switchField("boatRope", "BOAT_ROPE"),
+      switchField("noMouseSteer", "NO_MOUSE_STEER"),
+      switchField("noAirControl", "NO_AIR_CONTROL"),
     ],
   },
   {
@@ -114,6 +153,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
     desc: "ADMIN_C_PLAYER_DESC",
     fields: [
       switchField("crouch", "CROUCH"),
+      switchField("noStealth", "NO_STEALTH"),
       switchField("point", "POINT"),
       switchField("handsUp", "HANDS_UP"),
       switchField("ragdoll", "RAGDOLL"),
@@ -121,6 +161,10 @@ export const SETTINGS_CARDS: CardSpec[] = [
       switchField("carry", "CARRY"),
       switchField("tackle", "TACKLE"),
       switchField("antiPeek", "ANTI_PEEK"),
+      switchField("sprintIndoors", "SPRINT_INDOORS"),
+      switchField("noAutoHelmet", "NO_AUTO_HELMET"),
+      switchField("keepProps", "KEEP_PROPS"),
+      switchField("noIdleCam", "NO_IDLE_CAM"),
       {
         widget: "number",
         path: "afkMinutes",
@@ -132,6 +176,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
       },
     ],
   },
+  COMBAT_CARD,
   {
     icon: "box",
     title: "ADMIN_C_ITEMS",
@@ -159,15 +204,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
       })),
     ],
   },
-  {
-    icon: "map-location-dot",
-    title: "ADMIN_C_WORLD",
-    desc: "ADMIN_C_WORLD_DESC",
-    fields: [
-      switchField("noDispatch", "NO_DISPATCH"),
-      switchField("hideHud", "HIDE_HUD"),
-    ],
-  },
+  WORLD_CARD,
   {
     icon: "people-group",
     title: "ADMIN_C_DENSITY",
@@ -177,6 +214,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
       percentField("scenarioDensity", "SCENARIO_DENSITY"),
       percentField("trafficDensity", "TRAFFIC_DENSITY"),
       percentField("parkedDensity", "PARKED_DENSITY"),
+      switchField("noGarbageTrucks", "NO_GARBAGE_TRUCKS"),
     ],
   },
 ];

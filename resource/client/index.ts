@@ -12,3 +12,6 @@ import "./elevators";
 import "./sit";
 import "./moor";
 import "./dive";
+import "./world";
+import "./stance";
+import "./weapons";

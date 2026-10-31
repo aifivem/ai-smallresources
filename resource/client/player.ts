@@ -1,7 +1,9 @@
 import {
   cache,
+  controls,
   Keybind,
   nearestPlayer,
+  onCache,
   onServerEvent,
   player,
   requestAnimSet,
@@ -21,7 +23,10 @@ class Crouch {
     if (
       !content.settings.crouch ||
       cache.vehicle !== false ||
-      IsPedSwimming(cache.ped)
+      IsPedSwimming(cache.ped) ||
+      // Admin noclip makes the ped see-through or invisible and uses the same key.
+      GetEntityAlpha(cache.ped) < 255 ||
+      !IsEntityVisible(cache.ped)
     )
       return;
     this.crouched = !this.crouched;
@@ -79,13 +84,40 @@ onServerEvent(EVENTS.tackled, () =>
 const HIDDEN_HUD = [1, 2, 3, 4, 6, 7, 8, 9, 13, 17, 20];
 const hideHud = new TickLoop(() => {
   for (const component of HIDDEN_HUD) HideHudComponentThisFrame(component);
+  DisplayAmmoThisFrame(false);
 });
 function applyWorld(): void {
   const off = content.settings.noDispatch;
   for (let service = 1; service <= 15; service++)
     EnableDispatchService(service, !off);
   SetMaxWantedLevel(off ? 0 : 5);
+  if (off) ClearPlayerWantedLevel(cache.playerId);
   hideHud.set(content.settings.hideHud);
 }
 applyWorld();
 onSettings(applyWorld);
+
+/** Local ped flags: sprint in interiors (427), no automatic helmet on bikes (380) and in aircraft (381), props stay on. */
+function applyPed(): void {
+  const s = content.settings;
+  const ped = cache.ped;
+  SetPedConfigFlag(ped, 427, s.sprintIndoors);
+  SetPedConfigFlag(ped, 380, s.noAutoHelmet);
+  SetPedConfigFlag(ped, 381, s.noAutoHelmet);
+  SetPedCanLosePropsOnDamage(ped, !s.keepProps, 0);
+}
+applyPed();
+onCache("ped", applyPed);
+onSettings(applyPed);
+
+/** GTA's stealth walk is on the crouch key (duck, 36): blocked on foot so the key only crouches. */
+function applyStealth(): void {
+  if (content.settings.noStealth && cache.vehicle === false) {
+    controls.disable("stealth", [36]);
+    if (GetPedStealthMovement(cache.ped))
+      SetPedStealthMovement(cache.ped, false, "DEFAULT_ACTION");
+  } else controls.enable("stealth");
+}
+applyStealth();
+onCache("vehicle", applyStealth);
+onSettings(applyStealth);

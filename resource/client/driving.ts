@@ -2,6 +2,7 @@ import { SEATBELT_EVENT } from "@aicore-fivem/shared";
 import {
   cache,
   controls,
+  every,
   Keybind,
   notify,
   onCache,
@@ -121,3 +122,41 @@ const noShuffle = () =>
 noShuffle();
 onCache("ped", noShuffle);
 onSettings(noShuffle);
+
+/** Boats, helicopters and planes keep mouse control and steering in the air. */
+const FLYING_OR_FLOATING = new Set([14, 15, 16]);
+/** Lean and roll keys of a land vehicle. */
+const AIR_CONTROLS = [59, 60];
+
+/** Mouse steering off in land vehicles; leaning and rolling off while all wheels are in the air. */
+class VehicleControl {
+  private readonly air = every(100, () => this.checkAir(), {
+    active: false,
+    name: "airControl",
+  });
+
+  apply(): void {
+    const vehicle = cache.vehicle;
+    const land =
+      vehicle !== false && !FLYING_OR_FLOATING.has(GetVehicleClass(vehicle));
+    if (land && content.settings.noMouseSteer)
+      controls.disable("mousesteer", [106]);
+    else controls.enable("mousesteer");
+    const watch = land && cache.seat === -1 && content.settings.noAirControl;
+    this.air.set(watch);
+    if (!watch) controls.enable("aircontrol");
+  }
+
+  private checkAir(): void {
+    const inAir = cache.vehicle !== false && IsEntityInAir(cache.vehicle);
+    if (inAir === controls.isDisabled("aircontrol")) return;
+    if (inAir) controls.disable("aircontrol", AIR_CONTROLS);
+    else controls.enable("aircontrol");
+  }
+}
+
+const vehicleControl = new VehicleControl();
+vehicleControl.apply();
+onCache("vehicle", () => vehicleControl.apply());
+onCache("seat", () => vehicleControl.apply());
+onSettings(() => vehicleControl.apply());
