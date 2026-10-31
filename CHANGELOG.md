@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/aifivem/ai-smallresources/compare/v0.2.0...v0.3.0) (2026-10-31)
+
+
+### New Features
+
+* **discord:** Discord Rich Presence editable in the admin panel ([d092bf1](https://github.com/aifivem/ai-smallresources/commit/d092bf1eb9911097eb0cb8f4e20055b6381a3102))
+
+
+### Miscellaneous Chores
+
+* Discord settings schema ([282ea48](https://github.com/aifivem/ai-smallresources/commit/282ea48d7aeddcfbe563352aa4bf334662cee7d1))
+
 ## [0.2.0](https://github.com/aifivem/ai-smallresources/compare/v0.1.0...v0.2.0) (2026-10-31)
 
 
