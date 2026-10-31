@@ -15,3 +15,4 @@ import "./dive";
 import "./world";
 import "./stance";
 import "./weapons";
+import "./discord";

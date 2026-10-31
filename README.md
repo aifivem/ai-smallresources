@@ -1,6 +1,6 @@
 # ai-smallresources
 
-Seatbelt, cruise control, crouch, pointing, sitting, carrying, tackle, anti ghost-peek, items, fake plates, boat ropes, teleports, elevators, population and world tweaks.
+Seatbelt, cruise control, crouch, pointing, sitting, carrying, tackle, anti ghost-peek, items, fake plates, boat ropes, teleports, elevators, population and world tweaks, Discord Rich Presence.
 
 Part of [AI Core](https://aifivem.com): a TypeScript FiveM framework where every script is configured in one in-game admin panel, and ESX, QBCore and Qbox scripts run unchanged.
 

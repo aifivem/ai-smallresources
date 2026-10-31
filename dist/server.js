@@ -291,6 +291,7 @@ const CORE = {
 	resource: "ai-core",
 	clientErrorEvent: "ai-core:clientError",
 	playerLoadedEvent: "ai-core:playerLoaded",
+	playerSpawnedEvent: "ai-core:playerSpawned",
 	playerUnloadedEvent: "ai-core:playerUnloaded",
 	moneyChangedEvent: "ai-core:moneyChanged",
 	jobsChangedEvent: "ai-core:jobsChanged",
@@ -1570,6 +1571,18 @@ var PlayerState$1 = class extends Mirror {
 	forget(serverId) {
 		this.values.delete(serverId), this.seen.delete(serverId);
 	}
+}, GlobalKey$1 = class extends Mirror {
+	constructor(key, parse) {
+		super(key, parse);
+		let raw = GlobalState[key];
+		this.values.set("global", raw == null ? void 0 : parse(raw)), AddStateBagChangeHandler(key, "global", (_bag, _key, value) => this.store("global", value));
+	}
+	get() {
+		return this.values.get("global");
+	}
+	put(value) {
+		this.apply("global", value);
+	}
 }, EntityState = class extends EntityState$1 {
 	set(entity, value) {
 		DoesEntityExist(entity) && (Entity(entity).state.set(this.key, value ?? null, !0), this.put(entity, value));
@@ -1578,11 +1591,41 @@ var PlayerState$1 = class extends Mirror {
 	set(source, value) {
 		Player(source).state.set(this.key, value ?? null, !0), this.put(source, value);
 	}
+}, GlobalKey = class extends GlobalKey$1 {
+	set(value) {
+		GlobalState.set(this.key, value ?? null, !0), this.put(value);
+	}
 };
 resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource);
 // ../../../packages/lib/src/server/index.ts
 function isOnline(source) {
 	return !!GetPlayerName(String(source));
+}
+// resource/common/discord.ts
+const DISCORD_STATE = {
+	players: "aiPlayerCount",
+	maxPlayers: "aiMaxPlayers"
+}, text$1 = (value, max = 128) => typeof value == "string" ? value.replace(/[\r\n]+/g, " ").trim().slice(0, max) : "";
+function readButton(raw) {
+	let v = record(raw), label = text$1(v.label, 32), url = text$1(v.url, 512);
+	return label && url.startsWith("https://") ? {
+		label,
+		url
+	} : null;
+}
+function readDiscord(raw) {
+	let v = record(raw), appId = text$1(v.appId, 20);
+	return {
+		enabled: bool(v.enabled, !1),
+		appId: /^\d{17,20}$/.test(appId) ? appId : "",
+		largeImage: text$1(v.largeImage),
+		largeText: text$1(v.largeText),
+		smallImage: text$1(v.smallImage),
+		smallText: text$1(v.smallText),
+		top: text$1(v.top),
+		bottom: text$1(v.bottom),
+		buttons: (Array.isArray(v.buttons) ? v.buttons : []).map(readButton).filter((b) => b !== null).slice(0, 2)
+	};
 }
 // resource/common/places.ts
 const ZERO = {
@@ -1805,6 +1848,119 @@ const SEAT_TYPES = {
 		clip: "beginning_loop_director",
 		z: -1.16
 	}
+}, TEXT = {
+	type: "text",
+	min: 0,
+	max: 128
+}, DISCORD_FILE = {
+	kind: "settings",
+	sync: "all",
+	sections: {
+		enabled: { type: "bool" },
+		appId: {
+			type: "text",
+			min: 0,
+			max: 20,
+			pattern: "^(\\d{17,20})?$"
+		},
+		largeImage: TEXT,
+		largeText: TEXT,
+		smallImage: TEXT,
+		smallText: TEXT,
+		top: TEXT,
+		bottom: TEXT,
+		buttons: {
+			type: "list",
+			max: 2,
+			of: {
+				type: "object",
+				fields: {
+					label: {
+						type: "text",
+						min: 1,
+						max: 32
+					},
+					url: {
+						type: "text",
+						min: 9,
+						max: 512,
+						pattern: "^https://\\S+$"
+					}
+				}
+			}
+		}
+	},
+	defaults: {
+		enabled: !1,
+		appId: "",
+		largeImage: "",
+		largeText: "",
+		smallImage: "",
+		smallText: "",
+		top: "{players}/{maxPlayers} players",
+		bottom: "Playing as {name}",
+		buttons: []
+	}
+}, text = (path, key) => ({
+	widget: "text",
+	path,
+	label: `ADMIN_F_DISCORD_${key}`,
+	hint: `ADMIN_H_DISCORD_${key}`,
+	placeholder: `ADMIN_P_DISCORD_${key}`
+}), DISCORD_TAB = {
+	id: "discord",
+	file: "discord",
+	icon: "comments",
+	label: "ADMIN_TAB_DISCORD",
+	desc: "ADMIN_TAB_DISCORD_DESC",
+	cards: [
+		{
+			icon: "id-card",
+			title: "ADMIN_C_DISCORD_APP",
+			desc: "ADMIN_C_DISCORD_APP_DESC",
+			fields: [{
+				widget: "switch",
+				path: "enabled",
+				label: "ADMIN_F_DISCORD_ENABLED",
+				hint: "ADMIN_H_DISCORD_ENABLED"
+			}, text("appId", "APP_ID")]
+		},
+		{
+			icon: "image",
+			title: "ADMIN_C_DISCORD_IMAGES",
+			desc: "ADMIN_C_DISCORD_IMAGES_DESC",
+			fields: [
+				text("largeImage", "LARGE_IMAGE"),
+				text("largeText", "LARGE_TEXT"),
+				text("smallImage", "SMALL_IMAGE"),
+				text("smallText", "SMALL_TEXT")
+			]
+		},
+		{
+			icon: "comments",
+			title: "ADMIN_C_DISCORD_TEXT",
+			desc: "ADMIN_C_DISCORD_TEXT_DESC",
+			fields: [text("top", "TOP"), text("bottom", "BOTTOM")]
+		},
+		{
+			icon: "hand-pointer",
+			title: "ADMIN_C_DISCORD_BUTTONS",
+			desc: "ADMIN_C_DISCORD_BUTTONS_DESC",
+			fields: [{
+				widget: "list",
+				path: "buttons",
+				label: "ADMIN_F_DISCORD_BUTTONS",
+				hint: "ADMIN_H_DISCORD_BUTTONS",
+				addLabel: "ADMIN_ADD_DISCORD_BUTTON",
+				max: 2,
+				newRow: {
+					label: "",
+					url: "https://"
+				},
+				rows: [text("label", "BUTTON_LABEL"), text("url", "BUTTON_URL")]
+			}]
+		}
+	]
 }, PLACE_TABS = [
 	{
 		id: "elevators",
@@ -2474,7 +2630,8 @@ const SEAT_TYPES = {
 					}
 				}
 			}
-		}
+		},
+		discord: DISCORD_FILE
 	},
 	tabs: [
 		{
@@ -2523,11 +2680,15 @@ const SEAT_TYPES = {
 				]
 			}]
 		},
-		...PLACE_TABS
+		...PLACE_TABS,
+		DISCORD_TAB
 	]
-}), settings = panel.view("settings", readSettings), content = {
+}), settings = panel.view("settings", readSettings), discord = panel.view("discord", readDiscord), content = {
 	get settings() {
 		return settings.value;
+	},
+	get discord() {
+		return discord.value;
 	},
 	teleports: panel.records("teleports", readTeleport),
 	elevators: panel.records("elevators", readElevator),
@@ -2854,3 +3015,30 @@ inventory.registerUsableItem(ITEMS.divingGear, (source) => (content.settings.div
 		isOnline(source) && diving.get(source) && takeOff(source);
 	}
 });
+// resource/server/discord.ts
+const players = new GlobalKey(DISCORD_STATE.players, stateNumber), maxPlayers = new GlobalKey(DISCORD_STATE.maxPlayers, stateNumber);
+function publish() {
+	let count = GetNumPlayerIndices();
+	players.get() !== count && players.set(count);
+}
+const flush = every(5e3, () => {
+	flush.set(!1), publish();
+}, {
+	active: !1,
+	name: "discord players"
+});
+function apply() {
+	if (!content.discord.enabled) {
+		flush.set(!1);
+		return;
+	}
+	let max = GetConvarInt("sv_maxclients", 48);
+	maxPlayers.get() !== max && maxPlayers.set(max), publish();
+}
+const changed = () => {
+	content.discord.enabled && flush.set(!0);
+};
+on("playerJoining", changed), on("playerDropped", changed), panel.rule("discord", (_key, next) => {
+	let v = record(next);
+	return v.enabled === !0 && !v.appId ? "ADMIN_ERR_DISCORD_APP_ID" : null;
+}), apply(), panel.onChange("discord", apply);

@@ -1,0 +1,12 @@
+{
+  "$schema": "./schemas/discord.schema.json",
+  "enabled": false,
+  "appId": "",
+  "largeImage": "",
+  "largeText": "",
+  "smallImage": "",
+  "smallText": "",
+  "top": "{players}/{maxPlayers} players",
+  "bottom": "Playing as {name}",
+  "buttons": []
+}

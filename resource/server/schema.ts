@@ -1,6 +1,7 @@
 import { ACCESS_FIELDS, accessFields } from "@aicore-fivem/lib/shared";
 import type { PanelSchema } from "@aicore-fivem/shared";
 import { SEAT_TYPES } from "common/seats";
+import { DISCORD_FILE, DISCORD_TAB } from "./discordTab";
 import { PLACE_TABS } from "./placeTabs";
 import {
   SETTINGS_CARDS,
@@ -10,7 +11,7 @@ import {
 
 const OFFSET = { type: "number" as const, min: -10, max: 10 };
 
-/** ai-smallresources' panel: feature switches, teleports, elevators, boat moorings and the seats on world objects. */
+/** ai-smallresources' panel: feature switches, teleports, elevators, boat moorings, the seats on world objects and Discord Rich Presence. */
 export const smallSchema: PanelSchema = {
   title: "ADMIN_TITLE",
   icon: "sliders",
@@ -95,6 +96,7 @@ export const smallSchema: PanelSchema = {
         },
       },
     },
+    discord: DISCORD_FILE,
   },
   tabs: [
     {
@@ -146,5 +148,6 @@ export const smallSchema: PanelSchema = {
       ],
     },
     ...PLACE_TABS,
+    DISCORD_TAB,
   ],
 };

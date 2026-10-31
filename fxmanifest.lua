@@ -2,7 +2,7 @@ name 'ai-smallresources'
 author 'TGIANN'
 version '0.2.0' -- x-release-please-version
 license 'GPL-3.0-only'
-description 'Seatbelt, cruise control, crouch, pointing, sitting, carrying, tackle, anti ghost-peek, items, fake plates, boat ropes, teleports, elevators, population and world tweaks'
+description 'Seatbelt, cruise control, crouch, pointing, sitting, carrying, tackle, anti ghost-peek, items, fake plates, boat ropes, teleports, elevators, population and world tweaks, Discord Rich Presence'
 repository 'https://github.com/aifivem/ai-smallresources'
 fx_version 'cerulean'
 game 'gta5'
@@ -24,4 +24,5 @@ files {
 	'data/elevators.json',
 	'data/moorings.json',
 	'data/seats.json',
+	'data/discord.json',
 }

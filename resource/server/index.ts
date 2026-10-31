@@ -5,3 +5,4 @@ import "./items";
 import "./vehicles";
 import "./carry";
 import "./dive";
+import "./discord";
