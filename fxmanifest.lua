@@ -1,6 +1,6 @@
 name 'ai-smallresources'
 author 'TGIANN'
-version '0.1.0'
+version '0.1.0' -- x-release-please-version
 license 'GPL-3.0-only'
 description 'Seatbelt, cruise control, crouch, pointing, sitting, carrying, tackle, anti ghost-peek, items, fake plates, boat ropes, teleports, elevators, population and world tweaks'
 repository 'https://github.com/aifivem/ai-smallresources'
