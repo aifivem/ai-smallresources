@@ -13,6 +13,7 @@ import {
   stateString,
   vehicleFromNet,
   vehicleKeys,
+  vehicleOf,
 } from "@aicore-fivem/lib/server";
 import { fail, nearestOf, oneArg, readId } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
@@ -32,10 +33,7 @@ const PLATE_MS = 6000;
  */
 inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
   if (!content.settings.fakePlate) return false;
-  const ped = GetPlayerPed(String(source));
-  const vehicle = GetVehiclePedIsIn(ped, false)
-    ? 0
-    : nearestVehicleTo(source, 3);
+  const vehicle = vehicleOf(source) ? 0 : nearestVehicleTo(source, 3);
   if (!vehicle) {
     notify(source, Locale("PLATE_ERR_NONE"), "error");
     return false;
@@ -96,35 +94,55 @@ async function plateWork(
 }
 
 /** Boat rope: a boat within reach of a mooring is frozen in place; untying frees it. Never a boat someone else drives. */
+/** Why the player cannot tie or untie this boat now, or null. */
+function moorRefusal(source: number, boat: number): string | null {
+  if (
+    !content.settings.boatRope ||
+    !boat ||
+    !DoesEntityExist(boat) ||
+    GetVehicleType(boat) !== "boat" ||
+    !isNear(source, entityCoords(boat), 6)
+  )
+    return "SMALL_ERR_FAR";
+  const driver = GetPedInVehicleSeat(boat, -1);
+  if (driver && driver !== GetPlayerPed(String(source)))
+    return "MOOR_ERR_DRIVEN";
+  if (moored.get(boat) === true) return null;
+  const near = nearestOf(
+    content.moorings.values(),
+    entityCoords(boat),
+    (m) => m.point,
+    MOOR_RANGE + 2,
+  );
+  return near ? null : "MOOR_ERR_FAR";
+}
+
 onClientCallback(
   EVENTS.moor,
   { args: oneArg(readId), lock: true },
-  (source, netId) => {
+  async (source, netId) => {
     const boat = vehicleFromNet(netId);
-    if (
-      !content.settings.boatRope ||
-      !boat ||
-      GetVehicleType(boat) !== "boat" ||
-      !isNear(source, entityCoords(boat), 6)
-    )
-      return fail("SMALL_ERR_FAR");
-    const driver = GetPedInVehicleSeat(boat, -1);
-    if (driver && driver !== GetPlayerPed(String(source)))
-      return fail("MOOR_ERR_DRIVEN");
-    if (moored.get(boat) === true) {
-      FreezeEntityPosition(boat, false);
-      moored.set(boat, undefined);
-      return { ok: true };
-    }
-    const near = nearestOf(
-      content.moorings.values(),
-      entityCoords(boat),
-      (m) => m.point,
-      MOOR_RANGE + 2,
-    );
-    if (!near) return fail("MOOR_ERR_FAR");
-    FreezeEntityPosition(boat, true);
-    moored.set(boat, true);
+    const refused = moorRefusal(source, boat);
+    if (refused) return fail(refused);
+    const untie = moored.get(boat) === true;
+    const done = await progressFor(source, {
+      label: Locale(untie ? "MOOR_UNTYING" : "MOOR_TYING"),
+      duration: 3000,
+      anim: {
+        dict: "anim@scripted@heist@ig9_control_tower@male@",
+        clip: "loop",
+        flag: 1,
+      },
+      face: entityCoords(boat),
+    });
+    // A cancelled bar ends quietly.
+    if (!done) return { ok: true };
+    const again = moorRefusal(source, boat);
+    if (again) return fail(again);
+    if ((moored.get(boat) === true) !== untie) return { ok: true };
+    FreezeEntityPosition(boat, !untie);
+    moored.set(boat, untie ? undefined : true);
+    notify(source, Locale(untie ? "MOOR_UNTIED" : "MOOR_TIED"), "success");
     return { ok: true };
   },
 );

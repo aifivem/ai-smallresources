@@ -9,6 +9,7 @@ import {
   resourceExport,
   stateBoolean,
   triggerClientCallback,
+  vehicleOf,
 } from "@aicore-fivem/lib/server";
 import { asArgs, int, isRecord, readInt } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
@@ -65,11 +66,7 @@ async function toggleGear(source: number): Promise<void> {
   if (airOf(source) <= 0)
     return notify(source, Locale("DIVE_ERR_EMPTY"), "error");
   const water = await waterOf(source);
-  if (
-    !water ||
-    water.swimming ||
-    GetVehiclePedIsIn(GetPlayerPed(String(source)), false)
-  )
+  if (!water || water.swimming || vehicleOf(source))
     return notify(source, Locale("DIVE_ERR_GROUND"), "error");
   const done = await progressFor(source, {
     ...bar,

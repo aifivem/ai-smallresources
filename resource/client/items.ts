@@ -8,7 +8,7 @@ import {
   ScriptCamera,
   TickLoop,
 } from "@aicore-fivem/lib/client";
-import { readFinite, sleep } from "@aicore-fivem/lib/shared";
+import { pickRandom, readFinite, sleep } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
 import { FIREWORKS } from "common/items";
 import { EVENTS } from "common/small";
@@ -155,9 +155,7 @@ onServerEvent(
     if (!asset) return;
     await sleep(5000);
     for (let i = 0; i < 12; i++) {
-      const effect =
-        firework.effects[Math.floor(Math.random() * firework.effects.length)] ??
-        "";
+      const effect = pickRandom(firework.effects) ?? "";
       UseParticleFxAsset(asset);
       StartParticleFxNonLoopedAtCoord(
         effect,

@@ -8,6 +8,7 @@ import {
   PlayerState,
   progressFor,
   stateString,
+  vehicleOf,
 } from "@aicore-fivem/lib/server";
 import { fail, logSafe, readId, readText } from "@aicore-fivem/lib/shared";
 import { Locale } from "common";
@@ -73,11 +74,7 @@ for (const item of Object.keys(NEWS_ITEMS))
   });
 for (const item of Object.keys(FIREWORKS))
   inventory.registerUsableItem(item, (source) => {
-    if (
-      !content.settings.fireworks ||
-      GetVehiclePedIsIn(GetPlayerPed(String(source)), false)
-    )
-      return false;
+    if (!content.settings.fireworks || vehicleOf(source)) return false;
     void placeFirework(source, item);
     return false;
   });

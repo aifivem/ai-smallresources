@@ -1,9 +1,10 @@
 import {
+  attachProp,
   cache,
   Keybind,
   player as localPlayer,
+  playerPed,
   PlayerState,
-  requestModel,
   stateString,
 } from "@aicore-fivem/lib/client";
 import { Locale } from "common";
@@ -18,12 +19,13 @@ class NewsGear {
   private readonly props = new Map<number, number>();
   private held: string | null = null;
 
-  async apply(player: number, item: string | null): Promise<void> {
-    const old = this.props.get(player);
+  /** Puts the held item's prop in a player's hand (by server id), or takes it away. */
+  async apply(serverId: number, item: string | null): Promise<void> {
+    const old = this.props.get(serverId);
     if (old) DeleteObject(old);
-    this.props.delete(player);
-    const ped = GetPlayerPed(player);
-    const mine = player === cache.playerId;
+    this.props.delete(serverId);
+    const ped = playerPed(serverId);
+    const mine = serverId === cache.serverId;
     if (mine) {
       if (this.held) ClearPedTasks(cache.ped);
       if (binoculars.active) binoculars.close();
@@ -31,30 +33,16 @@ class NewsGear {
     }
     const gear = item ? NEWS_ITEMS[item] : undefined;
     if (!gear || !ped) return;
-    const model = await requestModel(gear.model).catch(() => 0);
-    if (!model) return;
-    const [x = 0, y = 0, z = 0] = GetEntityCoords(ped, false);
-    const prop = CreateObject(model, x, y, z, false, false, false);
     const [ox, oy, oz, rx, ry, rz] = gear.offset;
-    AttachEntityToEntity(
-      prop,
+    const prop = await attachProp(gear.model, {
       ped,
-      GetPedBoneIndex(ped, gear.bone),
-      ox,
-      oy,
-      oz,
-      rx,
-      ry,
-      rz,
-      true,
-      true,
-      false,
-      true,
-      0,
-      true,
-    );
-    SetModelAsNoLongerNeeded(model);
-    this.props.set(player, prop);
+      bone: gear.bone,
+      offset: { x: ox, y: oy, z: oz },
+      rotation: { x: rx, y: ry, z: rz },
+      rotationOrder: 0,
+    });
+    if (!prop) return;
+    this.props.set(serverId, prop);
     if (mine)
       await localPlayer.playAnim(gear.dict, gear.clip, {
         blendIn: 1.0,
@@ -72,8 +60,7 @@ class NewsGear {
 
 const gear = new NewsGear();
 new PlayerState(HOLD_STATE, stateString).onChange((serverId, item) => {
-  const player = GetPlayerFromServerId(serverId);
-  if (NetworkIsPlayerActive(player)) void gear.apply(player, item ?? null);
+  void gear.apply(serverId, item ?? null);
 });
 new Keybind({
   name: "smallresources_newsview",

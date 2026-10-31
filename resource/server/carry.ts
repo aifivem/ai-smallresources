@@ -1,6 +1,6 @@
 import {
-  coordsOf,
   Cooldowns,
+  coordsOf,
   isNear,
   nearestPlayerTo,
   onCharacter,
@@ -10,6 +10,7 @@ import {
   stateBoolean,
   stateNumber,
   triggerClientCallback,
+  vehicleOf,
 } from "@aicore-fivem/lib/server";
 import { fail } from "@aicore-fivem/lib/shared";
 import { CORE, PLAYER_BAGS } from "@aicore-fivem/shared";
@@ -84,9 +85,7 @@ const nearestFree = (source: number): number | null =>
   nearestPlayerTo(
     source,
     REACH,
-    (other) =>
-      !carries.busy(other) &&
-      !GetVehiclePedIsIn(GetPlayerPed(String(other)), false),
+    (other) => !carries.busy(other) && !vehicleOf(other),
   );
 
 /**
@@ -99,8 +98,7 @@ onClientCallback(
     if (carries.stop(source, true)) return { ok: true };
     if (!content.settings.carry || carries.busy(source))
       return fail("CARRY_ERR_NONE");
-    if (GetVehiclePedIsIn(GetPlayerPed(String(source)), false))
-      return fail("CARRY_ERR_NONE");
+    if (vehicleOf(source)) return fail("CARRY_ERR_NONE");
     const target = nearestFree(source);
     if (target === null) return fail("CARRY_ERR_NONE");
     const helpless = dead.get(target) === true || cuffed.get(target) === true;

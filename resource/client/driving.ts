@@ -5,9 +5,10 @@ import {
   Keybind,
   notify,
   onCache,
+  onStop,
   registerExport,
 } from "@aicore-fivem/lib/client";
-import { Locale, ResourceName } from "common";
+import { Locale } from "common";
 import { content, onSettings } from "./settings";
 
 /** Vehicle classes without a seatbelt: motorcycles, cycles, boats, helicopters, planes, trains. */
@@ -97,10 +98,7 @@ class Driving {
 
 const driving = new Driving();
 registerExport("GetSeatbelt", () => driving.worn);
-on(
-  "onResourceStop",
-  (resource: string) => resource === ResourceName && driving.announce(null),
-);
+onStop(() => driving.announce(null));
 new Keybind({
   name: "smallresources_belt",
   description: Locale("KEYBIND_SEATBELT"),

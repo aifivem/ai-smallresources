@@ -2,11 +2,11 @@ import {
   cache,
   callAction,
   controls,
-  every,
   menu,
   onCache,
   onServerCallback,
   player,
+  playerPed,
   PlayerState,
   radial,
   requestAnimDict,
@@ -36,11 +36,7 @@ const carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber);
  * part (the carried one attaches itself to the carrier). The animation is put back when something interrupts it.
  */
 class Carry {
-  private anim: typeof CARRIER | null = null;
-  private readonly job = every(500, () => this.play(), {
-    active: false,
-    name: "carryAnim",
-  });
+  private hold: { stop(): void } | null = null;
 
   async request(): Promise<void> {
     await callAction(EVENTS.carry, [], { fallback: "CARRY_ERR_NONE" });
@@ -48,9 +44,9 @@ class Carry {
 
   async start(anim: typeof CARRIER, carrier?: number): Promise<void> {
     if (!(await requestAnimDict(anim.dict).catch(() => false))) return;
-    this.anim = anim;
+    this.hold?.stop();
     if (carrier !== undefined) {
-      const ped = GetPlayerPed(GetPlayerFromServerId(carrier));
+      const ped = playerPed(carrier);
       if (ped)
         AttachEntityToEntity(
           cache.ped,
@@ -71,24 +67,17 @@ class Carry {
         );
       controls.disable("carried", CARRIED_CONTROLS);
     }
-    this.play();
-    this.job.set(true);
+    this.hold = player.holdAnim(anim.dict, anim.clip, { flag: anim.flag });
   }
 
   stop(): void {
-    if (!this.anim) return;
-    this.anim = null;
-    this.job.set(false);
+    if (!this.hold) return;
+    this.hold.stop();
+    this.hold = null;
     controls.enable("carried");
     DetachEntity(cache.ped, true, false);
     ClearPedSecondaryTask(cache.ped);
     ClearPedTasks(cache.ped);
-  }
-
-  private play(): void {
-    const a = this.anim;
-    if (a && !IsEntityPlayingAnim(cache.ped, a.dict, a.clip, 3))
-      void player.playAnim(a.dict, a.clip, { flag: a.flag });
   }
 }
 

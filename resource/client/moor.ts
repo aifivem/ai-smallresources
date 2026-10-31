@@ -2,9 +2,7 @@ import {
   cache,
   callAction,
   EntityState,
-  notify,
   Points,
-  progress,
   stateBoolean,
 } from "@aicore-fivem/lib/client";
 import { nearestOf } from "@aicore-fivem/lib/shared";
@@ -44,31 +42,20 @@ function rebuild(): void {
     ...common,
     label: Locale("MOOR_TIE"),
     canShow: (boat) => onFoot() && !isMoored(boat) && nearMooring(boat),
-    onPressed: (boat) => use(boat, false),
+    onPressed: use,
   });
   points.addModel("unmoor", {
     ...common,
     label: Locale("MOOR_UNTIE"),
     canShow: (boat) => onFoot() && isMoored(boat),
-    onPressed: (boat) => use(boat, true),
+    onPressed: use,
   });
 }
 
-async function use(boat: number, untie: boolean): Promise<void> {
+/** The server runs the progress bar, then ties or unties. */
+async function use(boat: number): Promise<void> {
   if (!NetworkGetEntityIsNetworked(boat)) return;
-  const done = await progress({
-    label: Locale(untie ? "MOOR_UNTYING" : "MOOR_TYING"),
-    duration: 3000,
-    anim: {
-      dict: "anim@scripted@heist@ig9_control_tower@male@",
-      clip: "loop",
-      flag: 1,
-    },
-  });
-  if (!done) return;
-  const netId = NetworkGetNetworkIdFromEntity(boat);
-  if (await callAction(EVENTS.moor, [netId], FALLBACK))
-    notify(Locale(untie ? "MOOR_UNTIED" : "MOOR_TIED"), "success");
+  await callAction(EVENTS.moor, [NetworkGetNetworkIdFromEntity(boat)], FALLBACK);
 }
 
 rebuild();

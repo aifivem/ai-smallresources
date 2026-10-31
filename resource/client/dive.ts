@@ -1,15 +1,17 @@
 import {
+  attachProp,
   cache,
   every,
   onServerCallback,
   onServerEvent,
+  onStop,
+  playerPed,
   PlayerState,
-  requestModel,
   stateBoolean,
   TickLoop,
 } from "@aicore-fivem/lib/client";
 import { readInt } from "@aicore-fivem/lib/shared";
-import { Locale, ResourceName } from "common";
+import { Locale } from "common";
 import { DIVE_PROPS, DIVE_STATE } from "common/items";
 import { EVENTS } from "common/small";
 
@@ -31,40 +33,28 @@ class DiveGear {
   });
   private readonly text = new TickLoop(() => this.draw());
 
-  async dress(player: number, on: boolean): Promise<void> {
-    for (const prop of this.props.get(player) ?? []) DeleteObject(prop);
-    this.props.delete(player);
-    const ped = GetPlayerPed(player);
+  /** Puts the gear on a player (by server id) or takes it off. */
+  async dress(serverId: number, on: boolean): Promise<void> {
+    for (const prop of this.props.get(serverId) ?? []) DeleteObject(prop);
+    this.props.delete(serverId);
+    const ped = playerPed(serverId);
     if (!on || !ped) return;
     const made: number[] = [];
-    this.props.set(player, made);
+    this.props.set(serverId, made);
     for (const gear of DIVE_PROPS) {
-      const model = await requestModel(gear.model).catch(() => 0);
-      // Taken off while the model loaded.
-      if (!model || this.props.get(player) !== made) return;
-      const [x = 0, y = 0, z = 0] = GetEntityCoords(ped, false);
-      const prop = CreateObject(model, x, y, z, false, false, false);
-      SetEntityCollision(prop, false, false);
       const [ox, oy, oz, rx, ry, rz] = gear.offset;
-      AttachEntityToEntity(
-        prop,
+      const prop = await attachProp(gear.model, {
         ped,
-        GetPedBoneIndex(ped, gear.bone),
-        ox,
-        oy,
-        oz,
-        rx,
-        ry,
-        rz,
-        true,
-        true,
-        false,
-        false,
-        2,
-        true,
-      );
-      SetModelAsNoLongerNeeded(model);
-      made.push(prop);
+        bone: gear.bone,
+        offset: { x: ox, y: oy, z: oz },
+        rotation: { x: rx, y: ry, z: rz },
+      });
+      // Taken off while the model loaded.
+      if (this.props.get(serverId) !== made) {
+        if (prop) DeleteObject(prop);
+        return;
+      }
+      if (prop) made.push(prop);
     }
   }
 
@@ -78,7 +68,7 @@ class DiveGear {
   }
 
   stop(): void {
-    for (const player of this.props.keys()) void this.dress(player, false);
+    for (const serverId of this.props.keys()) void this.dress(serverId, false);
     if (this.worn) this.wear(null);
   }
 
@@ -118,8 +108,7 @@ class DiveGear {
 
 const gear = new DiveGear();
 new PlayerState(DIVE_STATE, stateBoolean).onChange((serverId, on) => {
-  const player = GetPlayerFromServerId(serverId);
-  if (NetworkIsPlayerActive(player)) void gear.dress(player, on === true);
+  void gear.dress(serverId, on === true);
 });
 onServerEvent(
   EVENTS.diveGear,
@@ -130,6 +119,4 @@ onServerCallback(EVENTS.diveWater, () => ({
   swimming: IsPedSwimming(cache.ped),
   underwater: IsPedSwimmingUnderWater(cache.ped),
 }));
-on("onResourceStop", (resource: string) => {
-  if (resource === ResourceName) gear.stop();
-});
+onStop(() => gear.stop());

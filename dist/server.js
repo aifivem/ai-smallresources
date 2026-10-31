@@ -314,6 +314,8 @@ const CORE = {
 	vehicleTypeCallback: "ai-core:vehicleType",
 	interactionStateKey: "ai:interaction",
 	pvpStateKey: "ai:pvp",
+	medicalStateKey: "ai:medical",
+	clientDeadEvent: "ai-core:client:dead",
 	charactersCallback: "ai-core:characters",
 	createCharacterCallback: "ai-core:createCharacter",
 	deleteCharacterCallback: "ai-core:deleteCharacter",
@@ -393,6 +395,10 @@ function entityCoords(entity) {
 	};
 }
 const coordsOf = (source) => entityCoords(GetPlayerPed(String(source)));
+function vehicleOf(source, options = {}) {
+	let ped = GetPlayerPed(String(source)), vehicle = GetVehiclePedIsIn(ped, !1);
+	return !vehicle || !options.driver || GetPedInVehicleSeat(vehicle, -1) === ped ? vehicle : 0;
+}
 function isNear(source, point, metres) {
 	let [x = 0, y = 0, z = 0] = GetEntityCoords(GetPlayerPed(String(source))), dx = x - point.x, dy = y - point.y, dz = z - point.z;
 	return dx * dx + dy * dy + dz * dz <= metres * metres;
@@ -1057,6 +1063,9 @@ var OnlinePlayers = class {
 	character(source) {
 		return this.start(), this.players.get(source)?.character ?? null;
 	}
+	charId(source) {
+		return this.start(), this.players.get(source)?.character.id;
+	}
 	name(source, options = {}) {
 		let c = this.character(source);
 		return c ? `${c.firstname} ${c.lastname}` : options.fallback === !1 ? "" : GetPlayerName(String(source));
@@ -1207,19 +1216,19 @@ function onCharacter(handlers) {
 		} catch (error) {
 			log$4.error(`character loaded handler failed for ${source}`, error);
 		}
-	}, end = (source, charId) => {
+	}, end = (source, charId, reason) => {
 		if (live.delete(source)) try {
-			handlers.unloaded?.(source, charId);
+			handlers.unloaded?.(source, charId, reason);
 		} catch (error) {
 			log$4.error(`character unloaded handler failed for ${source}`, error);
 		}
 	};
 	on(CORE.playerLoadedEvent, (source, character) => {
 		let previous = live.get(source);
-		previous !== void 0 && end(source, previous), deliver(source, character);
-	}), on(CORE.playerUnloadedEvent, (source, charId) => end(source, charId)), onDropped((source) => setImmediate(() => {
+		previous !== void 0 && end(source, previous, "switch"), deliver(source, character);
+	}), on(CORE.playerUnloadedEvent, (source, charId, reason) => end(source, charId, reason === "dropped" ? "dropped" : "switch")), onDropped((source) => setImmediate(() => {
 		let charId = live.get(source);
-		charId !== void 0 && end(source, charId);
+		charId !== void 0 && end(source, charId, "dropped");
 	})), setImmediate(() => {
 		for (let source of online.sources()) {
 			if (live.has(source)) continue;
@@ -2481,7 +2490,7 @@ onClientCallback(EVENTS.noteSave, {
 	return inventory.canCarryItem(source, ITEMS.note, 1, metadata) ? inventory.addItem(source, ITEMS.note, 1, metadata) ? { ok: !0 } : fail("NOTE_ERR_FAILED") : fail("NOTE_ERR_FULL");
 }), inventory.registerUsableItem("binoculars", (source) => (content.settings.binoculars && emitNet(EVENTS.binoculars, source), !1));
 for (let item of Object.keys(NEWS_ITEMS)) inventory.registerUsableItem(item, (source) => (hold.set(source, hold.get(source) === item ? void 0 : item), !1));
-for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => (!content.settings.fireworks || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1) || placeFirework(source, item), !1));
+for (let item of Object.keys(FIREWORKS)) inventory.registerUsableItem(item, (source) => (!content.settings.fireworks || vehicleOf(source) || placeFirework(source, item), !1));
 inventory.registerUsableItem(ITEMS.notepad, (source) => (content.settings.notepad && emitNet(EVENTS.noteWrite, source, notes.start(source, ITEMS.notepad, 0)), !1)), inventory.registerUsableItem(ITEMS.note, (source, used) => {
 	let text = used.metadata.text;
 	return typeof text == "string" && text && emitNet(EVENTS.noteRead, source, text), !1;
@@ -2490,7 +2499,7 @@ inventory.registerUsableItem(ITEMS.notepad, (source) => (content.settings.notepa
 const realPlate = new EntityState(VEHICLE_STATE.realPlate, stateString), moored = new EntityState(VEHICLE_STATE.moored, stateBoolean);
 inventory.registerUsableItem(ITEMS.fakePlate, (source) => {
 	if (!content.settings.fakePlate) return !1;
-	let ped = GetPlayerPed(String(source)), vehicle = GetVehiclePedIsIn(ped, !1) ? 0 : nearestVehicleTo(source, 3);
+	let vehicle = vehicleOf(source) ? 0 : nearestVehicleTo(source, 3);
 	if (!vehicle) return notify(source, Locale("PLATE_ERR_NONE"), "error"), !1;
 	let removing = realPlate.get(vehicle) !== void 0;
 	return !removing && !vehicleKeys.has(source, vehicle) ? (notify(source, Locale("PLATE_ERR_KEYS"), "error"), !1) : (plateWork(source, vehicle, removing), !1);
@@ -2515,14 +2524,30 @@ async function plateWork(source, vehicle, removing) {
 	}
 	SetVehicleNumberPlateText(vehicle, shown), keyHolder && vehicleKeys.give(source, shown, "temporary"), notify(source, Locale(removing ? "PLATE_REMOVED" : "PLATE_FITTED"), "success");
 }
+function moorRefusal(source, boat) {
+	if (!content.settings.boatRope || !boat || !DoesEntityExist(boat) || GetVehicleType(boat) !== "boat" || !isNear(source, entityCoords(boat), 6)) return "SMALL_ERR_FAR";
+	let driver = GetPedInVehicleSeat(boat, -1);
+	return driver && driver !== GetPlayerPed(String(source)) ? "MOOR_ERR_DRIVEN" : moored.get(boat) === !0 || nearestOf(content.moorings.values(), entityCoords(boat), (m) => m.point, 14) ? null : "MOOR_ERR_FAR";
+}
 onClientCallback(EVENTS.moor, {
 	args: oneArg(readId),
 	lock: !0
-}, (source, netId) => {
-	let boat = vehicleFromNet(netId);
-	if (!content.settings.boatRope || !boat || GetVehicleType(boat) !== "boat" || !isNear(source, entityCoords(boat), 6)) return fail("SMALL_ERR_FAR");
-	let driver = GetPedInVehicleSeat(boat, -1);
-	return driver && driver !== GetPlayerPed(String(source)) ? fail("MOOR_ERR_DRIVEN") : moored.get(boat) === !0 ? (FreezeEntityPosition(boat, !1), moored.set(boat, void 0), { ok: !0 }) : nearestOf(content.moorings.values(), entityCoords(boat), (m) => m.point, 14) ? (FreezeEntityPosition(boat, !0), moored.set(boat, !0), { ok: !0 }) : fail("MOOR_ERR_FAR");
+}, async (source, netId) => {
+	let boat = vehicleFromNet(netId), refused = moorRefusal(source, boat);
+	if (refused) return fail(refused);
+	let untie = moored.get(boat) === !0;
+	if (!await progressFor(source, {
+		label: Locale(untie ? "MOOR_UNTYING" : "MOOR_TYING"),
+		duration: 3e3,
+		anim: {
+			dict: "anim@scripted@heist@ig9_control_tower@male@",
+			clip: "loop",
+			flag: 1
+		},
+		face: entityCoords(boat)
+	})) return { ok: !0 };
+	let again = moorRefusal(source, boat);
+	return again ? fail(again) : (moored.get(boat) === !0 === untie && (FreezeEntityPosition(boat, !untie), moored.set(boat, !untie || void 0), notify(source, Locale(untie ? "MOOR_UNTIED" : "MOOR_TIED"), "success")), { ok: !0 });
 });
 // resource/server/carry.ts
 const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber), carriedBy = new PlayerState(CARRY_STATE.carriedBy, stateNumber), dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean), cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean), asks = new Cooldowns(), carries = new class {
@@ -2549,10 +2574,10 @@ const carrying = new PlayerState(CARRY_STATE.carrying, stateNumber), carriedBy =
 	end(carrier, target) {
 		carrying.set(carrier, void 0), carriedBy.set(target, void 0), this.agreed.delete(target);
 	}
-}(), nearestFree = (source) => nearestPlayerTo(source, 2, (other) => !carries.busy(other) && !GetVehiclePedIsIn(GetPlayerPed(String(other)), !1));
+}(), nearestFree = (source) => nearestPlayerTo(source, 2, (other) => !carries.busy(other) && !vehicleOf(other));
 onClientCallback(EVENTS.carry, async (source) => {
 	if (carries.stop(source, !0)) return { ok: !0 };
-	if (!content.settings.carry || carries.busy(source) || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1)) return fail("CARRY_ERR_NONE");
+	if (!content.settings.carry || carries.busy(source) || vehicleOf(source)) return fail("CARRY_ERR_NONE");
 	let target = nearestFree(source);
 	if (target === null) return fail("CARRY_ERR_NONE");
 	let helpless = dead.get(target) === !0 || cuffed.get(target) === !0;
@@ -2595,7 +2620,7 @@ async function toggleGear(source) {
 	}
 	if (airOf(source) <= 0) return notify(source, Locale("DIVE_ERR_EMPTY"), "error");
 	let water = await waterOf(source);
-	if (!water || water.swimming || GetVehiclePedIsIn(GetPlayerPed(String(source)), !1)) return notify(source, Locale("DIVE_ERR_GROUND"), "error");
+	if (!water || water.swimming || vehicleOf(source)) return notify(source, Locale("DIVE_ERR_GROUND"), "error");
 	await progressFor(source, {
 		...bar,
 		label: Locale("DIVE_PUTTING_ON")
