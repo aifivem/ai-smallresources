@@ -1808,6 +1808,10 @@ function readSettings(raw) {
 		noVehicleRewards: bool(v.noVehicleRewards, !0),
 		noMouseSteer: bool(v.noMouseSteer, !0),
 		noAirControl: bool(v.noAirControl, !0),
+		breakDoors: bool(v.breakDoors, !0),
+		breakDoorsSpeed: int(v.breakDoorsSpeed, 30, 5, 300),
+		npcMelee: bool(v.npcMelee, !0),
+		npcMeleeDamage: int(v.npcMeleeDamage, 35, 0, 500),
 		pedDensity: percent(v.pedDensity, 80),
 		scenarioDensity: percent(v.scenarioDensity, 80),
 		trafficDensity: percent(v.trafficDensity, 80),
@@ -2315,7 +2319,22 @@ const TEXT = {
 		switchField("noCriticalHits", "NO_CRITICAL_HITS"),
 		switchField("noBunnyHop", "NO_BUNNY_HOP"),
 		switchField("noPickups", "NO_PICKUPS"),
-		switchField("noVehicleRewards", "NO_VEHICLE_REWARDS")
+		switchField("noVehicleRewards", "NO_VEHICLE_REWARDS"),
+		switchField("npcMelee", "NPC_MELEE"),
+		{
+			widget: "number",
+			path: "npcMeleeDamage",
+			label: "ADMIN_F_NPC_MELEE_DAMAGE",
+			hint: "ADMIN_H_NPC_MELEE_DAMAGE",
+			min: 0,
+			max: 500,
+			step: 5,
+			unit: "%",
+			showIf: {
+				path: "npcMelee",
+				values: [!0]
+			}
+		}
 	]
 }, WORLD_CARD = {
 	icon: "map-location-dot",
@@ -2412,7 +2431,21 @@ const TEXT = {
 			switchField("fakePlate", "FAKE_PLATE"),
 			switchField("boatRope", "BOAT_ROPE"),
 			switchField("noMouseSteer", "NO_MOUSE_STEER"),
-			switchField("noAirControl", "NO_AIR_CONTROL")
+			switchField("noAirControl", "NO_AIR_CONTROL"),
+			switchField("breakDoors", "BREAK_DOORS"),
+			{
+				widget: "number",
+				path: "breakDoorsSpeed",
+				label: "ADMIN_F_BREAK_DOORS_SPEED",
+				hint: "ADMIN_H_BREAK_DOORS_SPEED",
+				min: 5,
+				max: 300,
+				unit: "km/h",
+				showIf: {
+					path: "breakDoors",
+					values: [!0]
+				}
+			}
 		]
 	},
 	{
@@ -2583,6 +2616,20 @@ const TEXT = {
 		noVehicleRewards: BOOL,
 		noMouseSteer: BOOL,
 		noAirControl: BOOL,
+		breakDoors: BOOL,
+		breakDoorsSpeed: {
+			type: "number",
+			min: 5,
+			max: 300,
+			integer: !0
+		},
+		npcMelee: BOOL,
+		npcMeleeDamage: {
+			type: "number",
+			min: 0,
+			max: 500,
+			integer: !0
+		},
 		pedDensity: PERCENT,
 		scenarioDensity: PERCENT,
 		trafficDensity: PERCENT,
@@ -2626,7 +2673,11 @@ const TEXT = {
 		noPickups: !0,
 		noVehicleRewards: !0,
 		noMouseSteer: !0,
-		noAirControl: !0
+		noAirControl: !0,
+		breakDoors: !0,
+		breakDoorsSpeed: 30,
+		npcMelee: !0,
+		npcMeleeDamage: 35
 	}
 }, settingsTab = {
 	id: "settings",

@@ -55,7 +55,11 @@ function rebuild(): void {
 /** The server runs the progress bar, then ties or unties. */
 async function use(boat: number): Promise<void> {
   if (!NetworkGetEntityIsNetworked(boat)) return;
-  await callAction(EVENTS.moor, [NetworkGetNetworkIdFromEntity(boat)], FALLBACK);
+  await callAction(
+    EVENTS.moor,
+    [NetworkGetNetworkIdFromEntity(boat)],
+    FALLBACK,
+  );
 }
 
 rebuild();

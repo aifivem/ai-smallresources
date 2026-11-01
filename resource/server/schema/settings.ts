@@ -54,6 +54,10 @@ export const SETTINGS_SECTIONS: Record<string, DataSpec> = {
   noVehicleRewards: BOOL,
   noMouseSteer: BOOL,
   noAirControl: BOOL,
+  breakDoors: BOOL,
+  breakDoorsSpeed: { type: "number", min: 5, max: 300, integer: true },
+  npcMelee: BOOL,
+  npcMeleeDamage: { type: "number", min: 0, max: 500, integer: true },
   pedDensity: PERCENT,
   scenarioDensity: PERCENT,
   trafficDensity: PERCENT,
@@ -100,6 +104,10 @@ export const SETTINGS_DEFAULTS = {
   noVehicleRewards: true,
   noMouseSteer: true,
   noAirControl: true,
+  breakDoors: true,
+  breakDoorsSpeed: 30,
+  npcMelee: true,
+  npcMeleeDamage: 35,
 };
 
 export const settingsFile: FileSpec = {

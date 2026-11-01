@@ -85,6 +85,12 @@ export interface Settings {
   noVehicleRewards: boolean;
   noMouseSteer: boolean;
   noAirControl: boolean;
+  /** An open hood or trunk breaks off above this speed (km/h) or once the body is damaged. */
+  breakDoors: boolean;
+  breakDoorsSpeed: number;
+  /** NPC melee damage (fists, bats, knives) in percent of GTA's normal. */
+  npcMelee: boolean;
+  npcMeleeDamage: number;
   /** Ambient population in percent of GTA's normal (100 = untouched). */
   pedDensity: number;
   scenarioDensity: number;
@@ -147,6 +153,10 @@ export function readSettings(raw: unknown): Settings {
     noVehicleRewards: bool(v.noVehicleRewards, true),
     noMouseSteer: bool(v.noMouseSteer, true),
     noAirControl: bool(v.noAirControl, true),
+    breakDoors: bool(v.breakDoors, true),
+    breakDoorsSpeed: int(v.breakDoorsSpeed, 30, 5, 300),
+    npcMelee: bool(v.npcMelee, true),
+    npcMeleeDamage: int(v.npcMeleeDamage, 35, 0, 500),
     pedDensity: percent(v.pedDensity, 80),
     scenarioDensity: percent(v.scenarioDensity, 80),
     trafficDensity: percent(v.trafficDensity, 80),

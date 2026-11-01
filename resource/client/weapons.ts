@@ -1,4 +1,10 @@
-import { cache, controls, onCache, TickLoop } from "@aicore-fivem/lib/client";
+import {
+  cache,
+  controls,
+  onCache,
+  onStop,
+  TickLoop,
+} from "@aicore-fivem/lib/client";
 import { content, onSettings } from "./settings";
 
 /** GTA pickups (weapons, ammo, armour, health, money) as dead NPCs and the world drop them; `PICKUP_` is added. */
@@ -60,6 +66,13 @@ function applyWhip(): void {
   else controls.enable("pistolwhip");
 }
 
+/** NPC melee damage on players: the panel's percent, GTA's own while the setting is off. */
+function applyNpcMelee(): void {
+  if (content.settings.npcMelee)
+    SetAiMeleeWeaponDamageModifier(content.settings.npcMeleeDamage / 100);
+  else ResetAiMeleeWeaponDamageModifier();
+}
+
 /** GTA's reward only holds for the frame it is called in, so it runs each frame for a moment after getting in. */
 class VehicleRewards {
   private until = 0;
@@ -76,14 +89,17 @@ class VehicleRewards {
 }
 
 const rewards = new VehicleRewards();
+onStop(ResetAiMeleeWeaponDamageModifier);
 onCache("seat", (seat) => rewards.entered(seat));
 onCache("ped", applyPed);
 onCache("weapon", applyWhip);
 applyPickups();
 applyPed();
 applyWhip();
+applyNpcMelee();
 onSettings(() => {
   applyPickups();
   applyPed();
   applyWhip();
+  applyNpcMelee();
 });

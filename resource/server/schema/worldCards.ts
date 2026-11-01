@@ -28,6 +28,18 @@ export const COMBAT_CARD: CardSpec = {
     switchField("noBunnyHop", "NO_BUNNY_HOP"),
     switchField("noPickups", "NO_PICKUPS"),
     switchField("noVehicleRewards", "NO_VEHICLE_REWARDS"),
+    switchField("npcMelee", "NPC_MELEE"),
+    {
+      widget: "number",
+      path: "npcMeleeDamage",
+      label: "ADMIN_F_NPC_MELEE_DAMAGE",
+      hint: "ADMIN_H_NPC_MELEE_DAMAGE",
+      min: 0,
+      max: 500,
+      step: 5,
+      unit: "%",
+      showIf: { path: "npcMelee", values: [true] },
+    },
   ],
 };
 

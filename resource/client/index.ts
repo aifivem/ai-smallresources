@@ -1,4 +1,5 @@
 import "./driving";
+import "./doors";
 import "./player";
 import "./items";
 import "./news";

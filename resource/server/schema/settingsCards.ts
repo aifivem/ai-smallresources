@@ -45,6 +45,17 @@ export const SETTINGS_CARDS: CardSpec[] = [
       switchField("boatRope", "BOAT_ROPE"),
       switchField("noMouseSteer", "NO_MOUSE_STEER"),
       switchField("noAirControl", "NO_AIR_CONTROL"),
+      switchField("breakDoors", "BREAK_DOORS"),
+      {
+        widget: "number",
+        path: "breakDoorsSpeed",
+        label: "ADMIN_F_BREAK_DOORS_SPEED",
+        hint: "ADMIN_H_BREAK_DOORS_SPEED",
+        min: 5,
+        max: 300,
+        unit: "km/h",
+        showIf: { path: "breakDoors", values: [true] },
+      },
     ],
   },
   {
