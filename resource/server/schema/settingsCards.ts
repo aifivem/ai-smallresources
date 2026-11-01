@@ -1,7 +1,6 @@
-import type { CardSpec, DataSpec, WidgetSpec } from "@aicore-fivem/shared";
-import { EMERGENCY_AREAS } from "common/areas";
-import { switchField } from "./fields";
-import { COMBAT_CARD, EMERGENCY_AREAS_SPEC, WORLD_CARD } from "./worldCards";
+import type { CardSpec, WidgetSpec } from "@aicore-fivem/shared";
+import { switchField } from "./switchField";
+import { COMBAT_CARD, WORLD_CARD } from "./worldCards";
 
 const percentField = (path: string, key: string): WidgetSpec => ({
   widget: "number",
@@ -13,105 +12,6 @@ const percentField = (path: string, key: string): WidgetSpec => ({
   step: 5,
   unit: "%",
 });
-
-const BOOL: DataSpec = { type: "bool" };
-const PERCENT: DataSpec = { type: "number", min: 0, max: 100, integer: true };
-
-/** Data model of `data/settings.json`. */
-export const SETTINGS_SECTIONS: Record<string, DataSpec> = {
-  seatbelt: BOOL,
-  ejectUnbelted: { type: "number", min: 0, max: 500, integer: true },
-  ejectBelted: { type: "number", min: 0, max: 500, integer: true },
-  cruise: BOOL,
-  noShuffle: BOOL,
-  noRadio: BOOL,
-  fakePlate: BOOL,
-  boatRope: BOOL,
-  crouch: BOOL,
-  tackle: BOOL,
-  point: BOOL,
-  handsUp: BOOL,
-  ragdoll: BOOL,
-  carry: BOOL,
-  sit: BOOL,
-  antiPeek: BOOL,
-  binoculars: BOOL,
-  fireworks: BOOL,
-  notepad: BOOL,
-  diveGear: BOOL,
-  diveAir: { type: "number", min: 10, max: 3600, integer: true },
-  diveWearSeconds: { type: "number", min: 1, max: 60, integer: true },
-  diveFillSeconds: { type: "number", min: 1, max: 60, integer: true },
-  afkMinutes: { type: "number", min: 0, max: 600, integer: true },
-  noDispatch: BOOL,
-  hideHud: BOOL,
-  noEmergencySpawns: BOOL,
-  emergencyAreas: EMERGENCY_AREAS_SPEC,
-  noAircraft: BOOL,
-  noPoliceAudio: BOOL,
-  quietAmbience: BOOL,
-  noGarbageTrucks: BOOL,
-  noIdleCam: BOOL,
-  noStealth: BOOL,
-  sprintIndoors: BOOL,
-  noAutoHelmet: BOOL,
-  keepProps: BOOL,
-  noActionMode: BOOL,
-  noPistolWhip: BOOL,
-  noCoverPeek: BOOL,
-  noCriticalHits: BOOL,
-  noBunnyHop: BOOL,
-  noPickups: BOOL,
-  noVehicleRewards: BOOL,
-  noMouseSteer: BOOL,
-  noAirControl: BOOL,
-  pedDensity: PERCENT,
-  scenarioDensity: PERCENT,
-  trafficDensity: PERCENT,
-  parkedDensity: PERCENT,
-};
-
-/** Values a settings file from an older version is missing. */
-export const SETTINGS_DEFAULTS = {
-  noRadio: false,
-  fakePlate: true,
-  boatRope: true,
-  point: true,
-  handsUp: true,
-  ragdoll: true,
-  carry: true,
-  sit: true,
-  antiPeek: true,
-  notepad: true,
-  diveGear: true,
-  diveAir: 100,
-  diveWearSeconds: 5,
-  diveFillSeconds: 5,
-  pedDensity: 80,
-  scenarioDensity: 80,
-  trafficDensity: 80,
-  parkedDensity: 80,
-  noEmergencySpawns: true,
-  emergencyAreas: EMERGENCY_AREAS,
-  noAircraft: true,
-  noPoliceAudio: true,
-  quietAmbience: true,
-  noGarbageTrucks: true,
-  noIdleCam: true,
-  noStealth: true,
-  sprintIndoors: true,
-  noAutoHelmet: true,
-  keepProps: true,
-  noActionMode: true,
-  noPistolWhip: true,
-  noCoverPeek: true,
-  noCriticalHits: false,
-  noBunnyHop: true,
-  noPickups: true,
-  noVehicleRewards: true,
-  noMouseSteer: true,
-  noAirControl: true,
-};
 
 /** The cards of the Settings tab. */
 export const SETTINGS_CARDS: CardSpec[] = [

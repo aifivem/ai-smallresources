@@ -25,7 +25,7 @@ const DEFAULTS = {
 };
 
 /** Data model of `data/discord.json`. */
-export const DISCORD_FILE: FileSpec = {
+export const discordFile: FileSpec = {
   kind: "settings",
   sync: "all",
   sections: {
@@ -67,7 +67,7 @@ const text = (path: string, key: string): WidgetSpec => ({
 });
 
 /** The Discord tab: Rich Presence shown on every player's Discord profile while they play. */
-export const DISCORD_TAB: TabSpec = {
+export const discordTab: TabSpec = {
   id: "discord",
   file: "discord",
   icon: "comments",

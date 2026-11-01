@@ -1,5 +1,5 @@
 import type { CardSpec, DataSpec } from "@aicore-fivem/shared";
-import { switchField } from "./fields";
+import { switchField } from "./switchField";
 
 /** Panel areas where GTA's vehicle generators stay off. */
 export const EMERGENCY_AREAS_SPEC: DataSpec = {

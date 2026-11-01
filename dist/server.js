@@ -465,7 +465,7 @@ var ClientGate = class {
 	}
 };
 // ../../../packages/lib/src/server/callback.ts
-const log$5 = createLogger(GetCurrentResourceName()), resource$1 = GetCurrentResourceName(), REFUSED = Symbol("refused");
+const log$5 = createLogger(GetCurrentResourceName()), resource$2 = GetCurrentResourceName(), REFUSED = Symbol("refused");
 function onClientCallback(name, first, second) {
 	let [handler, options] = typeof first == "function" ? [first, second ?? {}] : [second, first], gate = new ClientGate(name, options, 20);
 	onNet(requestEvent(name), async (caller, id, ...raw) => {
@@ -483,7 +483,7 @@ function onClientCallback(name, first, second) {
 }
 const pending = new Map();
 let nextId = 0;
-onNet(responseEvent(resource$1), (id, ok, result) => {
+onNet(responseEvent(resource$2), (id, ok, result) => {
 	let entry = typeof id == "number" ? pending.get(id) : void 0;
 	entry && entry.source === Number(globalThis.source) && (pending.delete(id), clearTimeout(entry.timer), ok === !0 ? entry.resolve(result) : entry.reject(Error("client callback failed")));
 });
@@ -498,7 +498,7 @@ function triggerClientCallback(name, source, args = [], timeoutMs = 3e4) {
 			resolve,
 			reject,
 			timer
-		}), emitNet(requestEvent(name), source, resource$1, id, ...args);
+		}), emitNet(requestEvent(name), source, resource$2, id, ...args);
 	});
 }
 // ../../../packages/lib/src/server/admin/patch.ts
@@ -543,7 +543,7 @@ function toPatch(value) {
 		default: return null;
 	}
 }
-const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(value)), core$26 = resourceExport(CORE.resource), ERR = {
+const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(value)), core$27 = resourceExport(CORE.resource), ERR = {
 	type: "ADMIN_ERR_TYPE",
 	range: "ADMIN_ERR_RANGE",
 	length: "ADMIN_ERR_LENGTH",
@@ -557,7 +557,7 @@ const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(va
 		if (cached && Date.now() - cached.at < 2e3) return cached.values.size > 0 ? cached.values : null;
 		let list = [];
 		try {
-			list = core$26.GetLookupValues(source);
+			list = core$27.GetLookupValues(source);
 		} catch {}
 		let values = new Set(Array.isArray(list) ? list.filter((v) => typeof v == "string") : []);
 		return this.lists.set(source, {
@@ -686,11 +686,7 @@ function applyEdit(data, patch, spec) {
 	}
 	return [spec.kind === "records" ? patch.key : void 0];
 }
-// ../../../packages/lib/src/server/admin/jsonSchema.ts
-const SCHEMA_KEY = {
-	type: "string",
-	description: "This file's JSON Schema (for editors)."
-};
+// ../../../packages/lib/src/server/admin/descriptions.ts
 function langFile(resource) {
 	try {
 		let raw = JSON.parse(LoadResourceFile(resource, "locales/en.json") ?? "{}");
@@ -717,6 +713,11 @@ function describe(schema, file, lang) {
 	for (let tab of schema.tabs) if (tab.file === file) for (let card of tab.cards) collect(card.fields, "", lang, out);
 	return out;
 }
+// ../../../packages/lib/src/server/admin/jsonSchema.ts
+const SCHEMA_KEY = {
+	type: "string",
+	description: "This file's JSON Schema (for editors)."
+};
 function toJson(spec, path, desc) {
 	let description = desc.get(path), base = description ? { description } : {};
 	switch (spec.type) {
@@ -821,27 +822,20 @@ function writeSchema(resource, name, text, log) {
 	let dir = `${GetResourcePath(resource)}/data/schemas`;
 	(0, node_fs_promises.mkdir)(dir, { recursive: !0 }).then(() => (0, node_fs_promises.writeFile)(`${dir}/${name}.schema.json`, text, "utf8")).catch((error) => log.error(`writing ${resource}/${path} failed`, error));
 }
-// ../../../packages/lib/src/server/admin/panel.ts
-const core$25 = resourceExport(CORE.resource);
-var AdminPanel = class {
+// ../../../packages/lib/src/server/admin/panelFiles.ts
+const core$26 = resourceExport(CORE.resource);
+var PanelFiles = class {
 	schema;
 	data = new Map();
 	dataFiles = new Map();
 	handlers = new Map();
-	rules = new Map();
-	actions = new Map();
 	views = new FileViews((file) => this.get(file));
 	worldChanges = new Map();
 	resource = GetCurrentResourceName();
 	log = createLogger(this.resource);
-	editor = 0;
 	constructor(schema) {
 		this.schema = schema;
 		for (let [name, spec] of Object.entries(schema.files)) this.load(name, spec);
-		registerExport("AdminPanelSnapshot", () => this.snapshot()), registerExport("AdminPanelData", () => this.dataSnapshot()), registerExport("AdminPanelSummary", () => this.summary()), registerExport("AdminPanelApply", (admin, patch) => this.apply(admin, patch)), onClientCallback(ADMIN.worldChangesCallback(this.resource), () => Object.fromEntries(this.worldChanges), { rate: {
-			count: 4,
-			windowMs: 1e4
-		} }), setImmediate(() => core$25.RegisterAdminPanel(this.resource));
 	}
 	get(file) {
 		return this.data.get(file) ?? {};
@@ -849,17 +843,68 @@ var AdminPanel = class {
 	onChange(file, handler) {
 		this.handlers.set(file, [...this.handlers.get(file) ?? [], handler]);
 	}
-	rule(file, rule) {
-		this.rules.set(file, rule);
-	}
-	onAction(id, handler) {
-		this.actions.set(id, handler);
-	}
 	view(file, read) {
 		return this.views.view(file, read);
 	}
 	records(file, readOne) {
 		return this.views.records(file, readOne);
+	}
+	commit(file, key, value) {
+		let data = this.data.get(file);
+		data && (key === void 0 ? isRecord(value) && this.data.set(file, clone(value)) : value === null ? delete data[key] : data[key] = clone(value), this.changed(file, key));
+	}
+	commitAfter(file, key, value) {
+		setImmediate(() => this.commit(file, key, value));
+	}
+	store(patch, spec) {
+		let data = this.data.get(patch.file) ?? {}, keys = applyEdit(data, patch, spec);
+		if (keys.length !== 0) {
+			this.data.set(patch.file, data);
+			for (let key of keys) this.changed(patch.file, key);
+		}
+	}
+	changed(file, key) {
+		let spec = this.schema.files[file], data = this.get(file), value = key === void 0 ? data : data[key] ?? null;
+		this.dataFiles.get(file)?.write(data), this.views.changed(file, key, value);
+		for (let handler of this.handlers.get(file) ?? []) handler(key, value);
+		if (core$26.AdminPanelChanged({
+			resource: this.resource,
+			file,
+			key,
+			value: clone(value)
+		}), spec?.sync !== "all") return;
+		let changes = this.worldChanges.get(file) ?? {};
+		changes[key ?? ""] = clone(value), this.worldChanges.set(file, changes), emitNet(ADMIN.worldEvent(this.resource), -1, file, key ?? null, value);
+	}
+	load(name, spec) {
+		if (spec.memory) {
+			this.data.set(name, {});
+			return;
+		}
+		let file = new DataFile(this.resource, name, this.log);
+		this.dataFiles.set(name, file), file.schemaRef = `./schemas/${name}.schema.json`, writeSchema(this.resource, name, fileSchema(this.resource, this.schema, name, spec), this.log);
+		let raw = file.read(), data = isRecord(raw) ? raw : {}, filled = !1;
+		if (spec.kind === "settings") for (let [section, value] of Object.entries(spec.defaults ?? {})) section in data || (data[section] = clone(value), filled = !0);
+		this.data.set(name, data), (filled || raw === null || !file.hasSchemaRef()) && file.write(data);
+	}
+};
+// ../../../packages/lib/src/server/admin/panel.ts
+const core$25 = resourceExport(CORE.resource);
+var AdminPanel = class extends PanelFiles {
+	rules = new Map();
+	actions = new Map();
+	editor = 0;
+	constructor(schema) {
+		super(schema), registerExport("AdminPanelSnapshot", () => this.snapshot()), registerExport("AdminPanelData", () => this.dataSnapshot()), registerExport("AdminPanelSummary", () => this.summary()), registerExport("AdminPanelApply", (admin, patch) => this.apply(admin, patch)), onClientCallback(ADMIN.worldChangesCallback(this.resource), () => Object.fromEntries(this.worldChanges), { rate: {
+			count: 4,
+			windowMs: 1e4
+		} }), setImmediate(() => core$25.RegisterAdminPanel(this.resource));
+	}
+	rule(file, rule) {
+		this.rules.set(file, rule);
+	}
+	onAction(id, handler) {
+		this.actions.set(id, handler);
 	}
 	snapshot() {
 		return {
@@ -937,44 +982,6 @@ var AdminPanel = class {
 			};
 		}
 	}
-	commit(file, key, value) {
-		let data = this.data.get(file);
-		data && (key === void 0 ? isRecord(value) && this.data.set(file, clone(value)) : value === null ? delete data[key] : data[key] = clone(value), this.changed(file, key));
-	}
-	commitAfter(file, key, value) {
-		setImmediate(() => this.commit(file, key, value));
-	}
-	store(patch, spec) {
-		let data = this.data.get(patch.file) ?? {}, keys = applyEdit(data, patch, spec);
-		if (keys.length !== 0) {
-			this.data.set(patch.file, data);
-			for (let key of keys) this.changed(patch.file, key);
-		}
-	}
-	changed(file, key) {
-		let spec = this.schema.files[file], data = this.get(file), value = key === void 0 ? data : data[key] ?? null;
-		this.dataFiles.get(file)?.write(data), this.views.changed(file, key, value);
-		for (let handler of this.handlers.get(file) ?? []) handler(key, value);
-		if (core$25.AdminPanelChanged({
-			resource: this.resource,
-			file,
-			key,
-			value: clone(value)
-		}), spec?.sync !== "all") return;
-		let changes = this.worldChanges.get(file) ?? {};
-		changes[key ?? ""] = clone(value), this.worldChanges.set(file, changes), emitNet(ADMIN.worldEvent(this.resource), -1, file, key ?? null, value);
-	}
-	load(name, spec) {
-		if (spec.memory) {
-			this.data.set(name, {});
-			return;
-		}
-		let file = new DataFile(this.resource, name, this.log);
-		this.dataFiles.set(name, file), file.schemaRef = `./schemas/${name}.schema.json`, writeSchema(this.resource, name, fileSchema(this.resource, this.schema, name, spec), this.log);
-		let raw = file.read(), data = isRecord(raw) ? raw : {}, filled = !1;
-		if (spec.kind === "settings") for (let [section, value] of Object.entries(spec.defaults ?? {})) section in data || (data[section] = clone(value), filled = !0);
-		this.data.set(name, data), (filled || raw === null || !file.hasSchemaRef()) && file.write(data);
-	}
 };
 function labelOf(record, path) {
 	if (!path) return null;
@@ -1024,7 +1031,7 @@ function reindex(index, source, before, after) {
 		set || index.set(name, set = new Set()), set.add(source);
 	}
 }
-var OnlinePlayers = class {
+var OnlineMirror = class {
 	players = new Map();
 	onDuty = new Map();
 	jobIndex = new Map();
@@ -1076,6 +1083,7 @@ var OnlinePlayers = class {
 		let set = this.onDuty.get(job);
 		set || this.onDuty.set(job, set = new Set()), set.add(source);
 	}
+}, OnlinePlayers = class extends OnlineMirror {
 	sources() {
 		return this.start(), this.players.keys();
 	}
@@ -1157,6 +1165,14 @@ function randomPlate(prefix) {
 	let letter = () => "ABCDEFGHJKLMNPRSTUVWXYZ"[Math.floor(Math.random() * 23)] ?? "A";
 	return `${digit()}${digit()}${letter()}${letter()}${letter()}${digit()}${digit()}${digit()}`;
 }
+// ../../../packages/lib/src/server/netEntity.ts
+function entityFromNet(netId, type) {
+	if (readId(netId) === null) return 0;
+	let entity = NetworkGetEntityFromNetworkId(netId);
+	return !entity || !DoesEntityExist(entity) ? 0 : type === void 0 || GetEntityType(entity) === type ? entity : 0;
+}
+const vehicleFromNet = (netId) => entityFromNet(netId, 2);
+// ../../../packages/lib/src/server/vehicle/nearby.ts
 function nearestVehicleTo(source, metres, filter) {
 	let ped = GetPlayerPed(String(source)), own = GetVehiclePedIsIn(ped, !1);
 	if (own && (!filter || filter(own))) return own;
@@ -1167,12 +1183,8 @@ function nearestVehicleTo(source, metres, filter) {
 	}
 	return best;
 }
-function entityFromNet(netId, type) {
-	if (readId(netId) === null) return 0;
-	let entity = NetworkGetEntityFromNetworkId(netId);
-	return !entity || !DoesEntityExist(entity) ? 0 : type === void 0 || GetEntityType(entity) === type ? entity : 0;
-}
-const vehicleFromNet = (netId) => entityFromNet(netId, 2), core$20 = resourceExport(CORE.resource);
+// ../../../packages/lib/src/server/proximity.ts
+const core$20 = resourceExport(CORE.resource);
 function within(point, radius, candidates) {
 	let out = [];
 	for (let source of candidates) {
@@ -1337,10 +1349,10 @@ new class {
 		let def = this.gangs.get(name);
 		return def === void 0 && this.gangs.set(name, def = core$19.GetGangDefinition(name) ?? null), def;
 	}
-}();
-// ../../../packages/lib/src/server/command.ts
+}(), createLogger(GetCurrentResourceName());
+// ../../../packages/lib/src/server/command/commandSet.ts
 const resource = GetCurrentResourceName();
-createLogger(resource), new class {
+new class {
 	list = [];
 	sent = new Map();
 	announced = 0;
@@ -1378,47 +1390,8 @@ function onClientEvent(name, first, second) {
 createLogger("aicore-lib");
 // ../../../packages/lib/src/fivem/byResource.ts
 const plateOf = (vehicle) => GetVehicleNumberPlateText(vehicle).trim().toUpperCase();
-let log = null;
-var ScheduledJob = class {
-	interval;
-	fn;
-	name;
-	gen = 0;
-	active = !1;
-	stopped = !1;
-	quietUntil = 0;
-	skipped = 0;
-	constructor(interval, fn, name) {
-		this.interval = interval, this.fn = fn, this.name = name;
-	}
-	get running() {
-		return this.active;
-	}
-	set(active) {
-		active === this.active || active && this.stopped || (this.active = active, active ? scheduler.activate(this) : scheduler.deactivate(this));
-	}
-	stop() {
-		this.set(!1), this.stopped = !0;
-	}
-	call() {
-		try {
-			let result = this.fn();
-			result instanceof Promise && result.catch((error) => this.fail(error));
-		} catch (error) {
-			this.fail(error);
-		}
-	}
-	fail(error) {
-		let now = GetGameTimer();
-		if (now < this.quietUntil) {
-			this.skipped++;
-			return;
-		}
-		this.quietUntil = now + 1e4;
-		let more = this.skipped ? ` (+${this.skipped} more)` : "";
-		this.skipped = 0, log ??= createLogger(GetCurrentResourceName()), log.error(`job "${this.name}" failed${more}`, error instanceof Error ? error.stack ?? error.message : error);
-	}
-}, Group = class {
+// ../../../packages/lib/src/fivem/scheduler/group.ts
+var Group = class {
 	interval;
 	jobs = Array(8);
 	gens = Array(8).fill(0);
@@ -1504,12 +1477,53 @@ const scheduler = new class {
 		groups.length = kept, this.nextDue = soonest;
 	};
 }();
+let log = null;
+var ScheduledJob = class {
+	interval;
+	fn;
+	name;
+	gen = 0;
+	active = !1;
+	stopped = !1;
+	quietUntil = 0;
+	skipped = 0;
+	constructor(interval, fn, name) {
+		this.interval = interval, this.fn = fn, this.name = name;
+	}
+	get running() {
+		return this.active;
+	}
+	set(active) {
+		active === this.active || active && this.stopped || (this.active = active, active ? scheduler.activate(this) : scheduler.deactivate(this));
+	}
+	stop() {
+		this.set(!1), this.stopped = !0;
+	}
+	call() {
+		try {
+			let result = this.fn();
+			result instanceof Promise && result.catch((error) => this.fail(error));
+		} catch (error) {
+			this.fail(error);
+		}
+	}
+	fail(error) {
+		let now = GetGameTimer();
+		if (now < this.quietUntil) {
+			this.skipped++;
+			return;
+		}
+		this.quietUntil = now + 1e4;
+		let more = this.skipped ? ` (+${this.skipped} more)` : "";
+		this.skipped = 0, log ??= createLogger(GetCurrentResourceName()), log.error(`job "${this.name}" failed${more}`, error instanceof Error ? error.stack ?? error.message : error);
+	}
+};
 function every(ms, fn, options = {}) {
 	let job = new ScheduledJob(Math.max(0, Math.floor(ms)), fn, options.name ?? (fn.name || "anonymous"));
 	return options.active !== !1 && job.set(!0), job;
 }
-// ../../../packages/lib/src/fivem/state.ts
-const stateNumber = (v) => typeof v == "number" && Number.isFinite(v) ? v : void 0, stateBoolean = (v) => typeof v == "boolean" ? v : void 0, stateString = (v) => typeof v == "string" ? v : void 0, isServer = IsDuplicityVersion();
+// ../../../packages/lib/src/fivem/state/mirror.ts
+const stateNumber = (v) => typeof v == "number" && Number.isFinite(v) ? v : void 0, stateBoolean = (v) => typeof v == "boolean" ? v : void 0, stateString = (v) => typeof v == "string" ? v : void 0;
 var Mirror = class {
 	key;
 	parse;
@@ -1528,14 +1542,17 @@ var Mirror = class {
 		let old = this.values.get(id);
 		if (this.values.set(id, value), old !== value) for (let listener of this.listeners) listener(id, value, old);
 	}
-}, EntityState$1 = class extends Mirror {
+};
+// ../../../packages/lib/src/fivem/state/entityState.ts
+const isServer$1 = IsDuplicityVersion();
+var EntityState$1 = class extends Mirror {
 	handles = new Map();
 	constructor(key, parse) {
 		super(key, parse), AddStateBagChangeHandler(key, "", (bag, _key, value) => {
 			if (!bag.startsWith("entity:")) return;
 			let netId = Number(bag.slice(7));
 			this.handles.set(netId, GetEntityFromStateBagName(bag)), this.store(netId, value);
-		}), isServer ? on("entityRemoved", (entity) => this.forget(NetworkGetNetworkIdFromEntity(entity))) : every(3e4, () => this.prune(), { name: `state ${key}` });
+		}), isServer$1 ? on("entityRemoved", (entity) => this.forget(NetworkGetNetworkIdFromEntity(entity))) : every(3e4, () => this.prune(), { name: `state ${key}` });
 	}
 	get(entity) {
 		if (!entity) return;
@@ -1562,8 +1579,21 @@ var Mirror = class {
 	prune() {
 		for (let netId of this.values.keys()) DoesEntityExist(NetworkGetEntityFromNetworkId(netId)) || this.forget(netId);
 	}
+}, GlobalKey$1 = class extends Mirror {
+	constructor(key, parse) {
+		super(key, parse);
+		let raw = GlobalState[key];
+		this.values.set("global", raw == null ? void 0 : parse(raw)), AddStateBagChangeHandler(key, "global", (_bag, _key, value) => this.store("global", value));
+	}
+	get() {
+		return this.values.get("global");
+	}
+	put(value) {
+		this.apply("global", value);
+	}
 };
-const playerStates = new Set();
+// ../../../packages/lib/src/fivem/state/playerState.ts
+const isServer = IsDuplicityVersion(), playerStates = new Set();
 let dropListener = !1;
 var PlayerState$1 = class extends Mirror {
 	seen = new Set();
@@ -1593,18 +1623,6 @@ var PlayerState$1 = class extends Mirror {
 	}
 	forget(serverId) {
 		this.values.delete(serverId), this.seen.delete(serverId);
-	}
-}, GlobalKey$1 = class extends Mirror {
-	constructor(key, parse) {
-		super(key, parse);
-		let raw = GlobalState[key];
-		this.values.set("global", raw == null ? void 0 : parse(raw)), AddStateBagChangeHandler(key, "global", (_bag, _key, value) => this.store("global", value));
-	}
-	get() {
-		return this.values.get("global");
-	}
-	put(value) {
-		this.apply("global", value);
 	}
 }, EntityState = class extends EntityState$1 {
 	set(entity, value) {
@@ -1811,8 +1829,262 @@ function readSettings(raw) {
 		diveFillSeconds: int(v.diveFillSeconds, 5, 1, 60)
 	};
 }
-// resource/common/seats.ts
-const SEAT_TYPES = {
+// resource/server/schema/discord.ts
+const TEXT = {
+	type: "text",
+	min: 0,
+	max: 128
+}, discordFile = {
+	kind: "settings",
+	sync: "all",
+	sections: {
+		enabled: { type: "bool" },
+		appId: {
+			type: "text",
+			min: 0,
+			max: 20,
+			pattern: "^(\\d{17,20})?$"
+		},
+		largeImage: TEXT,
+		largeText: TEXT,
+		smallImage: TEXT,
+		smallText: TEXT,
+		top: TEXT,
+		bottom: TEXT,
+		buttons: {
+			type: "list",
+			max: 2,
+			of: {
+				type: "object",
+				fields: {
+					label: {
+						type: "text",
+						min: 1,
+						max: 32
+					},
+					url: {
+						type: "text",
+						min: 9,
+						max: 512,
+						pattern: "^https://\\S+$"
+					}
+				}
+			}
+		}
+	},
+	defaults: {
+		enabled: !1,
+		appId: "",
+		largeImage: "",
+		largeText: "",
+		smallImage: "",
+		smallText: "",
+		top: "{players}/{maxPlayers} players",
+		bottom: "Playing as {name}",
+		buttons: []
+	}
+}, text = (path, key) => ({
+	widget: "text",
+	path,
+	label: `ADMIN_F_DISCORD_${key}`,
+	hint: `ADMIN_H_DISCORD_${key}`,
+	placeholder: `ADMIN_P_DISCORD_${key}`
+}), discordTab = {
+	id: "discord",
+	file: "discord",
+	icon: "comments",
+	label: "ADMIN_TAB_DISCORD",
+	desc: "ADMIN_TAB_DISCORD_DESC",
+	cards: [
+		{
+			icon: "id-card",
+			title: "ADMIN_C_DISCORD_APP",
+			desc: "ADMIN_C_DISCORD_APP_DESC",
+			fields: [{
+				widget: "switch",
+				path: "enabled",
+				label: "ADMIN_F_DISCORD_ENABLED",
+				hint: "ADMIN_H_DISCORD_ENABLED"
+			}, text("appId", "APP_ID")]
+		},
+		{
+			icon: "image",
+			title: "ADMIN_C_DISCORD_IMAGES",
+			desc: "ADMIN_C_DISCORD_IMAGES_DESC",
+			fields: [
+				text("largeImage", "LARGE_IMAGE"),
+				text("largeText", "LARGE_TEXT"),
+				text("smallImage", "SMALL_IMAGE"),
+				text("smallText", "SMALL_TEXT")
+			]
+		},
+		{
+			icon: "comments",
+			title: "ADMIN_C_DISCORD_TEXT",
+			desc: "ADMIN_C_DISCORD_TEXT_DESC",
+			fields: [text("top", "TOP"), text("bottom", "BOTTOM")]
+		},
+		{
+			icon: "hand-pointer",
+			title: "ADMIN_C_DISCORD_BUTTONS",
+			desc: "ADMIN_C_DISCORD_BUTTONS_DESC",
+			fields: [{
+				widget: "list",
+				path: "buttons",
+				label: "ADMIN_F_DISCORD_BUTTONS",
+				hint: "ADMIN_H_DISCORD_BUTTONS",
+				addLabel: "ADMIN_ADD_DISCORD_BUTTON",
+				max: 2,
+				newRow: {
+					label: "",
+					url: "https://"
+				},
+				rows: [text("label", "BUTTON_LABEL"), text("url", "BUTTON_URL")]
+			}]
+		}
+	]
+}, elevatorsFile = {
+	kind: "records",
+	sync: "all",
+	labelPath: "label",
+	newRecord: {
+		label: "",
+		floors: []
+	},
+	sections: {
+		label: {
+			type: "text",
+			min: 1,
+			max: 48
+		},
+		floors: {
+			type: "list",
+			max: 20,
+			of: {
+				type: "object",
+				fields: {
+					label: {
+						type: "text",
+						min: 1,
+						max: 32
+					},
+					point: { type: "vec4" },
+					job: {
+						type: "text",
+						lookup: "job",
+						min: 0,
+						max: 32
+					}
+				}
+			}
+		}
+	}
+}, elevatorsTab = {
+	id: "elevators",
+	file: "elevators",
+	icon: "elevator",
+	label: "ADMIN_TAB_ELEVATORS",
+	desc: "ADMIN_TAB_ELEVATORS_DESC",
+	createLabel: "ADMIN_NEW_ELEVATOR",
+	deleteLabel: "ADMIN_DELETE_ELEVATOR",
+	cards: [{
+		icon: "elevator",
+		title: "ADMIN_C_ELEVATOR",
+		desc: "ADMIN_C_ELEVATOR_DESC",
+		fields: [{
+			widget: "text",
+			path: "label",
+			label: "ADMIN_F_LABEL",
+			placeholder: "ADMIN_P_ELEVATOR"
+		}, {
+			widget: "list",
+			path: "floors",
+			label: "ADMIN_F_FLOORS",
+			hint: "ADMIN_H_FLOORS",
+			addLabel: "ADMIN_ADD_FLOOR",
+			max: 20,
+			newRow: {
+				label: "",
+				point: {
+					x: 0,
+					y: 0,
+					z: 0,
+					heading: 0
+				},
+				job: ""
+			},
+			rows: [
+				{
+					widget: "text",
+					path: "label",
+					label: "ADMIN_F_FLOOR_LABEL",
+					placeholder: "ADMIN_P_FLOOR"
+				},
+				{
+					widget: "point",
+					path: "point",
+					label: "ADMIN_F_FLOOR_POINT",
+					heading: !0,
+					ground: !0
+				},
+				{
+					widget: "text",
+					lookup: "job",
+					path: "job",
+					label: "ADMIN_F_JOB",
+					hint: "ADMIN_H_FLOOR_JOB",
+					placeholder: "ADMIN_P_JOB"
+				}
+			]
+		}]
+	}]
+}, mooringsFile = {
+	kind: "records",
+	sync: "all",
+	labelPath: "label",
+	newRecord: {
+		label: "",
+		point: {
+			x: 0,
+			y: 0,
+			z: 0,
+			heading: 0
+		}
+	},
+	sections: {
+		label: {
+			type: "text",
+			min: 1,
+			max: 48
+		},
+		point: { type: "vec4" }
+	}
+}, mooringsTab = {
+	id: "moorings",
+	file: "moorings",
+	icon: "anchor",
+	label: "ADMIN_TAB_MOORINGS",
+	desc: "ADMIN_TAB_MOORINGS_DESC",
+	createLabel: "ADMIN_NEW_MOORING",
+	deleteLabel: "ADMIN_DELETE_MOORING",
+	cards: [{
+		icon: "anchor",
+		title: "ADMIN_C_MOORING",
+		desc: "ADMIN_C_MOORING_DESC",
+		fields: [{
+			widget: "text",
+			path: "label",
+			suggest: { from: "point" },
+			label: "ADMIN_F_LABEL",
+			placeholder: "ADMIN_P_MOORING"
+		}, {
+			widget: "point",
+			path: "point",
+			label: "ADMIN_F_MOORING_POINT",
+			hint: "ADMIN_H_MOORING_POINT"
+		}]
+	}]
+}, SEAT_TYPES = {
 	chair: {
 		kind: "scenario",
 		name: "PROP_HUMAN_SEAT_CHAIR_MP_PLAYER"
@@ -1871,300 +2143,143 @@ const SEAT_TYPES = {
 		clip: "beginning_loop_director",
 		z: -1.16
 	}
-}, TEXT = {
-	type: "text",
-	min: 0,
-	max: 128
-}, DISCORD_FILE = {
-	kind: "settings",
+}, OFFSET = {
+	type: "number",
+	min: -10,
+	max: 10
+}, seatsFile = {
+	kind: "records",
 	sync: "all",
+	labelPath: "model",
+	newRecord: {
+		model: "",
+		type: "chair",
+		teleport: !1,
+		seats: []
+	},
 	sections: {
-		enabled: { type: "bool" },
-		appId: {
+		model: {
 			type: "text",
-			min: 0,
-			max: 20,
-			pattern: "^(\\d{17,20})?$"
+			min: 1,
+			max: 64
 		},
-		largeImage: TEXT,
-		largeText: TEXT,
-		smallImage: TEXT,
-		smallText: TEXT,
-		top: TEXT,
-		bottom: TEXT,
-		buttons: {
+		type: {
+			type: "enum",
+			values: Object.keys(SEAT_TYPES)
+		},
+		teleport: { type: "bool" },
+		seats: {
 			type: "list",
-			max: 2,
+			min: 1,
+			max: 12,
 			of: {
 				type: "object",
 				fields: {
-					label: {
-						type: "text",
-						min: 1,
-						max: 32
-					},
-					url: {
-						type: "text",
-						min: 9,
-						max: 512,
-						pattern: "^https://\\S+$"
+					x: OFFSET,
+					y: OFFSET,
+					z: OFFSET,
+					heading: {
+						type: "number",
+						min: 0,
+						max: 360
 					}
 				}
 			}
 		}
-	},
-	defaults: {
-		enabled: !1,
-		appId: "",
-		largeImage: "",
-		largeText: "",
-		smallImage: "",
-		smallText: "",
-		top: "{players}/{maxPlayers} players",
-		bottom: "Playing as {name}",
-		buttons: []
 	}
-}, text = (path, key) => ({
-	widget: "text",
-	path,
-	label: `ADMIN_F_DISCORD_${key}`,
-	hint: `ADMIN_H_DISCORD_${key}`,
-	placeholder: `ADMIN_P_DISCORD_${key}`
-}), DISCORD_TAB = {
-	id: "discord",
-	file: "discord",
-	icon: "comments",
-	label: "ADMIN_TAB_DISCORD",
-	desc: "ADMIN_TAB_DISCORD_DESC",
-	cards: [
-		{
-			icon: "id-card",
-			title: "ADMIN_C_DISCORD_APP",
-			desc: "ADMIN_C_DISCORD_APP_DESC",
-			fields: [{
+}, seatsTab = {
+	id: "seats",
+	file: "seats",
+	icon: "chair",
+	label: "ADMIN_TAB_SEATS",
+	desc: "ADMIN_TAB_SEATS_DESC",
+	listSub: "type",
+	createLabel: "ADMIN_NEW_SEAT",
+	deleteLabel: "ADMIN_DELETE_SEAT",
+	cards: [{
+		icon: "chair",
+		title: "ADMIN_C_SEAT",
+		desc: "ADMIN_C_SEAT_DESC",
+		fields: [
+			{
+				widget: "model",
+				kind: "object",
+				path: "model",
+				label: "ADMIN_F_SEAT_MODEL",
+				hint: "ADMIN_H_SEAT_MODEL",
+				placeholder: "ADMIN_P_SEAT_MODEL"
+			},
+			{
+				widget: "select",
+				path: "type",
+				label: "ADMIN_F_SEAT_TYPE",
+				hint: "ADMIN_H_SEAT_TYPE",
+				options: Object.keys(SEAT_TYPES).map((value) => ({
+					value,
+					label: `ADMIN_SEAT_${value.toUpperCase()}`
+				}))
+			},
+			{
 				widget: "switch",
-				path: "enabled",
-				label: "ADMIN_F_DISCORD_ENABLED",
-				hint: "ADMIN_H_DISCORD_ENABLED"
-			}, text("appId", "APP_ID")]
-		},
-		{
-			icon: "image",
-			title: "ADMIN_C_DISCORD_IMAGES",
-			desc: "ADMIN_C_DISCORD_IMAGES_DESC",
-			fields: [
-				text("largeImage", "LARGE_IMAGE"),
-				text("largeText", "LARGE_TEXT"),
-				text("smallImage", "SMALL_IMAGE"),
-				text("smallText", "SMALL_TEXT")
-			]
-		},
-		{
-			icon: "comments",
-			title: "ADMIN_C_DISCORD_TEXT",
-			desc: "ADMIN_C_DISCORD_TEXT_DESC",
-			fields: [text("top", "TOP"), text("bottom", "BOTTOM")]
-		},
-		{
-			icon: "hand-pointer",
-			title: "ADMIN_C_DISCORD_BUTTONS",
-			desc: "ADMIN_C_DISCORD_BUTTONS_DESC",
-			fields: [{
+				path: "teleport",
+				label: "ADMIN_F_SEAT_TELEPORT",
+				hint: "ADMIN_H_SEAT_TELEPORT"
+			},
+			{
 				widget: "list",
-				path: "buttons",
-				label: "ADMIN_F_DISCORD_BUTTONS",
-				hint: "ADMIN_H_DISCORD_BUTTONS",
-				addLabel: "ADMIN_ADD_DISCORD_BUTTON",
-				max: 2,
+				path: "seats",
+				label: "ADMIN_F_SEATS",
+				hint: "ADMIN_H_SEATS",
+				addLabel: "ADMIN_ADD_SEAT",
+				max: 12,
 				newRow: {
-					label: "",
-					url: "https://"
-				},
-				rows: [text("label", "BUTTON_LABEL"), text("url", "BUTTON_URL")]
-			}]
-		}
-	]
-}, PLACE_TABS = [
-	{
-		id: "elevators",
-		file: "elevators",
-		icon: "elevator",
-		label: "ADMIN_TAB_ELEVATORS",
-		desc: "ADMIN_TAB_ELEVATORS_DESC",
-		createLabel: "ADMIN_NEW_ELEVATOR",
-		deleteLabel: "ADMIN_DELETE_ELEVATOR",
-		cards: [{
-			icon: "elevator",
-			title: "ADMIN_C_ELEVATOR",
-			desc: "ADMIN_C_ELEVATOR_DESC",
-			fields: [{
-				widget: "text",
-				path: "label",
-				label: "ADMIN_F_LABEL",
-				placeholder: "ADMIN_P_ELEVATOR"
-			}, {
-				widget: "list",
-				path: "floors",
-				label: "ADMIN_F_FLOORS",
-				hint: "ADMIN_H_FLOORS",
-				addLabel: "ADMIN_ADD_FLOOR",
-				max: 20,
-				newRow: {
-					label: "",
-					point: {
-						x: 0,
-						y: 0,
-						z: 0,
-						heading: 0
-					},
-					job: ""
+					x: 0,
+					y: 0,
+					z: .5,
+					heading: 180
 				},
 				rows: [
 					{
-						widget: "text",
-						path: "label",
-						label: "ADMIN_F_FLOOR_LABEL",
-						placeholder: "ADMIN_P_FLOOR"
+						widget: "number",
+						path: "x",
+						label: "ADMIN_F_SEAT_X",
+						min: -10,
+						max: 10,
+						step: .05,
+						unit: "m"
 					},
 					{
-						widget: "point",
-						path: "point",
-						label: "ADMIN_F_FLOOR_POINT",
-						heading: !0,
-						ground: !0
+						widget: "number",
+						path: "y",
+						label: "ADMIN_F_SEAT_Y",
+						min: -10,
+						max: 10,
+						step: .05,
+						unit: "m"
 					},
 					{
-						widget: "text",
-						lookup: "job",
-						path: "job",
-						label: "ADMIN_F_JOB",
-						hint: "ADMIN_H_FLOOR_JOB",
-						placeholder: "ADMIN_P_JOB"
+						widget: "number",
+						path: "z",
+						label: "ADMIN_F_SEAT_Z",
+						min: -10,
+						max: 10,
+						step: .05,
+						unit: "m"
+					},
+					{
+						widget: "number",
+						path: "heading",
+						label: "ADMIN_F_SEAT_HEADING",
+						min: 0,
+						max: 360,
+						step: 5,
+						unit: "°"
 					}
 				]
-			}]
-		}]
-	},
-	{
-		id: "moorings",
-		file: "moorings",
-		icon: "anchor",
-		label: "ADMIN_TAB_MOORINGS",
-		desc: "ADMIN_TAB_MOORINGS_DESC",
-		createLabel: "ADMIN_NEW_MOORING",
-		deleteLabel: "ADMIN_DELETE_MOORING",
-		cards: [{
-			icon: "anchor",
-			title: "ADMIN_C_MOORING",
-			desc: "ADMIN_C_MOORING_DESC",
-			fields: [{
-				widget: "text",
-				path: "label",
-				suggest: { from: "point" },
-				label: "ADMIN_F_LABEL",
-				placeholder: "ADMIN_P_MOORING"
-			}, {
-				widget: "point",
-				path: "point",
-				label: "ADMIN_F_MOORING_POINT",
-				hint: "ADMIN_H_MOORING_POINT"
-			}]
-		}]
-	},
-	{
-		id: "seats",
-		file: "seats",
-		icon: "chair",
-		label: "ADMIN_TAB_SEATS",
-		desc: "ADMIN_TAB_SEATS_DESC",
-		listSub: "type",
-		createLabel: "ADMIN_NEW_SEAT",
-		deleteLabel: "ADMIN_DELETE_SEAT",
-		cards: [{
-			icon: "chair",
-			title: "ADMIN_C_SEAT",
-			desc: "ADMIN_C_SEAT_DESC",
-			fields: [
-				{
-					widget: "model",
-					kind: "object",
-					path: "model",
-					label: "ADMIN_F_SEAT_MODEL",
-					hint: "ADMIN_H_SEAT_MODEL",
-					placeholder: "ADMIN_P_SEAT_MODEL"
-				},
-				{
-					widget: "select",
-					path: "type",
-					label: "ADMIN_F_SEAT_TYPE",
-					hint: "ADMIN_H_SEAT_TYPE",
-					options: Object.keys(SEAT_TYPES).map((value) => ({
-						value,
-						label: `ADMIN_SEAT_${value.toUpperCase()}`
-					}))
-				},
-				{
-					widget: "switch",
-					path: "teleport",
-					label: "ADMIN_F_SEAT_TELEPORT",
-					hint: "ADMIN_H_SEAT_TELEPORT"
-				},
-				{
-					widget: "list",
-					path: "seats",
-					label: "ADMIN_F_SEATS",
-					hint: "ADMIN_H_SEATS",
-					addLabel: "ADMIN_ADD_SEAT",
-					max: 12,
-					newRow: {
-						x: 0,
-						y: 0,
-						z: .5,
-						heading: 180
-					},
-					rows: [
-						{
-							widget: "number",
-							path: "x",
-							label: "ADMIN_F_SEAT_X",
-							min: -10,
-							max: 10,
-							step: .05,
-							unit: "m"
-						},
-						{
-							widget: "number",
-							path: "y",
-							label: "ADMIN_F_SEAT_Y",
-							min: -10,
-							max: 10,
-							step: .05,
-							unit: "m"
-						},
-						{
-							widget: "number",
-							path: "z",
-							label: "ADMIN_F_SEAT_Z",
-							min: -10,
-							max: 10,
-							step: .05,
-							unit: "m"
-						},
-						{
-							widget: "number",
-							path: "heading",
-							label: "ADMIN_F_SEAT_HEADING",
-							min: 0,
-							max: 360,
-							step: 5,
-							unit: "°"
-						}
-					]
-				}
-			]
-		}]
-	}
-], switchField = (path, key) => ({
+			}
+		]
+	}]
+}, switchField = (path, key) => ({
 	widget: "switch",
 	path,
 	label: `ADMIN_F_${key}`,
@@ -2267,132 +2382,7 @@ const SEAT_TYPES = {
 	max: 100,
 	step: 5,
 	unit: "%"
-}), BOOL = { type: "bool" }, PERCENT = {
-	type: "number",
-	min: 0,
-	max: 100,
-	integer: !0
-}, SETTINGS_SECTIONS = {
-	seatbelt: BOOL,
-	ejectUnbelted: {
-		type: "number",
-		min: 0,
-		max: 500,
-		integer: !0
-	},
-	ejectBelted: {
-		type: "number",
-		min: 0,
-		max: 500,
-		integer: !0
-	},
-	cruise: BOOL,
-	noShuffle: BOOL,
-	noRadio: BOOL,
-	fakePlate: BOOL,
-	boatRope: BOOL,
-	crouch: BOOL,
-	tackle: BOOL,
-	point: BOOL,
-	handsUp: BOOL,
-	ragdoll: BOOL,
-	carry: BOOL,
-	sit: BOOL,
-	antiPeek: BOOL,
-	binoculars: BOOL,
-	fireworks: BOOL,
-	notepad: BOOL,
-	diveGear: BOOL,
-	diveAir: {
-		type: "number",
-		min: 10,
-		max: 3600,
-		integer: !0
-	},
-	diveWearSeconds: {
-		type: "number",
-		min: 1,
-		max: 60,
-		integer: !0
-	},
-	diveFillSeconds: {
-		type: "number",
-		min: 1,
-		max: 60,
-		integer: !0
-	},
-	afkMinutes: {
-		type: "number",
-		min: 0,
-		max: 600,
-		integer: !0
-	},
-	noDispatch: BOOL,
-	hideHud: BOOL,
-	noEmergencySpawns: BOOL,
-	emergencyAreas: EMERGENCY_AREAS_SPEC,
-	noAircraft: BOOL,
-	noPoliceAudio: BOOL,
-	quietAmbience: BOOL,
-	noGarbageTrucks: BOOL,
-	noIdleCam: BOOL,
-	noStealth: BOOL,
-	sprintIndoors: BOOL,
-	noAutoHelmet: BOOL,
-	keepProps: BOOL,
-	noActionMode: BOOL,
-	noPistolWhip: BOOL,
-	noCoverPeek: BOOL,
-	noCriticalHits: BOOL,
-	noBunnyHop: BOOL,
-	noPickups: BOOL,
-	noVehicleRewards: BOOL,
-	noMouseSteer: BOOL,
-	noAirControl: BOOL,
-	pedDensity: PERCENT,
-	scenarioDensity: PERCENT,
-	trafficDensity: PERCENT,
-	parkedDensity: PERCENT
-}, SETTINGS_DEFAULTS = {
-	noRadio: !1,
-	fakePlate: !0,
-	boatRope: !0,
-	point: !0,
-	handsUp: !0,
-	ragdoll: !0,
-	carry: !0,
-	sit: !0,
-	antiPeek: !0,
-	notepad: !0,
-	diveGear: !0,
-	diveAir: 100,
-	diveWearSeconds: 5,
-	diveFillSeconds: 5,
-	pedDensity: 80,
-	scenarioDensity: 80,
-	trafficDensity: 80,
-	parkedDensity: 80,
-	noEmergencySpawns: !0,
-	emergencyAreas: EMERGENCY_AREAS,
-	noAircraft: !0,
-	noPoliceAudio: !0,
-	quietAmbience: !0,
-	noGarbageTrucks: !0,
-	noIdleCam: !0,
-	noStealth: !0,
-	sprintIndoors: !0,
-	noAutoHelmet: !0,
-	keepProps: !0,
-	noActionMode: !0,
-	noPistolWhip: !0,
-	noCoverPeek: !0,
-	noCriticalHits: !1,
-	noBunnyHop: !0,
-	noPickups: !0,
-	noVehicleRewards: !0,
-	noMouseSteer: !0,
-	noAirControl: !0
-}, SETTINGS_CARDS = [
+}), SETTINGS_CARDS = [
 	{
 		icon: "car",
 		title: "ADMIN_C_DRIVING",
@@ -2508,203 +2498,229 @@ const SEAT_TYPES = {
 			switchField("noGarbageTrucks", "NO_GARBAGE_TRUCKS")
 		]
 	}
-], OFFSET = {
+], BOOL = { type: "bool" }, PERCENT = {
 	type: "number",
-	min: -10,
-	max: 10
+	min: 0,
+	max: 100,
+	integer: !0
+}, settingsFile = {
+	kind: "settings",
+	sync: "all",
+	sections: {
+		seatbelt: BOOL,
+		ejectUnbelted: {
+			type: "number",
+			min: 0,
+			max: 500,
+			integer: !0
+		},
+		ejectBelted: {
+			type: "number",
+			min: 0,
+			max: 500,
+			integer: !0
+		},
+		cruise: BOOL,
+		noShuffle: BOOL,
+		noRadio: BOOL,
+		fakePlate: BOOL,
+		boatRope: BOOL,
+		crouch: BOOL,
+		tackle: BOOL,
+		point: BOOL,
+		handsUp: BOOL,
+		ragdoll: BOOL,
+		carry: BOOL,
+		sit: BOOL,
+		antiPeek: BOOL,
+		binoculars: BOOL,
+		fireworks: BOOL,
+		notepad: BOOL,
+		diveGear: BOOL,
+		diveAir: {
+			type: "number",
+			min: 10,
+			max: 3600,
+			integer: !0
+		},
+		diveWearSeconds: {
+			type: "number",
+			min: 1,
+			max: 60,
+			integer: !0
+		},
+		diveFillSeconds: {
+			type: "number",
+			min: 1,
+			max: 60,
+			integer: !0
+		},
+		afkMinutes: {
+			type: "number",
+			min: 0,
+			max: 600,
+			integer: !0
+		},
+		noDispatch: BOOL,
+		hideHud: BOOL,
+		noEmergencySpawns: BOOL,
+		emergencyAreas: EMERGENCY_AREAS_SPEC,
+		noAircraft: BOOL,
+		noPoliceAudio: BOOL,
+		quietAmbience: BOOL,
+		noGarbageTrucks: BOOL,
+		noIdleCam: BOOL,
+		noStealth: BOOL,
+		sprintIndoors: BOOL,
+		noAutoHelmet: BOOL,
+		keepProps: BOOL,
+		noActionMode: BOOL,
+		noPistolWhip: BOOL,
+		noCoverPeek: BOOL,
+		noCriticalHits: BOOL,
+		noBunnyHop: BOOL,
+		noPickups: BOOL,
+		noVehicleRewards: BOOL,
+		noMouseSteer: BOOL,
+		noAirControl: BOOL,
+		pedDensity: PERCENT,
+		scenarioDensity: PERCENT,
+		trafficDensity: PERCENT,
+		parkedDensity: PERCENT
+	},
+	defaults: {
+		noRadio: !1,
+		fakePlate: !0,
+		boatRope: !0,
+		point: !0,
+		handsUp: !0,
+		ragdoll: !0,
+		carry: !0,
+		sit: !0,
+		antiPeek: !0,
+		notepad: !0,
+		diveGear: !0,
+		diveAir: 100,
+		diveWearSeconds: 5,
+		diveFillSeconds: 5,
+		pedDensity: 80,
+		scenarioDensity: 80,
+		trafficDensity: 80,
+		parkedDensity: 80,
+		noEmergencySpawns: !0,
+		emergencyAreas: EMERGENCY_AREAS,
+		noAircraft: !0,
+		noPoliceAudio: !0,
+		quietAmbience: !0,
+		noGarbageTrucks: !0,
+		noIdleCam: !0,
+		noStealth: !0,
+		sprintIndoors: !0,
+		noAutoHelmet: !0,
+		keepProps: !0,
+		noActionMode: !0,
+		noPistolWhip: !0,
+		noCoverPeek: !0,
+		noCriticalHits: !1,
+		noBunnyHop: !0,
+		noPickups: !0,
+		noVehicleRewards: !0,
+		noMouseSteer: !0,
+		noAirControl: !0
+	}
+}, settingsTab = {
+	id: "settings",
+	file: "settings",
+	icon: "sliders",
+	label: "ADMIN_TAB_SETTINGS",
+	desc: "ADMIN_TAB_SETTINGS_DESC",
+	cards: SETTINGS_CARDS
+}, teleportsFile = {
+	kind: "records",
+	sync: "all",
+	labelPath: "label",
+	newRecord: {
+		label: "",
+		from: {
+			x: 0,
+			y: 0,
+			z: 0,
+			heading: 0
+		},
+		to: {
+			x: 0,
+			y: 0,
+			z: 0,
+			heading: 0
+		},
+		jobs: [],
+		gangs: []
+	},
+	sections: {
+		label: {
+			type: "text",
+			min: 1,
+			max: 48
+		},
+		from: { type: "vec4" },
+		to: { type: "vec4" },
+		...ACCESS_FIELDS
+	}
+}, teleportsTab = {
+	id: "teleports",
+	file: "teleports",
+	icon: "location-dot",
+	label: "ADMIN_TAB_TELEPORTS",
+	desc: "ADMIN_TAB_TELEPORTS_DESC",
+	createLabel: "ADMIN_NEW_TELEPORT",
+	deleteLabel: "ADMIN_DELETE_TELEPORT",
+	cards: [{
+		icon: "location-dot",
+		title: "ADMIN_C_TELEPORT",
+		desc: "ADMIN_C_TELEPORT_DESC",
+		fields: [
+			{
+				widget: "text",
+				path: "label",
+				suggest: { from: "from" },
+				label: "ADMIN_F_LABEL",
+				placeholder: "ADMIN_P_LABEL"
+			},
+			{
+				widget: "point",
+				path: "from",
+				label: "ADMIN_F_FROM",
+				heading: !0,
+				ground: !0
+			},
+			{
+				widget: "point",
+				path: "to",
+				label: "ADMIN_F_TO",
+				heading: !0,
+				ground: !0
+			},
+			...accessFields()
+		]
+	}]
 }, panel = new AdminPanel({
 	title: "ADMIN_TITLE",
 	icon: "sliders",
 	files: {
-		settings: {
-			kind: "settings",
-			sync: "all",
-			sections: SETTINGS_SECTIONS,
-			defaults: SETTINGS_DEFAULTS
-		},
-		teleports: {
-			kind: "records",
-			sync: "all",
-			labelPath: "label",
-			newRecord: {
-				label: "",
-				from: {
-					x: 0,
-					y: 0,
-					z: 0,
-					heading: 0
-				},
-				to: {
-					x: 0,
-					y: 0,
-					z: 0,
-					heading: 0
-				},
-				jobs: [],
-				gangs: []
-			},
-			sections: {
-				label: {
-					type: "text",
-					min: 1,
-					max: 48
-				},
-				from: { type: "vec4" },
-				to: { type: "vec4" },
-				...ACCESS_FIELDS
-			}
-		},
-		elevators: {
-			kind: "records",
-			sync: "all",
-			labelPath: "label",
-			newRecord: {
-				label: "",
-				floors: []
-			},
-			sections: {
-				label: {
-					type: "text",
-					min: 1,
-					max: 48
-				},
-				floors: {
-					type: "list",
-					max: 20,
-					of: {
-						type: "object",
-						fields: {
-							label: {
-								type: "text",
-								min: 1,
-								max: 32
-							},
-							point: { type: "vec4" },
-							job: {
-								type: "text",
-								lookup: "job",
-								min: 0,
-								max: 32
-							}
-						}
-					}
-				}
-			}
-		},
-		moorings: {
-			kind: "records",
-			sync: "all",
-			labelPath: "label",
-			newRecord: {
-				label: "",
-				point: {
-					x: 0,
-					y: 0,
-					z: 0,
-					heading: 0
-				}
-			},
-			sections: {
-				label: {
-					type: "text",
-					min: 1,
-					max: 48
-				},
-				point: { type: "vec4" }
-			}
-		},
-		seats: {
-			kind: "records",
-			sync: "all",
-			labelPath: "model",
-			newRecord: {
-				model: "",
-				type: "chair",
-				teleport: !1,
-				seats: []
-			},
-			sections: {
-				model: {
-					type: "text",
-					min: 1,
-					max: 64
-				},
-				type: {
-					type: "enum",
-					values: Object.keys(SEAT_TYPES)
-				},
-				teleport: { type: "bool" },
-				seats: {
-					type: "list",
-					min: 1,
-					max: 12,
-					of: {
-						type: "object",
-						fields: {
-							x: OFFSET,
-							y: OFFSET,
-							z: OFFSET,
-							heading: {
-								type: "number",
-								min: 0,
-								max: 360
-							}
-						}
-					}
-				}
-			}
-		},
-		discord: DISCORD_FILE
+		settings: settingsFile,
+		teleports: teleportsFile,
+		elevators: elevatorsFile,
+		moorings: mooringsFile,
+		seats: seatsFile,
+		discord: discordFile
 	},
 	tabs: [
-		{
-			id: "settings",
-			file: "settings",
-			icon: "sliders",
-			label: "ADMIN_TAB_SETTINGS",
-			desc: "ADMIN_TAB_SETTINGS_DESC",
-			cards: SETTINGS_CARDS
-		},
-		{
-			id: "teleports",
-			file: "teleports",
-			icon: "location-dot",
-			label: "ADMIN_TAB_TELEPORTS",
-			desc: "ADMIN_TAB_TELEPORTS_DESC",
-			createLabel: "ADMIN_NEW_TELEPORT",
-			deleteLabel: "ADMIN_DELETE_TELEPORT",
-			cards: [{
-				icon: "location-dot",
-				title: "ADMIN_C_TELEPORT",
-				desc: "ADMIN_C_TELEPORT_DESC",
-				fields: [
-					{
-						widget: "text",
-						path: "label",
-						suggest: { from: "from" },
-						label: "ADMIN_F_LABEL",
-						placeholder: "ADMIN_P_LABEL"
-					},
-					{
-						widget: "point",
-						path: "from",
-						label: "ADMIN_F_FROM",
-						heading: !0,
-						ground: !0
-					},
-					{
-						widget: "point",
-						path: "to",
-						label: "ADMIN_F_TO",
-						heading: !0,
-						ground: !0
-					},
-					...accessFields()
-				]
-			}]
-		},
-		...PLACE_TABS,
-		DISCORD_TAB
+		settingsTab,
+		teleportsTab,
+		elevatorsTab,
+		mooringsTab,
+		seatsTab,
+		discordTab
 	]
 }), settings = panel.view("settings", readSettings), discord = panel.view("discord", readDiscord), content = {
 	get settings() {
