@@ -300,6 +300,9 @@ const CORE = {
 	activeGangChangedEvent: "ai-core:activeGangChanged",
 	metaChangedEvent: "ai-core:metaChanged",
 	definitionsChangedEvent: "ai-core:definitionsChanged",
+	characterDeletedEvent: "ai-core:characterDeleted",
+	runtimeJobPrefix: "ai:jobdef:",
+	runtimeGangPrefix: "ai:gangdef:",
 	characterScreenEvent: "ai-core:characterScreen",
 	inventoryChangedEvent: "ai-core:inventoryChanged",
 	itemUsedEvent: "ai-core:itemUsed",
@@ -330,7 +333,11 @@ const CORE = {
 	spawnEvent: "ai-core:client:spawn",
 	chooseSpawnEvent: "ai-core:client:chooseSpawn",
 	spawnChoiceCallback: "ai-core:spawnChoice",
-	openCharactersEvent: "ai-core:client:openCharacters"
+	openCharactersEvent: "ai-core:client:openCharacters",
+	characterScreenKey: "ai:characterScreen",
+	externalLoadedEvent: "ai-core:client:externalLoaded",
+	externalSpawnedEvent: "ai-core:externalSpawned",
+	externalLogoutEvent: "ai-core:client:externalLogout"
 }, PLAYER_BAGS = {
 	dead: "dead",
 	cuffed: "cuffed",
@@ -536,7 +543,7 @@ function toPatch(value) {
 		default: return null;
 	}
 }
-const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(value)), core$25 = resourceExport(CORE.resource), ERR = {
+const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(value)), core$26 = resourceExport(CORE.resource), ERR = {
 	type: "ADMIN_ERR_TYPE",
 	range: "ADMIN_ERR_RANGE",
 	length: "ADMIN_ERR_LENGTH",
@@ -550,7 +557,7 @@ const clone = (value) => value === void 0 ? value : JSON.parse(JSON.stringify(va
 		if (cached && Date.now() - cached.at < 2e3) return cached.values.size > 0 ? cached.values : null;
 		let list = [];
 		try {
-			list = core$25.GetLookupValues(source);
+			list = core$26.GetLookupValues(source);
 		} catch {}
 		let values = new Set(Array.isArray(list) ? list.filter((v) => typeof v == "string") : []);
 		return this.lists.set(source, {
@@ -815,7 +822,7 @@ function writeSchema(resource, name, text, log) {
 	(0, node_fs_promises.mkdir)(dir, { recursive: !0 }).then(() => (0, node_fs_promises.writeFile)(`${dir}/${name}.schema.json`, text, "utf8")).catch((error) => log.error(`writing ${resource}/${path} failed`, error));
 }
 // ../../../packages/lib/src/server/admin/panel.ts
-const core$24 = resourceExport(CORE.resource);
+const core$25 = resourceExport(CORE.resource);
 var AdminPanel = class {
 	schema;
 	data = new Map();
@@ -834,7 +841,7 @@ var AdminPanel = class {
 		registerExport("AdminPanelSnapshot", () => this.snapshot()), registerExport("AdminPanelData", () => this.dataSnapshot()), registerExport("AdminPanelSummary", () => this.summary()), registerExport("AdminPanelApply", (admin, patch) => this.apply(admin, patch)), onClientCallback(ADMIN.worldChangesCallback(this.resource), () => Object.fromEntries(this.worldChanges), { rate: {
 			count: 4,
 			windowMs: 1e4
-		} }), setImmediate(() => core$24.RegisterAdminPanel(this.resource));
+		} }), setImmediate(() => core$25.RegisterAdminPanel(this.resource));
 	}
 	get(file) {
 		return this.data.get(file) ?? {};
@@ -948,7 +955,7 @@ var AdminPanel = class {
 		let spec = this.schema.files[file], data = this.get(file), value = key === void 0 ? data : data[key] ?? null;
 		this.dataFiles.get(file)?.write(data), this.views.changed(file, key, value);
 		for (let handler of this.handlers.get(file) ?? []) handler(key, value);
-		if (core$24.AdminPanelChanged({
+		if (core$25.AdminPanelChanged({
 			resource: this.resource,
 			file,
 			key,
@@ -979,30 +986,34 @@ function labelOf(record, path) {
 	return typeof at == "string" && at !== "" ? at : null;
 }
 // ../../../packages/lib/src/server/notify.ts
-function notify(source, text, kind = "info", duration) {
+function notify(source, text, kind = "info", duration, title) {
 	let notification = {
 		text,
 		kind,
-		duration
+		duration,
+		title
 	};
 	emitNet(LIB_UI.notifyEvent, source, notification);
 }
 // ../../../packages/lib/src/server/inventory.ts
-const core$23 = resourceExport(CORE.resource), inventory = {
-	addItem: (inv, item, count = 1, metadata, slot) => core$23.AddItem(inv, item, count, metadata, slot),
-	removeItem: (inv, item, count = 1, metadata, slot) => core$23.RemoveItem(inv, item, count, metadata, slot),
-	getItemCount: (inv, item, metadata) => core$23.GetItemCount(inv, item, metadata),
-	hasItem: (inv, item, count = 1) => core$23.HasItem(inv, item, count),
-	canCarryItem: (inv, item, count = 1, metadata) => core$23.CanCarryItem(inv, item, count, metadata),
-	getItems: (inv) => core$23.GetItems(inv),
-	clearInventory: (inv) => core$23.ClearInventory(inv),
-	registerStash: (name, label, slots, maxWeight, jobs = []) => core$23.RegisterStash(name, label, slots, maxWeight, jobs),
-	openInventory: (source, inv) => core$23.OpenInventory(source, inv),
-	registerUsableItem: (name, handler) => core$23.RegisterUsableItem(name, handler),
-	registerShop: (name, label, items) => core$23.RegisterShop(name, label, items),
-	openShop: (source, name) => core$23.OpenShop(source, name),
-	getItemDefinition: (name) => core$23.GetItemDefinition(name)
-}, core$22 = resourceExport(CORE.resource);
+const core$24 = resourceExport(CORE.resource), inventory = {
+	addItem: (inv, item, count = 1, metadata, slot) => core$24.AddItem(inv, item, count, metadata, slot),
+	removeItem: (inv, item, count = 1, metadata, slot) => core$24.RemoveItem(inv, item, count, metadata, slot),
+	getItemCount: (inv, item, metadata) => core$24.GetItemCount(inv, item, metadata),
+	hasItem: (inv, item, count = 1) => core$24.HasItem(inv, item, count),
+	canCarryItem: (inv, item, count = 1, metadata) => core$24.CanCarryItem(inv, item, count, metadata),
+	getItems: (inv) => core$24.GetItems(inv),
+	clearInventory: (inv) => core$24.ClearInventory(inv),
+	registerStash: (name, label, slots, maxWeight, jobs = []) => core$24.RegisterStash(name, label, slots, maxWeight, jobs),
+	openInventory: (source, inv) => core$24.OpenInventory(source, inv),
+	registerUsableItem: (name, handler) => core$24.RegisterUsableItem(name, handler),
+	registerShop: (name, label, items) => core$24.RegisterShop(name, label, items),
+	openShop: (source, name) => core$24.OpenShop(source, name),
+	getItemDefinition: (name) => core$24.GetItemDefinition(name),
+	setItemMetadata: (inv, slot, metadata) => core$24.SetItemMetadata(inv, slot, metadata),
+	setMaxWeight: (source, grams) => core$24.SetMaxWeight(source, grams),
+	usableItems: () => core$24.GetUsableItems()
+}, core$23 = resourceExport(CORE.resource);
 function reindex(index, source, before, after) {
 	for (let name of before) {
 		let set = index.get(name);
@@ -1030,11 +1041,11 @@ var OnlinePlayers = class {
 				gangs: [],
 				gangNames: [],
 				duty: null
-			}), this.setJobs(source, core$22.GetJobs(source) ?? []), this.setGangs(source, core$22.GetGangs(source) ?? []), this.setDuty(source, core$22.GetDutyJob(source));
+			}), this.setJobs(source, core$23.GetJobs(source) ?? []), this.setGangs(source, core$23.GetGangs(source) ?? []), this.setDuty(source, core$23.GetDutyJob(source));
 		};
 		on(CORE.playerLoadedEvent, load), on(CORE.playerUnloadedEvent, (source) => this.drop(source)), on(CORE.jobsChangedEvent, (source, jobs) => this.setJobs(source, jobs)), on(CORE.gangsChangedEvent, (source, gangs) => this.setGangs(source, gangs)), on(CORE.dutyChangedEvent, (source, job) => this.setDuty(source, job));
-		for (let source of core$22.GetLoadedSources()) {
-			let character = core$22.GetCharacter(source);
+		for (let source of core$23.GetLoadedSources()) {
+			let character = core$23.GetCharacter(source);
 			character && load(source, character);
 		}
 	}
@@ -1130,10 +1141,10 @@ var OnlinePlayers = class {
 		return this.start(), this.onDuty.get(job) ?? EMPTY;
 	}
 };
-const EMPTY = new Set(), online = new OnlinePlayers(), core$21 = resourceExport(CORE.resource), vehicleKeys = {
-	give: (source, vehicle, purpose = "temporary") => core$21.GiveVehicleKeys(source, vehicle, purpose),
-	remove: (source, vehicle) => core$21.RemoveVehicleKeys(source, vehicle),
-	has: (source, vehicle) => core$21.HasVehicleKeys(source, vehicle)
+const EMPTY = new Set(), online = new OnlinePlayers(), core$22 = resourceExport(CORE.resource), vehicleKeys = {
+	give: (source, vehicle, purpose = "temporary") => core$22.GiveVehicleKeys(source, vehicle, purpose),
+	remove: (source, vehicle) => core$22.RemoveVehicleKeys(source, vehicle),
+	has: (source, vehicle) => core$22.HasVehicleKeys(source, vehicle)
 };
 resourceExport(CORE.resource);
 function randomPlate(prefix) {
@@ -1161,7 +1172,7 @@ function entityFromNet(netId, type) {
 	let entity = NetworkGetEntityFromNetworkId(netId);
 	return !entity || !DoesEntityExist(entity) ? 0 : type === void 0 || GetEntityType(entity) === type ? entity : 0;
 }
-const vehicleFromNet = (netId) => entityFromNet(netId, 2), core$19 = resourceExport(CORE.resource);
+const vehicleFromNet = (netId) => entityFromNet(netId, 2), core$20 = resourceExport(CORE.resource);
 function within(point, radius, candidates) {
 	let out = [];
 	for (let source of candidates) {
@@ -1171,11 +1182,11 @@ function within(point, radius, candidates) {
 	return out;
 }
 function playersNear(source, radius) {
-	return within(coordsOf(source), radius, [source, ...core$19.GetPlayersInScope(source)]);
+	return within(coordsOf(source), radius, [source, ...core$20.GetPlayersInScope(source)]);
 }
 function nearestPlayerTo(source, metres, filter) {
 	let from = coordsOf(source), best = null, bestDistance = metres;
-	for (let other of core$19.GetPlayersInScope(source)) {
+	for (let other of core$20.GetPlayersInScope(source)) {
 		if (other === source) continue;
 		let p = coordsOf(other), d = Math.hypot(p.x - from.x, p.y - from.y, p.z - from.z);
 		d > bestDistance || filter && !filter(other) || (best = other, bestDistance = d);
@@ -1297,7 +1308,7 @@ function progressFor(source, options) {
 	});
 }
 // ../../../packages/lib/src/server/definitions.ts
-const core$18 = resourceExport("ai-core");
+const core$19 = resourceExport("ai-core");
 new class {
 	jobs = new Map();
 	gangs = new Map();
@@ -1308,11 +1319,23 @@ new class {
 	}
 	job(name) {
 		let def = this.jobs.get(name);
-		return def === void 0 && this.jobs.set(name, def = core$18.GetJobDefinition(name) ?? null), def;
+		return def === void 0 && this.jobs.set(name, def = core$19.GetJobDefinition(name) ?? null), def;
+	}
+	registerJob(name, definition) {
+		return core$19.RegisterJobDefinition(name, definition);
+	}
+	removeJob(name) {
+		return core$19.RemoveJobDefinition(name);
+	}
+	registerGang(name, definition) {
+		return core$19.RegisterGangDefinition(name, definition);
+	}
+	removeGang(name) {
+		return core$19.RemoveGangDefinition(name);
 	}
 	gang(name) {
 		let def = this.gangs.get(name);
-		return def === void 0 && this.gangs.set(name, def = core$18.GetGangDefinition(name) ?? null), def;
+		return def === void 0 && this.gangs.set(name, def = core$19.GetGangDefinition(name) ?? null), def;
 	}
 }();
 // ../../../packages/lib/src/server/command.ts
@@ -1596,7 +1619,7 @@ var PlayerState$1 = class extends Mirror {
 		GlobalState.set(this.key, value ?? null, !0), this.put(value);
 	}
 };
-resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource);
+resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource), resourceExport(CORE.resource);
 // ../../../packages/lib/src/server/index.ts
 function isOnline(source) {
 	return !!GetPlayerName(String(source));
