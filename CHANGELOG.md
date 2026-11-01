@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/aifivem/ai-smallresources/compare/v0.3.1...v0.4.0) (2026-11-01)
+
+
+### New Features
+
+* **smallresources:** open hood and trunk break off at speed, NPC melee damage setting ([ce761dc](https://github.com/aifivem/ai-smallresources/commit/ce761dcdc3ee11ec05ab95bb70f8955ebf859cc6))
+
 ## [0.3.1](https://github.com/aifivem/ai-smallresources/compare/v0.3.0...v0.3.1) (2026-11-01)
 
 
