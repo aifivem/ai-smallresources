@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/aifivem/ai-smallresources/compare/v0.3.0...v0.3.1) (2026-11-01)
+
+
+### Code Refactoring
+
+* feature folders, side entries that only import, panel schema per tab ([9da6ff2](https://github.com/aifivem/ai-smallresources/commit/9da6ff2dcee614f00bf5aa0142211a6772cd0ff3))
+
 ## [0.3.0](https://github.com/aifivem/ai-smallresources/compare/v0.2.0...v0.3.0) (2026-10-31)
 
 
