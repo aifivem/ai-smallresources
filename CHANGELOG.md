@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/aifivem/ai-smallresources/compare/v0.4.0...v0.4.1) (2026-11-02)
+
+
+### Code Refactoring
+
+* import the shared packages from [@aifivem](https://github.com/aifivem) ([e0babbf](https://github.com/aifivem/ai-smallresources/commit/e0babbf1e2effd63562f3f3f20becf74b2d8c052))
+
 ## [0.4.0](https://github.com/aifivem/ai-smallresources/compare/v0.3.1...v0.4.0) (2026-11-01)
 
 
