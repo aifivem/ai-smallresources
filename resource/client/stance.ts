@@ -1,4 +1,4 @@
-import { cache, every, onCache } from "@aicore-fivem/lib/client";
+import { cache, every, onCache } from "@aifivem/lib/client";
 import { content, onSettings } from "./settings";
 
 /** A second jump within this time trips the player. */

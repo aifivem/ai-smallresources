@@ -7,9 +7,9 @@ import {
   onPlayerData,
   resourceExport,
   stateNumber,
-} from "@aicore-fivem/lib/client";
-import { isRecord } from "@aicore-fivem/lib/shared";
-import { CORE } from "@aicore-fivem/shared";
+} from "@aifivem/lib/client";
+import { isRecord } from "@aifivem/lib/shared";
+import { CORE } from "@aifivem/shared";
 import {
   DISCORD_STATE,
   type DiscordPlaceholder,

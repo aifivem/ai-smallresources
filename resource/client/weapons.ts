@@ -4,7 +4,7 @@ import {
   onCache,
   onStop,
   TickLoop,
-} from "@aicore-fivem/lib/client";
+} from "@aifivem/lib/client";
 import { content, onSettings } from "./settings";
 
 /** GTA pickups (weapons, ammo, armour, health, money) as dead NPCs and the world drop them; `PICKUP_` is added. */

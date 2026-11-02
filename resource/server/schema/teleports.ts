@@ -1,5 +1,5 @@
-import { ACCESS_FIELDS, accessFields } from "@aicore-fivem/lib/shared";
-import type { FileSpec, TabSpec } from "@aicore-fivem/shared";
+import { ACCESS_FIELDS, accessFields } from "@aifivem/lib/shared";
+import type { FileSpec, TabSpec } from "@aifivem/shared";
 
 export const teleportsFile: FileSpec = {
   kind: "records",

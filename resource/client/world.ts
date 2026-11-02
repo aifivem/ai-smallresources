@@ -1,5 +1,5 @@
-import { every, player } from "@aicore-fivem/lib/client";
-import { distance } from "@aicore-fivem/lib/shared";
+import { every, player } from "@aifivem/lib/client";
+import { distance } from "@aifivem/lib/shared";
 import type { EmergencyArea } from "common/areas";
 import { content, onSettings } from "./settings";
 

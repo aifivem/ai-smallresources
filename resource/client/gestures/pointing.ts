@@ -1,4 +1,4 @@
-import { cache, requestAnimDict, TickLoop } from "@aicore-fivem/lib/client";
+import { cache, requestAnimDict, TickLoop } from "@aifivem/lib/client";
 import { content } from "../settings";
 import { helpless, mine } from "./guards";
 

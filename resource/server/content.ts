@@ -1,4 +1,4 @@
-import { AdminPanel } from "@aicore-fivem/lib/server";
+import { AdminPanel } from "@aifivem/lib/server";
 import { readDiscord } from "common/discord";
 import { readElevator, readMooring, readTeleport } from "common/places";
 import { readSettings } from "common/small";

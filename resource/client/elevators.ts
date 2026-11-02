@@ -1,5 +1,5 @@
-import { menu, Points } from "@aicore-fivem/lib/client";
-import { RecordObjects } from "@aicore-fivem/lib/shared";
+import { menu, Points } from "@aifivem/lib/client";
+import { RecordObjects } from "@aifivem/lib/shared";
 import { Locale } from "common";
 import { readElevator, type Elevator } from "common/places";
 import { EVENTS } from "common/small";

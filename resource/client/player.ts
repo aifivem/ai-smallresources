@@ -8,7 +8,7 @@ import {
   player,
   requestAnimSet,
   TickLoop,
-} from "@aicore-fivem/lib/client";
+} from "@aifivem/lib/client";
 import { Locale } from "common";
 import { EVENTS } from "common/small";
 import { content, onSettings } from "./settings";

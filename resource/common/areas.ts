@@ -1,4 +1,4 @@
-import { int, num, record, str } from "@aicore-fivem/lib/shared";
+import { int, num, record, str } from "@aifivem/lib/shared";
 
 /** A spot where GTA's vehicle generators stay off (police stations, hospitals, bases). */
 export interface EmergencyArea {

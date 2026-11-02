@@ -1,5 +1,5 @@
-import { every, GlobalKey, stateNumber } from "@aicore-fivem/lib/server";
-import { record } from "@aicore-fivem/lib/shared";
+import { every, GlobalKey, stateNumber } from "@aifivem/lib/server";
+import { record } from "@aifivem/lib/shared";
 import { DISCORD_STATE } from "common/discord";
 import { content, panel } from "./content";
 

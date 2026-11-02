@@ -1,4 +1,4 @@
-import type { FileSpec, TabSpec } from "@aicore-fivem/shared";
+import type { FileSpec, TabSpec } from "@aifivem/shared";
 import { SEAT_TYPES } from "common/seats";
 
 const OFFSET = { type: "number" as const, min: -10, max: 10 };

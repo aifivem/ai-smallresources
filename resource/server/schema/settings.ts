@@ -1,4 +1,4 @@
-import type { DataSpec, FileSpec, TabSpec } from "@aicore-fivem/shared";
+import type { DataSpec, FileSpec, TabSpec } from "@aifivem/shared";
 import { EMERGENCY_AREAS } from "common/areas";
 import { SETTINGS_CARDS } from "./settingsCards";
 import { EMERGENCY_AREAS_SPEC } from "./worldCards";

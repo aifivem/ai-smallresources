@@ -7,8 +7,8 @@ import {
   requestPtfxAsset,
   ScriptCamera,
   TickLoop,
-} from "@aicore-fivem/lib/client";
-import { pickRandom, readFinite, sleep } from "@aicore-fivem/lib/shared";
+} from "@aifivem/lib/client";
+import { pickRandom, readFinite, sleep } from "@aifivem/lib/shared";
 import { Locale } from "common";
 import { FIREWORKS } from "common/items";
 import { EVENTS } from "common/small";

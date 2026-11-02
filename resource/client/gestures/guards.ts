@@ -3,8 +3,8 @@ import {
   gestures,
   PlayerState,
   stateBoolean,
-} from "@aicore-fivem/lib/client";
-import { PLAYER_BAGS } from "@aicore-fivem/shared";
+} from "@aifivem/lib/client";
+import { PLAYER_BAGS } from "@aifivem/shared";
 
 const dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean);
 const cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean);

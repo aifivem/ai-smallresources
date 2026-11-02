@@ -1,4 +1,4 @@
-import { bool, int, record } from "@aicore-fivem/lib/shared";
+import { bool, int, record } from "@aifivem/lib/shared";
 import { type EmergencyArea, readAreas } from "./areas";
 
 /** ai-smallresources' contracts and panel settings. No natives. */

@@ -1,4 +1,4 @@
-import { bool, num, record, str } from "@aicore-fivem/lib/shared";
+import { bool, num, record, str } from "@aifivem/lib/shared";
 
 /** Seats on world objects (panel records keyed by anything, one model each). No natives. */
 

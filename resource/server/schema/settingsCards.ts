@@ -1,4 +1,4 @@
-import type { CardSpec, WidgetSpec } from "@aicore-fivem/shared";
+import type { CardSpec, WidgetSpec } from "@aifivem/shared";
 import { switchField } from "./switchField";
 import { COMBAT_CARD, WORLD_CARD } from "./worldCards";
 

@@ -3,8 +3,8 @@ import {
   input,
   notify,
   onServerEvent,
-} from "@aicore-fivem/lib/client";
-import { asArgs, oneArg, readId } from "@aicore-fivem/lib/shared";
+} from "@aifivem/lib/client";
+import { asArgs, oneArg, readId } from "@aifivem/lib/shared";
 import { Locale } from "common";
 import { EVENTS, NOTE_MAX } from "common/small";
 import { FALLBACK } from "./settings";

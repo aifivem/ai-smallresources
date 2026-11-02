@@ -1,4 +1,4 @@
-import type { CardSpec, DataSpec } from "@aicore-fivem/shared";
+import type { CardSpec, DataSpec } from "@aifivem/shared";
 import { switchField } from "./switchField";
 
 /** Panel areas where GTA's vehicle generators stay off. */

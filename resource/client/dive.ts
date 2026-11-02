@@ -9,8 +9,8 @@ import {
   PlayerState,
   stateBoolean,
   TickLoop,
-} from "@aicore-fivem/lib/client";
-import { readInt } from "@aicore-fivem/lib/shared";
+} from "@aifivem/lib/client";
+import { readInt } from "@aifivem/lib/shared";
 import { Locale } from "common";
 import { DIVE_PROPS, DIVE_STATE } from "common/items";
 import { EVENTS } from "common/small";

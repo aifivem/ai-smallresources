@@ -11,7 +11,7 @@ import {
   radial,
   requestAnimDict,
   stateNumber,
-} from "@aicore-fivem/lib/client";
+} from "@aifivem/lib/client";
 import { Locale } from "common";
 import { CARRY_STATE, EVENTS } from "common/small";
 import { content, onSettings } from "./settings";

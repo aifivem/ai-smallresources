@@ -1,4 +1,4 @@
-import { cache, onCache, TickLoop } from "@aicore-fivem/lib/client";
+import { cache, onCache, TickLoop } from "@aifivem/lib/client";
 import { content, onSettings } from "./settings";
 
 /** Ambient population: GTA's density multipliers hold only for the frame they are set in. */

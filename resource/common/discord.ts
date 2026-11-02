@@ -1,4 +1,4 @@
-import { bool, record } from "@aicore-fivem/lib/shared";
+import { bool, record } from "@aifivem/lib/shared";
 
 /** Discord Rich Presence: panel file `discord` and the shared player counts. No natives. */
 

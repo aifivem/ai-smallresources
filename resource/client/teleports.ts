@@ -6,8 +6,8 @@ import {
   onMembershipChange,
   player,
   Points,
-} from "@aicore-fivem/lib/client";
-import { isRecord, RecordObjects, vec4 } from "@aicore-fivem/lib/shared";
+} from "@aifivem/lib/client";
+import { isRecord, RecordObjects, vec4 } from "@aifivem/lib/shared";
 import { Locale } from "common";
 import { readTeleport } from "common/places";
 import { EVENTS } from "common/small";

@@ -1,5 +1,5 @@
-import { isNear, onClientCallback, online } from "@aicore-fivem/lib/server";
-import { fail, readInt, readText } from "@aicore-fivem/lib/shared";
+import { isNear, onClientCallback, online } from "@aifivem/lib/server";
+import { fail, readInt, readText } from "@aifivem/lib/shared";
 import { EVENTS } from "common/small";
 import { content } from "./content";
 
