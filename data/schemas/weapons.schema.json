@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ai-smallresources/data/weapons.json",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "This file's JSON Schema (for editors)."
+    },
+    "recoil": {
+      "description": "Recoil: Each shot lifts the camera by the degrees of the weapon's row, else of its weapon group.",
+      "type": "boolean"
+    },
+    "recoilGroups": {
+      "description": "Per weapon group: Degrees per shot for every weapon of the group. A group without a row has no recoil.",
+      "type": "array",
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "description": "Weapon group",
+            "enum": [
+              416676503,
+              3337201093,
+              860033945,
+              970310034,
+              1159398588,
+              3082541095,
+              2725924767
+            ]
+          },
+          "pitch": {
+            "description": "Kick: Degrees the camera goes up per shot.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+          }
+        },
+        "required": [
+          "group",
+          "pitch"
+        ]
+      }
+    },
+    "recoilWeapons": {
+      "description": "Per weapon: A weapon listed here uses its own kick instead of its group's.",
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "properties": {
+          "weapon": {
+            "description": "Weapon",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 48,
+            "pattern": "^[A-Za-z0-9_]+$"
+          },
+          "pitch": {
+            "description": "Kick: Degrees the camera goes up per shot.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+          }
+        },
+        "required": [
+          "weapon",
+          "pitch"
+        ]
+      }
+    },
+    "driveBySpeedLimit": {
+      "description": "Speed limit: Nobody aims from a vehicle going faster than the speed below (not in separate worlds such as instanced interiors).",
+      "type": "boolean"
+    },
+    "driveBySpeed": {
+      "description": "No aiming above: 12 m/s is about 43 km/h.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "driveByModels": {
+      "description": "Vehicle lists: Uses the two vehicle lists below.",
+      "type": "boolean"
+    },
+    "noAimModels": {
+      "description": "Front seats cannot aim: Vehicle model names whose driver and front passenger cannot aim (armoured trucks).",
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "maxLength": 32,
+        "pattern": "^[A-Za-z0-9_]+$"
+      }
+    },
+    "noLookBackModels": {
+      "description": "No shooting backwards: Vehicle model names nobody inside can shoot backwards from (low sports cars).",
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "maxLength": 32,
+        "pattern": "^[A-Za-z0-9_]+$"
+      }
+    },
+    "hoodBlocksFire": {
+      "description": "Open hood and trunk block shots: Nobody shoots forward through an open hood or backwards through an open trunk.",
+      "type": "boolean"
+    },
+    "noCoverFire": {
+      "description": "No blind fire from cover: A player in cover shoots only while aiming, and a see-through (ghosted) player cannot shoot at all.",
+      "type": "boolean"
+    },
+    "aimToFire": {
+      "description": "Aim to fire: On foot nobody shoots or hits with a melee weapon or fists without holding the aim key (right mouse).",
+      "type": "boolean"
+    },
+    "noCombatRoll": {
+      "description": "No combat roll: With a weapon aimed the jump key does not roll.",
+      "type": "boolean"
+    },
+    "antiStrafe": {
+      "description": "Break A / D macros: Tapping A and D very fast while aiming (a strafe macro) is broken by a short forced step.",
+      "type": "boolean"
+    },
+    "strafeTaps": {
+      "description": "Taps that count as a macro: More A / D presses than this within one second while aiming break the strafe.",
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 20
+    },
+    "strafeBreakMs": {
+      "description": "Forced step: How long the player is pushed sideways.",
+      "type": "integer",
+      "minimum": 50,
+      "maximum": 2000
+    },
+    "meleeDamage": {
+      "description": "Change player melee damage: The listed weapons do the percent below of GTA's damage. Off keeps GTA's own damage.",
+      "type": "boolean"
+    },
+    "meleeDamagePercent": {
+      "description": "Melee weapon damage: Percent of GTA's normal damage: 100 is unchanged, 25 hits four times softer.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 500
+    },
+    "meleeWeapons": {
+      "description": "Melee weapons: GTA weapon names the damage applies to.",
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "maxLength": 48,
+        "pattern": "^[A-Za-z0-9_]+$"
+      }
+    }
+  },
+  "required": []
+}

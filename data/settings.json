@@ -135,5 +135,104 @@
   "breakDoors": true,
   "breakDoorsSpeed": 30,
   "npcMelee": true,
-  "npcMeleeDamage": 35
+  "npcMeleeDamage": 35,
+  "shuffleKey": true,
+  "vehiclePush": true,
+  "pushEngineHealth": 1000,
+  "pushBlockedClasses": [
+    "13",
+    "14",
+    "15",
+    "16"
+  ],
+  "flipVehicle": true,
+  "flipSeconds": 15,
+  "rearRagdoll": true,
+  "rearRagdollSpeed": 4,
+  "noPassengerMass": true,
+  "noDoubleClutch": true,
+  "maxDrivingStats": true,
+  "vehicleCam": true,
+  "ledgeGrab": true,
+  "ledge": {
+    "armReach": 1.15,
+    "topMin": -0.35,
+    "topMax": 2.15,
+    "minSpeed": 0.45,
+    "velocityAssist": 1.05,
+    "upwardAssist": 0.18,
+    "startTimeoutMs": 420,
+    "climbTimeoutMs": 1150,
+    "failCooldownMs": 450,
+    "climbCooldownMs": 900
+  },
+  "unstuck": true,
+  "unstuckMinutes": 2,
+  "unstuckSeconds": 300,
+  "unstuckPoint": {
+    "x": 87.97,
+    "y": -412.98,
+    "z": 39.38,
+    "heading": 0
+  },
+  "blockVehicleAreas": [],
+  "blockScenarioAreas": [
+    {
+      "label": "Legion Square Fleeca",
+      "point": {
+        "x": 149.9,
+        "y": -1040.5,
+        "z": 29.37
+      },
+      "radius": 12
+    },
+    {
+      "label": "Hawick Fleeca",
+      "point": {
+        "x": 314.2,
+        "y": -278.6,
+        "z": 54.17
+      },
+      "radius": 12
+    },
+    {
+      "label": "Burton Fleeca",
+      "point": {
+        "x": -350.8,
+        "y": -49.6,
+        "z": 49.04
+      },
+      "radius": 12
+    },
+    {
+      "label": "Rockford Hills Fleeca",
+      "point": {
+        "x": -1213,
+        "y": -330.9,
+        "z": 37.79
+      },
+      "radius": 12
+    },
+    {
+      "label": "Great Ocean Fleeca",
+      "point": {
+        "x": -2962.6,
+        "y": 482.6,
+        "z": 15.7
+      },
+      "radius": 12
+    },
+    {
+      "label": "Route 68 Fleeca",
+      "point": {
+        "x": 1175,
+        "y": 2706.6,
+        "z": 38.09
+      },
+      "radius": 12
+    }
+  ],
+  "noPedZones": [],
+  "densityZones": true,
+  "mapBlips": true
 }

@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ai-smallresources/data/densityZones.json",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "This file's JSON Schema (for editors)."
+    }
+  },
+  "patternProperties": {
+    "^[a-z0-9_]{2,32}$": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "Name",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48
+        },
+        "corners": {
+          "description": "Corners: Walk or fly round the area and add a corner at each turn, in order.",
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "height": {
+          "description": "Height: Metres above and below the corners that still count as inside.",
+          "type": "number",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "setTraffic": {
+          "description": "Own traffic amount: Off keeps the Population card's traffic here.",
+          "type": "boolean"
+        },
+        "traffic": {
+          "description": "Traffic: Moving AI vehicles inside, in percent of GTA's normal amount. 0 also removes parked AI cars around players here.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "setPeds": {
+          "description": "Own pedestrian amount: Off keeps the Population card's pedestrians here.",
+          "type": "boolean"
+        },
+        "peds": {
+          "description": "Pedestrians: Walking and scenario people inside, in percent. 0 also removes the people around players here.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "label",
+        "corners",
+        "height",
+        "setTraffic",
+        "traffic",
+        "setPeds",
+        "peds"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

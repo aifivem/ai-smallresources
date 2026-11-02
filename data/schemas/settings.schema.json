@@ -289,6 +289,337 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 100
+    },
+    "shuffleKey": {
+      "description": "Seat swap key: O moves the driver to the front passenger seat and back (not while cuffed or buckled up).",
+      "type": "boolean"
+    },
+    "vehiclePush": {
+      "description": "Push vehicles: Holding E and Shift next to a broken or empty vehicle without a driver pushes it; A and D turn its wheels.",
+      "type": "boolean"
+    },
+    "pushEngineHealth": {
+      "description": "Pushable at engine health: A vehicle whose engine health is this or lower can be pushed (1000 = any vehicle). A vehicle out of fuel can always be pushed.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "pushBlockedClasses": {
+      "description": "Vehicle classes nobody pushes: GTA vehicle class numbers: 13 cycles, 14 boats, 15 helicopters, 16 planes, 8 motorcycles.",
+      "type": "array",
+      "maxItems": 23,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "maxLength": 2,
+        "pattern": "^\\d{1,2}$"
+      }
+    },
+    "flipVehicle": {
+      "description": "Flip vehicles: A vehicle lying on its side or roof gets a Flip the vehicle option; after a short wait it stands on its wheels again.",
+      "type": "boolean"
+    },
+    "flipSeconds": {
+      "description": "Flipping takes: How long the player works on the vehicle before it is flipped.",
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 120
+    },
+    "rearRagdoll": {
+      "description": "Fall when leaving a fast vehicle: A passenger who leaves a rear seat of a moving vehicle keeps its speed and falls over.",
+      "type": "boolean"
+    },
+    "rearRagdollSpeed": {
+      "description": "Falls above: The vehicle's speed from which leaving it knocks the player down (4 m/s is about 14 km/h).",
+      "type": "number",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "noPassengerMass": {
+      "description": "Passengers add no weight: A full car drives the same as an empty one.",
+      "type": "boolean"
+    },
+    "noDoubleClutch": {
+      "description": "No double clutch: Stops the gear trick that keeps a car in a low gear at full revs for extra speed.",
+      "type": "boolean"
+    },
+    "maxDrivingStats": {
+      "description": "Full driving skill: Every character drives and does wheelies with GTA's full skill, so vehicles handle the same for everyone.",
+      "type": "boolean"
+    },
+    "vehicleCam": {
+      "description": "Better vehicle camera: Aiming from a vehicle moves the camera in close; V only switches between first and third person (GTA's middle view is skipped).",
+      "type": "boolean"
+    },
+    "ledgeGrab": {
+      "description": "Grab ledges: A player jumping at a wall grabs its edge and climbs up when it is in reach (roof to roof jumps).",
+      "type": "boolean"
+    },
+    "ledge": {
+      "type": "object",
+      "properties": {
+        "armReach": {
+          "description": "Reach: Largest distance between the player and the wall.",
+          "type": "number",
+          "minimum": 0.3,
+          "maximum": 3
+        },
+        "topMin": {
+          "description": "Lowest ledge: Lowest edge height, measured from the player's middle.",
+          "type": "number",
+          "minimum": -2,
+          "maximum": 3
+        },
+        "topMax": {
+          "description": "Highest ledge: Highest edge height, measured from the player's middle.",
+          "type": "number",
+          "minimum": -2,
+          "maximum": 4
+        },
+        "minSpeed": {
+          "description": "Least forward speed: A player falling straight down grabs nothing; below this forward speed no grab starts.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "velocityAssist": {
+          "description": "Speed boost: The player's speed is multiplied by this when grabbing (1 = unchanged).",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "upwardAssist": {
+          "description": "Lift: Upward speed added when grabbing.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "startTimeoutMs": {
+          "description": "Grab start wait: When GTA's climb has not started after this long, the grab is given up.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "climbTimeoutMs": {
+          "description": "Climb wait: Longest time a climb is followed.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "failCooldownMs": {
+          "description": "Wait after a missed grab: Time before the next try after a grab that did not start.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "climbCooldownMs": {
+          "description": "Wait after a climb: Time before the next grab after a climb.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        }
+      },
+      "required": [
+        "armReach",
+        "topMin",
+        "topMax",
+        "minSpeed",
+        "velocityAssist",
+        "upwardAssist",
+        "startTimeoutMs",
+        "climbTimeoutMs",
+        "failCooldownMs",
+        "climbCooldownMs"
+      ]
+    },
+    "unstuck": {
+      "description": "/unstuck command: Right after joining, a player stuck inside a building or under the map types /unstuck, waits through a long bar and is taken to the point below. Once per join.",
+      "type": "boolean"
+    },
+    "unstuckMinutes": {
+      "description": "Usable for: Minutes after the character loads during which /unstuck works.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 30
+    },
+    "unstuckSeconds": {
+      "description": "Wait: How long the player waits before being taken out (300 s is 5 minutes). They can cancel and try again.",
+      "type": "integer",
+      "minimum": 10,
+      "maximum": 1800
+    },
+    "unstuckPoint": {
+      "description": "Where /unstuck takes players: An open street everyone knows.",
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z",
+        "heading"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "heading": {
+          "type": "number"
+        }
+      }
+    },
+    "blockVehicleAreas": {
+      "description": "No vehicles: GTA parks no cars and starts no vehicle scenes here; the ones standing there are removed (work sites, car parks).",
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "description": "Name",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "point": {
+            "description": "Middle of the area",
+            "type": "object",
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            }
+          },
+          "radius": {
+            "description": "Size: Metres from the middle in every direction.",
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "label",
+          "point",
+          "radius"
+        ]
+      }
+    },
+    "blockScenarioAreas": {
+      "description": "No people at fixed spots: GTA puts no standing, sitting or working people here (bank counters); walkers and script NPCs are not affected.",
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "description": "Name",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "point": {
+            "description": "Middle of the area",
+            "type": "object",
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            }
+          },
+          "radius": {
+            "description": "Size: Metres from the middle in every direction.",
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "label",
+          "point",
+          "radius"
+        ]
+      }
+    },
+    "noPedZones": {
+      "description": "No people at all: No GTA people here at all: while a player is within 100 m of the area nobody spawns and the people inside are removed once. Script NPCs are not affected.",
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "description": "Name",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 48
+          },
+          "point": {
+            "description": "Middle of the area",
+            "type": "object",
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            }
+          },
+          "radius": {
+            "description": "Size: Metres from the middle in every direction.",
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "label",
+          "point",
+          "radius"
+        ]
+      }
+    },
+    "densityZones": {
+      "description": "Density zones: Inside the areas of the Density zones tab their own traffic and pedestrian amounts replace the ones above.",
+      "type": "boolean"
+    },
+    "mapBlips": {
+      "description": "Map blips: Shows the blips of the Blips tab on the map.",
+      "type": "boolean"
     }
   },
   "required": [
