@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/aifivem/ai-smallresources/compare/v0.4.2...v0.5.0) (2026-11-02)
+
+
+### New Features
+
+* **smallresources:** add seat swap, vehicle push and flip, weapon rules, density zones, blips, ledge grab and unstuck ([53ff429](https://github.com/aifivem/ai-smallresources/commit/53ff429e7de59cf6af5bae9c87bf9134d2c88977))
+
+
+### Miscellaneous Chores
+
+* **data:** write the new settings defaults and panel schemas ([599240f](https://github.com/aifivem/ai-smallresources/commit/599240f5a0382af58624e3448c31dfafedf5b4c7))
+
 ## [0.4.2](https://github.com/aifivem/ai-smallresources/compare/v0.4.1...v0.4.2) (2026-11-02)
 
 
