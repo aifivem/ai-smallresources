@@ -246,6 +246,26 @@
       "description": "No steering in the air: A car or bike in the air cannot be tilted or rolled with the keys, so a jump lands the way it took off.",
       "type": "boolean"
     },
+    "breakDoors": {
+      "description": "Open hood and trunk break off: Driving with the hood or trunk open above the speed below, or with a damaged body, tears it off the car.",
+      "type": "boolean"
+    },
+    "breakDoorsSpeed": {
+      "description": "Break off above: An open hood or trunk breaks off once the car goes faster than this.",
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 300
+    },
+    "npcMelee": {
+      "description": "Change NPC melee damage: Sets how hard NPCs hit players with fists, bats and knives. Off keeps GTA's own damage.",
+      "type": "boolean"
+    },
+    "npcMeleeDamage": {
+      "description": "NPC melee damage: Percent of GTA's normal damage: 100 is unchanged, lower hits softer, higher hits harder.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 500
+    },
     "pedDensity": {
       "description": "Pedestrians: Walking people, in percent of GTA's normal amount. 0 empties the streets.",
       "type": "integer",

@@ -131,5 +131,9 @@
   "noPickups": true,
   "noVehicleRewards": true,
   "noMouseSteer": true,
-  "noAirControl": true
+  "noAirControl": true,
+  "breakDoors": true,
+  "breakDoorsSpeed": 30,
+  "npcMelee": true,
+  "npcMeleeDamage": 35
 }
