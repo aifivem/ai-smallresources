@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.2](https://github.com/aifivem/ai-smallresources/compare/v0.4.1...v0.4.2) (2026-11-02)
+
+
+### Documentation
+
+* install from the release zip ([fb1e397](https://github.com/aifivem/ai-smallresources/commit/fb1e397b66dc40d431b6691010b5220a1a60c841))
+
+
+### Miscellaneous Chores
+
+* build files are no longer in git, the release zip carries them ([0600e57](https://github.com/aifivem/ai-smallresources/commit/0600e57c1b1a959d2ae16793f14973631648856d))
+
 ## [0.4.1](https://github.com/aifivem/ai-smallresources/compare/v0.4.0...v0.4.1) (2026-11-02)
 
 
