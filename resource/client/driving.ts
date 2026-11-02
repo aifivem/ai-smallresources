@@ -98,6 +98,8 @@ class Driving {
 }
 
 const driving = new Driving();
+/** The player wears this resource's seat belt now. */
+export const belted = () => driving.worn === true;
 registerExport("GetSeatbelt", () => driving.worn);
 onStop(() => driving.announce(null));
 new Keybind({

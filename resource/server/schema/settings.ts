@@ -1,5 +1,6 @@
 import type { DataSpec, FileSpec, TabSpec } from "@aifivem/shared";
 import { EMERGENCY_AREAS } from "common/areas";
+import { FEATURE_DEFAULTS, FEATURE_SECTIONS } from "./featureSections";
 import { SETTINGS_CARDS } from "./settingsCards";
 import { EMERGENCY_AREAS_SPEC } from "./worldCards";
 
@@ -62,6 +63,7 @@ export const SETTINGS_SECTIONS: Record<string, DataSpec> = {
   scenarioDensity: PERCENT,
   trafficDensity: PERCENT,
   parkedDensity: PERCENT,
+  ...FEATURE_SECTIONS,
 };
 
 /** Values a settings file from an older version is missing. */
@@ -108,6 +110,7 @@ export const SETTINGS_DEFAULTS = {
   breakDoorsSpeed: 30,
   npcMelee: true,
   npcMeleeDamage: 35,
+  ...FEATURE_DEFAULTS,
 };
 
 export const settingsFile: FileSpec = {

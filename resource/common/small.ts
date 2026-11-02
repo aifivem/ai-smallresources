@@ -1,5 +1,6 @@
 import { bool, int, record } from "@aifivem/lib/shared";
-import { type EmergencyArea, readAreas } from "./areas";
+import { type Area, EMERGENCY_AREAS, readAreaList } from "./areas";
+import { type FeatureSettings, readFeatureSettings } from "./features";
 
 /** ai-smallresources' contracts and panel settings. No natives. */
 
@@ -34,12 +35,35 @@ export const EVENTS = {
   diveAir: "ai-smallresources:diveAir",
   /** Server callback to the player: () -> { swimming, underwater } before putting on the gear or refilling. */
   diveWater: "ai-smallresources:client:diveWater",
+  /** Client -> server: (netId, mode | null) push a vehicle (`PushMode`), or stop. */
+  push: "ai-smallresources:push",
+  /** Callback: (netId) -> { ok } flip the overturned vehicle back onto its wheels after a progress bar. */
+  flip: "ai-smallresources:flip",
+  /** Server -> the vehicle's owner: (netId) put it back on its wheels. */
+  flipped: "ai-smallresources:client:flipped",
+  /** Server callback to the player: () -> boolean the player is inside an interior or below the ground. */
+  unstuckCheck: "ai-smallresources:client:unstuckCheck",
+  /** Server -> player: (x, y, z, heading) `/unstuck` finished, go there. */
+  unstuck: "ai-smallresources:client:unstuck",
 } as const;
 
 /** Player state keys (server written): who a player carries, who carries them (server ids). */
 export const CARRY_STATE = { carrying: "aiCarrying", carriedBy: "aiCarriedBy" };
 /** Vehicle state keys (server written): the plate under a fake one, a boat tied to a mooring. */
-export const VEHICLE_STATE = { realPlate: "aiRealPlate", moored: "aiMoored" };
+export const VEHICLE_STATE = {
+  realPlate: "aiRealPlate",
+  moored: "aiMoored",
+  /** How a vehicle is pushed (`PushMode`); its owner's client moves it. */
+  push: "aiPush",
+};
+/** GlobalState key: no ambient peds or traffic anywhere (exports `SetNpcDisabled` / `IsNpcDisabled`). */
+export const NPC_DISABLED = "aiNpcDisabled";
+
+/** A pushed vehicle: pushed from the front (it rolls back) or the back, wheels turned left, right or straight. */
+export type PushMode = "f" | "fl" | "fr" | "b" | "bl" | "br";
+const PUSH_MODES: readonly string[] = ["f", "fl", "fr", "b", "bl", "br"];
+export const readPushMode = (v: unknown): PushMode | undefined =>
+  typeof v === "string" && PUSH_MODES.includes(v) ? (v as PushMode) : undefined;
 /** Items the features use. */
 export const ITEMS = {
   fakePlate: "fakeplate",
@@ -51,7 +75,7 @@ export const ITEMS = {
 /** Longest note text. */
 export const NOTE_MAX = 500;
 
-export interface Settings {
+export interface Settings extends FeatureSettings {
   seatbelt: boolean;
   /** km/h above which a crash throws the driver through the windscreen, without and with the belt. */
   ejectUnbelted: number;
@@ -66,7 +90,7 @@ export interface Settings {
   hideHud: boolean;
   /** No police, ambulance, fire or army vehicles and peds from GTA's population, none at all in `emergencyAreas`. */
   noEmergencySpawns: boolean;
-  emergencyAreas: EmergencyArea[];
+  emergencyAreas: Area[];
   noAircraft: boolean;
   noPoliceAudio: boolean;
   quietAmbience: boolean;
@@ -122,6 +146,7 @@ export function readSettings(raw: unknown): Settings {
   const percent = (value: unknown, fallback: number) =>
     int(value, fallback, 0, 100);
   return {
+    ...readFeatureSettings(v),
     seatbelt: bool(v.seatbelt, true),
     ejectUnbelted: int(v.ejectUnbelted, 20, 0, 500),
     ejectBelted: int(v.ejectBelted, 160, 0, 500),
@@ -134,7 +159,7 @@ export function readSettings(raw: unknown): Settings {
     noDispatch: bool(v.noDispatch, true),
     hideHud: bool(v.hideHud, true),
     noEmergencySpawns: bool(v.noEmergencySpawns, true),
-    emergencyAreas: readAreas(v.emergencyAreas),
+    emergencyAreas: readAreaList(v.emergencyAreas, EMERGENCY_AREAS),
     noAircraft: bool(v.noAircraft, true),
     noPoliceAudio: bool(v.noPoliceAudio, true),
     quietAmbience: bool(v.quietAmbience, true),

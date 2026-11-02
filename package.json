@@ -43,6 +43,9 @@
     "data/elevators.json",
     "data/moorings.json",
     "data/seats.json",
-    "data/discord.json"
+    "data/discord.json",
+    "data/weapons.json",
+    "data/densityZones.json",
+    "data/blips.json"
   ]
 }

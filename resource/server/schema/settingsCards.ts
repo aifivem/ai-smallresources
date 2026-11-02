@@ -1,4 +1,5 @@
 import type { CardSpec, WidgetSpec } from "@aifivem/shared";
+import { AREAS_CARD, MOVEMENT_CARD, VEHICLE_EXTRAS_CARD } from "./featureCards";
 import { switchField } from "./switchField";
 import { COMBAT_CARD, WORLD_CARD } from "./worldCards";
 
@@ -58,6 +59,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
       },
     ],
   },
+  VEHICLE_EXTRAS_CARD,
   {
     icon: "user",
     title: "ADMIN_C_PLAYER",
@@ -87,6 +89,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
       },
     ],
   },
+  MOVEMENT_CARD,
   COMBAT_CARD,
   {
     icon: "box",
@@ -116,6 +119,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
     ],
   },
   WORLD_CARD,
+  AREAS_CARD,
   {
     icon: "people-group",
     title: "ADMIN_C_DENSITY",
@@ -126,6 +130,7 @@ export const SETTINGS_CARDS: CardSpec[] = [
       percentField("trafficDensity", "TRAFFIC_DENSITY"),
       percentField("parkedDensity", "PARKED_DENSITY"),
       switchField("noGarbageTrucks", "NO_GARBAGE_TRUCKS"),
+      switchField("densityZones", "DENSITY_ZONES"),
     ],
   },
 ];

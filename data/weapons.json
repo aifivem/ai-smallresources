@@ -1,0 +1,85 @@
+{
+  "$schema": "./schemas/weapons.schema.json",
+  "recoil": true,
+  "recoilGroups": [
+    {
+      "group": 416676503,
+      "pitch": 0.3
+    },
+    {
+      "group": 3337201093,
+      "pitch": 0.08
+    },
+    {
+      "group": 860033945,
+      "pitch": 4
+    },
+    {
+      "group": 970310034,
+      "pitch": 0.1
+    },
+    {
+      "group": 1159398588,
+      "pitch": 0.15
+    },
+    {
+      "group": 3082541095,
+      "pitch": 8
+    },
+    {
+      "group": 2725924767,
+      "pitch": 3
+    }
+  ],
+  "recoilWeapons": [],
+  "driveBySpeedLimit": true,
+  "driveBySpeed": 12,
+  "driveByModels": true,
+  "noAimModels": [
+    "bcat",
+    "stockade",
+    "policet",
+    "riot",
+    "firetruk"
+  ],
+  "noLookBackModels": [
+    "zentorno",
+    "jester",
+    "pagani",
+    "infernus",
+    "bullet",
+    "turismor",
+    "thrax",
+    "ninef",
+    "firetruk"
+  ],
+  "hoodBlocksFire": true,
+  "noCoverFire": true,
+  "aimToFire": true,
+  "noCombatRoll": true,
+  "antiStrafe": true,
+  "strafeTaps": 3,
+  "strafeBreakMs": 250,
+  "meleeDamage": true,
+  "meleeDamagePercent": 25,
+  "meleeWeapons": [
+    "WEAPON_BAT",
+    "WEAPON_BATTLEAXE",
+    "WEAPON_BOTTLE",
+    "WEAPON_CANDYCANE",
+    "WEAPON_CROWBAR",
+    "WEAPON_DAGGER",
+    "WEAPON_FLASHLIGHT",
+    "WEAPON_GOLFCLUB",
+    "WEAPON_HAMMER",
+    "WEAPON_HATCHET",
+    "WEAPON_KNIFE",
+    "WEAPON_KNUCKLE",
+    "WEAPON_MACHETE",
+    "WEAPON_NIGHTSTICK",
+    "WEAPON_POOLCUE",
+    "WEAPON_STONE_HATCHET",
+    "WEAPON_SWITCHBLADE",
+    "WEAPON_WRENCH"
+  ]
+}

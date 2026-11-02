@@ -3,6 +3,7 @@ import { readDiscord } from "common/discord";
 import { readMooring } from "common/places";
 import { readSeat } from "common/seats";
 import { readSettings } from "common/small";
+import { readWeapons } from "common/weapons";
 
 const FILES = [
   "settings",
@@ -11,20 +12,35 @@ const FILES = [
   "moorings",
   "seats",
   "discord",
+  "weapons",
+  "densityZones",
+  "blips",
 ];
 type File =
-  "settings" | "teleports" | "elevators" | "moorings" | "seats" | "discord";
+  | "settings"
+  | "teleports"
+  | "elevators"
+  | "moorings"
+  | "seats"
+  | "discord"
+  | "weapons"
+  | "densityZones"
+  | "blips";
 
 /** The panel files every client module reads (kept current by the panel's views); `onContent(file)` runs after a change. */
 export const world = new AdminWorld(FILES);
 const settings = world.view("settings", readSettings);
 const discord = world.view("discord", readDiscord);
+const weapons = world.view("weapons", readWeapons);
 export const content = {
   get settings() {
     return settings.value;
   },
   get discord() {
     return discord.value;
+  },
+  get weapons() {
+    return weapons.value;
   },
   moorings: world.records("moorings", readMooring),
   seats: world.records("seats", readSeat),
@@ -34,6 +50,7 @@ export const onContent = (file: File, handler: () => void) =>
   world.onChange(file, handler);
 export const onSettings = (handler: () => void) =>
   onContent("settings", handler);
+export const onWeapons = (handler: () => void) => onContent("weapons", handler);
 
 /** The refusal shown when a reply is missing. */
 export const FALLBACK = { fallback: "SMALL_ERR_FAR" };

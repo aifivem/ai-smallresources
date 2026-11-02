@@ -7,7 +7,7 @@ import {
 import { PLAYER_BAGS } from "@aifivem/shared";
 
 const dead = new PlayerState(PLAYER_BAGS.dead, stateBoolean);
-const cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean);
+export const cuffed = new PlayerState(PLAYER_BAGS.cuffed, stateBoolean);
 /** Another emote script (tgiann-emotes) does the gestures: these keys stay quiet so the two never fight. */
 export const mine = () => gestures.provider() === "ai-smallresources";
 export const helpless = () =>

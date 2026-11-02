@@ -1,6 +1,4 @@
-import { every, player } from "@aifivem/lib/client";
-import { distance } from "@aifivem/lib/shared";
-import type { EmergencyArea } from "common/areas";
+import { generators, NearAreas } from "./nearAreas";
 import { content, onSettings } from "./settings";
 
 /** Vehicle scenario points that put police, ambulance, fire and security vehicles at stations. */
@@ -43,21 +41,20 @@ const STREAM_RANGE = 400;
  * spawned by the population. In the panel areas GTA's vehicle generators stay off as well.
  */
 class EmergencySpawns {
-  private areas: EmergencyArea[] = [];
-  private readonly near = new Set<EmergencyArea>();
-  private readonly job = every(5000, () => this.check(), {
-    active: false,
-    name: "emergencyAreas",
-  });
+  private readonly areas = new NearAreas(
+    "emergencyAreas",
+    STREAM_RANGE,
+    (area) => {
+      this.global(true);
+      generators(area, false);
+    },
+  );
 
   apply(): void {
     const on = content.settings.noEmergencySpawns;
     this.global(on);
-    for (const area of this.areas) generators(area, true);
-    this.near.clear();
-    this.areas = on ? content.settings.emergencyAreas : [];
-    this.job.set(this.areas.length > 0);
-    if (this.areas.length > 0) this.check();
+    for (const area of this.areas.list) generators(area, true);
+    this.areas.set(on ? content.settings.emergencyAreas : []);
   }
 
   private global(on: boolean): void {
@@ -70,47 +67,6 @@ class EmergencySpawns {
     for (const model of EMERGENCY_PEDS)
       SetPedModelIsSuppressed(GetHashKey(model), on);
   }
-
-  /** Generators may come back when their map part streams in again, so each approach turns them off once more. */
-  private check(): void {
-    const at = player.coords();
-    for (const area of this.areas) {
-      const close = distance(at, area.point) < area.radius + STREAM_RANGE;
-      if (close === this.near.has(area)) continue;
-      if (!close) {
-        this.near.delete(area);
-        continue;
-      }
-      this.near.add(area);
-      this.global(true);
-      generators(area, false);
-    }
-  }
-}
-
-function generators(area: EmergencyArea, active: boolean): void {
-  const { x, y, z } = area.point;
-  const r = area.radius;
-  SetAllVehicleGeneratorsActiveInArea(
-    x - r,
-    y - r,
-    z - r,
-    x + r,
-    y + r,
-    z + r,
-    active,
-    false,
-  );
-  if (!active)
-    RemoveVehiclesFromGeneratorsInArea(
-      x - r,
-      y - r,
-      z - r,
-      x + r,
-      y + r,
-      z + r,
-      0,
-    );
 }
 
 const emergency = new EmergencySpawns();
